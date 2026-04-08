@@ -1,0 +1,119 @@
+<!-- src/app/features/ventas/ventas-list/ventas-list.component.html -->
+<div class="page-container">
+  <div class="page-header">
+    <h1>{{ cajaId ? 'Ventas de Caja #' + cajaId : 'Ventas' }}</h1>
+    <button mat-raised-button color="primary" routerLink="/ventas/nueva">
+      <mat-icon>add</mat-icon> Nueva venta
+    </button>
+  </div>
+
+  <!-- Filtro de fechas -->
+  <mat-card class="filter-card" *ngIf="!cajaId">
+    <mat-card-content class="filter-content">
+      <mat-form-field appearance="outline">
+        <mat-label>Desde</mat-label>
+        <input matInput type="date" [(ngModel)]="inicio">
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Hasta</mat-label>
+        <input matInput type="date" [(ngModel)]="fin">
+      </mat-form-field>
+      <button mat-raised-button color="primary" (click)="load()">
+        <mat-icon>search</mat-icon> Buscar
+      </button>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Resumen -->
+  <div class="resumen-bar" *ngIf="ventas.length > 0">
+    <span><strong>{{ ventas.length }}</strong> ventas</span>
+    <span>Total: <strong>S/ {{ totalDia | number:'1.2-2' }}</strong></span>
+  </div>
+
+  <mat-card>
+    <mat-card-content>
+      <div *ngIf="loading" class="spinner-center"><mat-spinner diameter="40"></mat-spinner></div>
+
+      <table mat-table [dataSource]="ventas" *ngIf="!loading">
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef>#</th>
+          <td mat-cell *matCellDef="let v">{{ v.id }}</td>
+        </ng-container>
+        <ng-container matColumnDef="fecha">
+          <th mat-header-cell *matHeaderCellDef>Fecha</th>
+          <td mat-cell *matCellDef="let v">{{ v.fecha | date:'dd/MM/yy HH:mm' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="cajero">
+          <th mat-header-cell *matHeaderCellDef>Cajero</th>
+          <td mat-cell *matCellDef="let v">{{ v.cajero?.nombre }}</td>
+        </ng-container>
+        <ng-container matColumnDef="items">
+          <th mat-header-cell *matHeaderCellDef>Items</th>
+          <td mat-cell *matCellDef="let v">{{ v.detalles?.length ?? '—' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="metodoPago">
+          <th mat-header-cell *matHeaderCellDef>Pago</th>
+          <td mat-cell *matCellDef="let v">
+            <mat-chip [class]="metodoPagoClass(v.metodoPago)">{{ v.metodoPago }}</mat-chip>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="total">
+          <th mat-header-cell *matHeaderCellDef>Total</th>
+          <td mat-cell *matCellDef="let v"><strong>S/ {{ v.total | number:'1.2-2' }}</strong></td>
+        </ng-container>
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let v">
+            <button mat-icon-button (click)="toggle(v)" matTooltip="Ver detalle">
+              <mat-icon>{{ expandedVenta?.id === v.id ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+            [class.row-expanded]="expandedVenta?.id === row.id"></tr>
+      </table>
+
+      <!-- Detalle expandido -->
+      <div class="detalle-panel" *ngIf="expandedVenta">
+        <div class="detalle-header">
+          <strong>Detalle de Venta #{{ expandedVenta.id }}</strong>
+          <span *ngIf="expandedVenta.notas" class="notas-txt">{{ expandedVenta.notas }}</span>
+        </div>
+        <table class="detalle-table">
+          <thead>
+            <tr><th>Producto</th><th>Talla</th><th>Color</th><th>Cant.</th><th>P. Unit.</th><th>Desc.</th><th>Subtotal</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let d of expandedVenta.detalles">
+              <td>{{ d.productoNombre }}</td>
+              <td>{{ d.talla }}</td>
+              <td>{{ d.color }}</td>
+              <td>{{ d.cantidad }}</td>
+              <td>S/ {{ d.precioUnitario | number:'1.2-2' }}</td>
+              <td>{{ d.descuentoItem > 0 ? 'S/ '+(d.descuentoItem | number:'1.2-2') : '—' }}</td>
+              <td><strong>S/ {{ d.subtotal | number:'1.2-2' }}</strong></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="6" class="text-right"><strong>Total</strong></td>
+              <td><strong>S/ {{ expandedVenta.total | number:'1.2-2' }}</strong></td>
+            </tr>
+            <tr *ngIf="expandedVenta.metodoPago === 'EFECTIVO'">
+              <td colspan="6" class="text-right">Recibido</td>
+              <td>S/ {{ expandedVenta.montoRecibido | number:'1.2-2' }}</td>
+            </tr>
+            <tr *ngIf="expandedVenta.metodoPago === 'EFECTIVO'">
+              <td colspan="6" class="text-right">Vuelto</td>
+              <td>S/ {{ expandedVenta.vuelto | number:'1.2-2' }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <p *ngIf="!loading && ventas.length === 0" class="empty-msg">No hay ventas en el rango seleccionado.</p>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,115 @@
+# =============================================================
+#  Calzados POS — Docker Compose
+#  Entorno: PRUEBA
+#
+#  Estructura de carpetas esperada:
+#    proyecto/
+#    ├── docker-compose.yml      ← este archivo
+#    ├── nginx.conf              ← configuración de Nginx para Angular
+#    ├── calzados-pos/           ← proyecto Spring Boot (con su Dockerfile)
+#    └── calzados-frontend/      ← proyecto Angular  (con su Dockerfile)
+#
+#  Comandos útiles:
+#    docker-compose up -d                  → levantar todo en background
+#    docker-compose up -d --build          → forzar re-build de imágenes
+#    docker-compose down                   → bajar contenedores
+#    docker-compose down -v                → bajar + borrar volumen MySQL
+#    docker-compose logs -f backend        → ver logs del backend en vivo
+#    docker-compose logs -f mysql          → ver logs de MySQL en vivo
+#    docker-compose ps                     → ver estado de los servicios
+# =============================================================
+
+services:
+
+  # ── MySQL 8 ────────────────────────────────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: calzados_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root           # TODO producción: usar secret seguro
+      MYSQL_DATABASE: calzados_pos
+      MYSQL_USER: calzados_user           # TODO producción: cambiar
+      MYSQL_PASSWORD: calzados_pass       # TODO producción: cambiar
+    ports:
+      - "3306:3306"                       # útil para conectar con DBeaver/Workbench
+    volumes:
+      # Datos persistentes — sobreviven a docker-compose down
+      - calzados_mysql_data:/var/lib/mysql
+      # Scripts de inicialización — solo se ejecutan si el volumen está vacío
+      - ./calzados-pos/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./calzados-pos/src/main/resources/data.sql:/docker-entrypoint-initdb.d/02-data.sql:ro
+    networks:
+      - calzados_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s   # MySQL tarda en iniciar la primera vez
+
+  # ── Backend Spring Boot ─────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./calzados-pos    # carpeta que contiene el Dockerfile del backend
+      dockerfile: Dockerfile
+    container_name: calzados_backend
+    restart: unless-stopped
+    environment:
+      # ── Base de datos ──────────────────────────────────────────────────────
+      # "mysql" es el nombre del servicio de arriba — Docker lo resuelve por red
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/calzados_pos?useSSL=false&serverTimezone=America/Lima&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: calzados_user   # TODO producción: cambiar
+      SPRING_DATASOURCE_PASSWORD: calzados_pass   # TODO producción: cambiar
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+
+      # ── JPA ───────────────────────────────────────────────────────────────
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_JPA_SHOW_SQL: "false"        # true solo para debug
+
+      # ── JWT ───────────────────────────────────────────────────────────────
+      APP_JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+                                          # TODO producción: openssl rand -hex 32
+      APP_JWT_EXPIRATION: 86400000        # 24 horas en ms
+
+      # ── Spring profile ────────────────────────────────────────────────────
+      SPRING_PROFILES_ACTIVE: prod
+    ports:
+      - "8080:8080"
+    networks:
+      - calzados_net
+    depends_on:
+      mysql:
+        condition: service_healthy        # espera a que MySQL esté listo de verdad
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s   # Spring Boot tarda en compilar y arrancar
+
+  # ── Frontend Angular (Nginx) ────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./calzados-frontend   # carpeta que contiene el Dockerfile del frontend
+      dockerfile: Dockerfile
+    container_name: calzados_frontend
+    restart: unless-stopped
+    ports:
+      - "4200:80"          # host:4200 → nginx interno:80
+    networks:
+      - calzados_net
+    depends_on:
+      backend:
+        condition: service_healthy    # espera a que el backend responda
+
+# ── Red interna ──────────────────────────────────────────────────────────────
+networks:
+  calzados_net:
+    driver: bridge
+    name: calzados_net
+
+# ── Volúmenes ────────────────────────────────────────────────────────────────
+volumes:
+  calzados_mysql_data:
+    name: calzados_mysql_data     # nombre explícito para encontrarlo fácil

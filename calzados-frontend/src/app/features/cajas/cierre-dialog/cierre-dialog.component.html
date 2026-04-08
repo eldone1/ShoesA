@@ -1,0 +1,56 @@
+<!-- src/app/features/cajas/cierre-dialog/cierre-dialog.component.html -->
+<h2 mat-dialog-title>Cierre de Caja</h2>
+<mat-dialog-content>
+  <div class="resumen-grid">
+    <div class="resumen-item">
+      <span class="lbl">Monto inicial</span>
+      <span class="val">S/ {{ caja.montoInicial | number:'1.2-2' }}</span>
+    </div>
+    <div class="resumen-item">
+      <span class="lbl">Total ventas efectivo</span>
+      <span class="val">S/ {{ caja.totalEfectivo | number:'1.2-2' }}</span>
+    </div>
+    <div class="resumen-item">
+      <span class="lbl">Total Yape</span>
+      <span class="val">S/ {{ caja.totalYape | number:'1.2-2' }}</span>
+    </div>
+    <div class="resumen-item">
+      <span class="lbl">Total Tarjeta</span>
+      <span class="val">S/ {{ caja.totalTarjeta | number:'1.2-2' }}</span>
+    </div>
+    <div class="resumen-item highlight">
+      <span class="lbl">Efectivo esperado en caja</span>
+      <span class="val">S/ {{ efectivoEsperado | number:'1.2-2' }}</span>
+    </div>
+  </div>
+
+  <mat-divider style="margin:16px 0"></mat-divider>
+
+  <form [formGroup]="form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Monto real contado (S/)</mat-label>
+      <mat-icon matPrefix>local_atm</mat-icon>
+      <input matInput type="number" min="0" step="0.01" formControlName="montoFinalReal"
+             placeholder="Ingresa el efectivo físico contado">
+      <mat-error *ngIf="form.get('montoFinalReal')?.hasError('required')">Requerido</mat-error>
+    </mat-form-field>
+    <p style="font-size:12px;color:#757575">
+      El sistema calculará la diferencia automáticamente.
+    </p>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancelar</button>
+  <button mat-raised-button color="warn" (click)="cerrar()" [disabled]="loading">
+    <mat-spinner *ngIf="loading" diameter="18" style="display:inline-block"></mat-spinner>
+    Cerrar caja
+  </button>
+</mat-dialog-actions>
+
+<style>
+.resumen-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.resumen-item { display:flex; flex-direction:column; gap:4px; background:#f5f5f5; padding:12px; border-radius:8px; }
+.resumen-item.highlight { background:#e3f2fd; }
+.lbl { font-size:11px; color:#757575; }
+.val { font-size:16px; font-weight:600; color:#212121; }
+</style>

@@ -1,0 +1,19 @@
+<!-- src/app/features/marcas/marca-dialog/marca-dialog.component.html -->
+<h2 mat-dialog-title>{{ isEdit ? 'Editar' : 'Nueva' }} Marca</h2>
+<mat-dialog-content>
+  <form [formGroup]="form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nombre de la marca</mat-label>
+      <input matInput formControlName="nombre" placeholder="Ej. Adidas">
+      <mat-error *ngIf="form.get('nombre')?.hasError('required')">El nombre es requerido</mat-error>
+      <mat-error *ngIf="form.get('nombre')?.hasError('maxlength')">Máximo 100 caracteres</mat-error>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancelar</button>
+  <button mat-raised-button color="primary" (click)="save()" [disabled]="loading">
+    <mat-spinner *ngIf="loading" diameter="18" style="display:inline-block"></mat-spinner>
+    {{ isEdit ? 'Actualizar' : 'Crear' }}
+  </button>
+</mat-dialog-actions>

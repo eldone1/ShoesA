@@ -1,0 +1,56 @@
+<!-- src/app/features/usuarios/usuario-dialog/usuario-dialog.component.html -->
+<h2 mat-dialog-title>{{ isEdit ? 'Editar' : 'Nuevo' }} Usuario</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="user-form">
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nombre completo</mat-label>
+      <mat-icon matPrefix>person</mat-icon>
+      <input matInput formControlName="nombre" placeholder="Juan Pérez">
+      <mat-error *ngIf="form.get('nombre')?.hasError('required')">El nombre es requerido</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Correo electrónico</mat-label>
+      <mat-icon matPrefix>email</mat-icon>
+      <input matInput type="email" formControlName="email" placeholder="usuario@empresa.com">
+      <mat-error *ngIf="form.get('email')?.hasError('required')">El email es requerido</mat-error>
+      <mat-error *ngIf="form.get('email')?.hasError('email')">Ingresa un email válido</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ isEdit ? 'Nueva contraseña (dejar vacío para no cambiar)' : 'Contraseña' }}</mat-label>
+      <mat-icon matPrefix>lock</mat-icon>
+      <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
+      <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
+        <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+      </button>
+      <mat-error *ngIf="form.get('password')?.hasError('required')">La contraseña es requerida</mat-error>
+      <mat-error *ngIf="form.get('password')?.hasError('minlength')">Mínimo 6 caracteres</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Rol</mat-label>
+      <mat-icon matPrefix>badge</mat-icon>
+      <mat-select formControlName="rol">
+        <mat-option value="CAJERO">Cajero</mat-option>
+        <mat-option value="ADMIN">Administrador</mat-option>
+      </mat-select>
+      <mat-error *ngIf="form.get('rol')?.hasError('required')">El rol es requerido</mat-error>
+    </mat-form-field>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancelar</button>
+  <button mat-raised-button color="primary" (click)="save()" [disabled]="loading">
+    <mat-spinner *ngIf="loading" diameter="18" style="display:inline-block;margin-right:6px"></mat-spinner>
+    {{ isEdit ? 'Actualizar' : 'Crear usuario' }}
+  </button>
+</mat-dialog-actions>
+
+<style>
+.user-form { display: flex; flex-direction: column; gap: 4px; padding-top: 8px; }
+</style>

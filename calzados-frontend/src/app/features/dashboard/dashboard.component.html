@@ -1,0 +1,128 @@
+<!-- src/app/features/dashboard/dashboard.component.html -->
+<div class="page-container">
+
+  <div class="page-header">
+    <h1>Bienvenido, {{ currentUser?.nombre }} 👋</h1>
+    <button mat-stroked-button (click)="loadData()">
+      <mat-icon>refresh</mat-icon> Actualizar
+    </button>
+  </div>
+
+  <!-- Spinner -->
+  <div *ngIf="loading" class="spinner-center">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+
+  <ng-container *ngIf="!loading">
+
+    <!-- ── Caja abierta ──────────────────────────────────────────────────── -->
+    <mat-card class="caja-card" *ngIf="cajaAbierta; else noCaja">
+      <mat-card-content class="caja-content">
+        <mat-icon class="caja-icon">lock_open</mat-icon>
+        <div>
+          <p class="caja-label">Caja abierta desde</p>
+          <p class="caja-value">{{ cajaAbierta.apertura | date:'HH:mm – dd/MM/yyyy' }}</p>
+        </div>
+        <div class="caja-total">
+          <p class="caja-label">Ventas del turno</p>
+          <p class="caja-value accent">S/ {{ cajaAbierta.totalVentas | number:'1.2-2' }}</p>
+        </div>
+        <button mat-raised-button color="primary" routerLink="/ventas/nueva">
+          <mat-icon>add_shopping_cart</mat-icon> Nueva venta
+        </button>
+      </mat-card-content>
+    </mat-card>
+
+    <ng-template #noCaja>
+      <mat-card class="caja-card warn">
+        <mat-card-content class="caja-content">
+          <mat-icon class="caja-icon warn">lock</mat-icon>
+          <div>
+            <p class="caja-label">Sin caja abierta</p>
+            <p class="caja-value">Apertura tu caja para registrar ventas</p>
+          </div>
+          <button mat-raised-button color="accent" routerLink="/cajas">
+            <mat-icon>local_atm</mat-icon> Aperturar caja
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </ng-template>
+
+    <!-- ── Resumen diario (solo ADMIN) ──────────────────────────────────── -->
+    <ng-container *ngIf="isAdmin && resumen">
+      <h2 class="section-title">Resumen de hoy — {{ today | date:'dd/MM/yyyy' }}</h2>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <mat-icon class="metric-icon total">payments</mat-icon>
+          <p class="metric-label">Total del día</p>
+          <p class="metric-value">S/ {{ resumen.totalGeneral | number:'1.2-2' }}</p>
+        </div>
+        <div class="metric-card">
+          <mat-icon class="metric-icon ventas">receipt_long</mat-icon>
+          <p class="metric-label">Ventas realizadas</p>
+          <p class="metric-value">{{ resumen.cantidadVentas }}</p>
+        </div>
+        <div class="metric-card">
+          <mat-icon class="metric-icon efectivo">payments</mat-icon>
+          <p class="metric-label">Efectivo</p>
+          <p class="metric-value">S/ {{ resumen.totalEfectivo | number:'1.2-2' }}</p>
+        </div>
+        <div class="metric-card">
+          <mat-icon class="metric-icon yape">smartphone</mat-icon>
+          <p class="metric-label">Yape</p>
+          <p class="metric-value">S/ {{ resumen.totalYape | number:'1.2-2' }}</p>
+        </div>
+        <div class="metric-card">
+          <mat-icon class="metric-icon tarjeta">credit_card</mat-icon>
+          <p class="metric-label">Tarjeta</p>
+          <p class="metric-value">S/ {{ resumen.totalTarjeta | number:'1.2-2' }}</p>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ── Stock bajo (solo ADMIN) ──────────────────────────────────────── -->
+    <ng-container *ngIf="isAdmin && stockBajo.length > 0">
+      <h2 class="section-title">
+        <mat-icon class="warn-icon">warning</mat-icon>
+        Productos con stock bajo ({{ stockBajo.length }})
+      </h2>
+      <mat-card>
+        <mat-card-content class="stock-list">
+          <div class="stock-item" *ngFor="let item of stockBajo">
+            <div class="stock-info">
+              <span class="stock-name">{{ item.productoNombre }}</span>
+              <span class="stock-detail">{{ item.talla }} · {{ item.color }} · {{ item.sku }}</span>
+            </div>
+            <div class="stock-numbers">
+              <span class="stock-actual warn">{{ item.stockActual }} uds</span>
+              <span class="stock-min">mín: {{ item.stockMinimo }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button color="primary" routerLink="/reportes/stock-bajo">
+            Ver reporte completo →
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </ng-container>
+
+    <!-- ── Accesos rápidos ───────────────────────────────────────────────── -->
+    <h2 class="section-title">Accesos rápidos</h2>
+    <div class="quick-access">
+      <a mat-raised-button routerLink="/ventas/nueva" color="primary">
+        <mat-icon>point_of_sale</mat-icon> Nueva venta
+      </a>
+      <a mat-stroked-button routerLink="/cajas">
+        <mat-icon>local_atm</mat-icon> Cajas
+      </a>
+      <a mat-stroked-button routerLink="/productos" *ngIf="isAdmin">
+        <mat-icon>inventory_2</mat-icon> Productos
+      </a>
+      <a mat-stroked-button routerLink="/reportes" *ngIf="isAdmin">
+        <mat-icon>bar_chart</mat-icon> Reportes
+      </a>
+    </div>
+
+  </ng-container>
+</div>

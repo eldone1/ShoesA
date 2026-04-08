@@ -1,0 +1,183 @@
+<!-- src/app/features/ventas/nueva-venta/nueva-venta.component.html -->
+<div class="pos-layout">
+
+  <!-- ── Columna izquierda: scanner + carrito ──────────────────────────── -->
+  <div class="pos-left">
+
+    <!-- Scanner -->
+    <mat-card class="scanner-card">
+      <mat-card-content class="scanner-content">
+        <mat-icon class="scanner-icon">qr_code_scanner</mat-icon>
+        <mat-form-field appearance="outline" class="scanner-field">
+          <mat-label>Escanear código de barras</mat-label>
+          <input matInput #scanInput
+                 [(ngModel)]="codigoBarras"
+                 (keydown)="onScanKeydown($event)"
+                 (change)="onScan($event)"
+                 placeholder="Apunta el lector o escribe el código..."
+                 autocomplete="off">
+          <mat-spinner matSuffix *ngIf="buscando" diameter="20"></mat-spinner>
+          <mat-hint>Presiona Enter para buscar</mat-hint>
+        </mat-form-field>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Carrito -->
+    <mat-card class="carrito-card">
+      <mat-card-header>
+        <mat-card-title>
+          Carrito
+          <span class="carrito-count">{{ carrito.length }} {{ carrito.length === 1 ? 'producto' : 'productos' }}</span>
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content class="carrito-content">
+
+        <div *ngIf="carrito.length === 0" class="carrito-empty">
+          <mat-icon>shopping_cart</mat-icon>
+          <p>El carrito está vacío.<br>Escanea un producto para comenzar.</p>
+        </div>
+
+        <div class="carrito-item" *ngFor="let item of carrito">
+          <div class="item-info">
+            <span class="item-nombre">{{ item.variante.sku }}</span>
+            <span class="item-detalle">
+              Talla {{ item.variante.talla }} · {{ item.variante.color }}
+            </span>
+            <span class="item-precio">S/ {{ item.variante.precioVenta | number:'1.2-2' }} c/u</span>
+          </div>
+
+          <div class="item-controls">
+            <button mat-icon-button (click)="cambiarCantidad(item, -1)" [disabled]="item.cantidad <= 1">
+              <mat-icon>remove</mat-icon>
+            </button>
+            <input class="qty-input" type="number" [value]="item.cantidad" min="1"
+                   [max]="item.variante.stock"
+                   (change)="setCantidad(item, $any($event.target).value)">
+            <button mat-icon-button (click)="cambiarCantidad(item, 1)" [disabled]="item.cantidad >= item.variante.stock">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+
+          <div class="item-desc-wrap">
+            <mat-form-field appearance="outline" class="desc-field">
+              <mat-label>Desc. %</mat-label>
+              <input matInput type="number" min="0" max="100" [value]="item.descuentoItem"
+                     (change)="setDescuentoItem(item, $any($event.target).value)">
+              <span matSuffix>%</span>
+            </mat-form-field>
+          </div>
+
+          <!-- Muestra el ahorro en soles si hay descuento -->
+          <div class="item-subtotal">
+            <span>S/ {{ item.subtotal | number:'1.2-2' }}</span>
+            <span class="item-ahorro" *ngIf="item.descuentoItem > 0">
+              -S/ {{ (item.variante.precioVenta * item.cantidad * item.descuentoItem / 100) | number:'1.2-2' }}
+            </span>
+          </div>
+
+          <button mat-icon-button color="warn" (click)="removeItem(item)" matTooltip="Quitar">
+            <mat-icon>delete_outline</mat-icon>
+          </button>
+        </div>
+      </mat-card-content>
+
+      <!-- Descuento global -->
+      <div class="descuento-global" *ngIf="carrito.length > 0">
+        <mat-form-field appearance="outline" class="desc-global-field">
+          <mat-label>Descuento global (%)</mat-label>
+          <input matInput type="number" min="0" max="100" [(ngModel)]="descuentoGlobal">
+          <span matSuffix>%</span>
+        </mat-form-field>
+      </div>
+    </mat-card>
+
+  </div>
+
+  <!-- ── Columna derecha: pago + totales ──────────────────────────────── -->
+  <div class="pos-right">
+    <mat-card class="pago-card">
+      <mat-card-header>
+        <mat-card-title>Resumen y Pago</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <!-- Totales -->
+        <div class="total-row">
+          <span>Subtotal</span>
+          <span>S/ {{ subtotal | number:'1.2-2' }}</span>
+        </div>
+        <div class="total-row" *ngIf="descuentoGlobal > 0">
+          <span>Descuento ({{ descuentoGlobal }}%)</span>
+          <span class="descuento-val">- S/ {{ subtotal * descuentoGlobal / 100 | number:'1.2-2' }}</span>
+        </div>
+        <mat-divider style="margin: 12px 0"></mat-divider>
+        <div class="total-row total-final">
+          <span>TOTAL</span>
+          <span>S/ {{ total | number:'1.2-2' }}</span>
+        </div>
+
+        <!-- Forma de pago -->
+        <form [formGroup]="pagoForm" class="pago-form">
+          <mat-form-field appearance="outline" class="full-width mt-2">
+            <mat-label>Método de pago</mat-label>
+            <mat-select formControlName="metodoPago">
+              <mat-option value="EFECTIVO">
+                <mat-icon style="vertical-align:middle">payments</mat-icon> Efectivo
+              </mat-option>
+              <mat-option value="YAPE">
+                <mat-icon style="vertical-align:middle">smartphone</mat-icon> Yape
+              </mat-option>
+              <mat-option value="TARJETA">
+                <mat-icon style="vertical-align:middle">credit_card</mat-icon> Tarjeta
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Monto recibido (solo efectivo) -->
+          <mat-form-field appearance="outline" class="full-width" *ngIf="esEfectivo">
+            <mat-label>Monto recibido (S/)</mat-label>
+            <span matPrefix>S/&nbsp;</span>
+            <input matInput type="number" min="0" step="0.50" formControlName="montoRecibido">
+            <mat-error *ngIf="pagoForm.get('montoRecibido')?.hasError('required')">Requerido para efectivo</mat-error>
+          </mat-form-field>
+
+          <!-- Vuelto calculado -->
+          <div class="vuelto-box" *ngIf="esEfectivo && (pagoForm.get('montoRecibido')?.value ?? 0) > 0">
+            <span class="vuelto-label">Vuelto</span>
+            <span class="vuelto-val" [class.vuelto-neg]="vuelto < 0">
+              S/ {{ vuelto | number:'1.2-2' }}
+            </span>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width mt-1">
+            <mat-label>Notas (opcional)</mat-label>
+            <textarea matInput formControlName="notas" rows="2"></textarea>
+          </mat-form-field>
+        </form>
+      </mat-card-content>
+
+      <mat-card-actions class="pos-actions">
+        <button mat-stroked-button (click)="limpiar()" [disabled]="procesando">
+          <mat-icon>clear</mat-icon> Limpiar
+        </button>
+        <button mat-raised-button color="primary" class="btn-cobrar"
+                (click)="procesarVenta()" [disabled]="procesando || carrito.length === 0">
+          <mat-spinner *ngIf="procesando" diameter="20" style="display:inline-block"></mat-spinner>
+          <mat-icon *ngIf="!procesando">point_of_sale</mat-icon>
+          {{ procesando ? 'Procesando...' : 'Cobrar S/ ' + (total | number:'1.2-2') }}
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+    <!-- Caja activa -->
+    <div class="caja-info" *ngIf="cajaAbierta">
+      <mat-icon>lock_open</mat-icon>
+      <span>Caja #{{ cajaAbierta.id }} · Turno activo</span>
+    </div>
+    <div class="caja-info warn" *ngIf="!cajaAbierta">
+      <mat-icon>warning</mat-icon>
+      <span>Sin caja abierta</span>
+    </div>
+  </div>
+
+</div>

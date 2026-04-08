@@ -1,0 +1,97 @@
+<!-- src/app/features/productos/productos-list/productos-list.component.html -->
+<div class="page-container">
+  <div class="page-header">
+    <h1>Productos</h1>
+    <button mat-raised-button color="primary" (click)="openDialog()" *ngIf="isAdmin">
+      <mat-icon>add</mat-icon> Nuevo producto
+    </button>
+  </div>
+
+  <!-- Filtros -->
+  <mat-card class="filter-card">
+    <mat-card-content class="filter-content">
+      <mat-form-field appearance="outline" class="flex-1">
+        <mat-label>Buscar por nombre</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [(ngModel)]="filtroNombre" (keydown.enter)="load()" placeholder="Zapatilla...">
+      </mat-form-field>
+      <mat-form-field appearance="outline" style="width:200px">
+        <mat-label>Marca</mat-label>
+        <mat-select [(ngModel)]="filtroMarca">
+          <mat-option [value]="null">Todas</mat-option>
+          <mat-option *ngFor="let m of marcas" [value]="m.id">{{ m.nombre }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-raised-button color="primary" (click)="load()">
+        <mat-icon>search</mat-icon> Buscar
+      </button>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Listado con variantes expandibles -->
+  <div *ngIf="loading" class="spinner-center"><mat-spinner diameter="40"></mat-spinner></div>
+
+  <mat-accordion *ngIf="!loading" multi="false">
+    <mat-expansion-panel *ngFor="let p of productos"
+                         [expanded]="expandedId === p.id"
+                         (opened)="expandedId = p.id"
+                         (closed)="expandedId = expandedId === p.id ? null : expandedId">
+
+      <mat-expansion-panel-header>
+        <mat-panel-title class="panel-title">
+          <strong>{{ p.nombre }}</strong>
+          <mat-chip class="chip-marca">{{ (p.marca ? p.marca.nombre : 'Sin marca') }}</mat-chip>
+          <mat-chip [class]="p.activo ? 'chip-activo' : 'chip-inactivo'">
+            {{ p.activo ? 'Activo' : 'Inactivo' }}
+          </mat-chip>
+        </mat-panel-title>
+        <mat-panel-description class="panel-desc">
+          {{ (p.variantes ? p.variantes.length : 0) }} variantes
+          <ng-container *ngIf="isAdmin">
+            <button mat-icon-button color="primary" (click)="openDialog(p); $event.stopPropagation()" matTooltip="Editar">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="eliminar(p); $event.stopPropagation()" matTooltip="Eliminar">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </ng-container>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <!-- Descripción -->
+      <p *ngIf="p.descripcion" class="desc-text">{{ p.descripcion }}</p>
+
+      <!-- Tabla de variantes -->
+      <table class="variantes-table" *ngIf="p.variantes && p.variantes.length > 0">
+        <thead>
+          <tr>
+            <th>Talla</th><th>Color</th><th>SKU</th><th>Cód. Barras</th>
+            <th>P. Compra</th><th>% Ganancia</th><th>P. Venta</th>
+            <th>Stock</th><th>Mín.</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let v of p.variantes" [class.stock-low]="v.stockBajo">
+            <td>{{ v.talla }}</td>
+            <td>{{ v.color }}</td>
+            <td class="mono">{{ v.sku }}</td>
+            <td class="mono">{{ v.codigoBarras }}</td>
+            <td>S/ {{ v.precioCompra | number:'1.2-2' }}</td>
+            <td>{{ v.porcentajeGanancia }}%</td>
+            <td><strong>S/ {{ v.precioVenta | number:'1.2-2' }}</strong></td>
+            <td>
+              <span [class.stock-ok]="!v.stockBajo" [class.stock-warn]="v.stockBajo">
+                {{ v.stock }}
+              </span>
+            </td>
+            <td>{{ v.stockMinimo }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p *ngIf="!p.variantes || !p.variantes.length" class="empty-variantes">Sin variantes registradas.</p>
+
+    </mat-expansion-panel>
+  </mat-accordion>
+
+  <p *ngIf="!loading && productos.length === 0" class="empty-msg">No hay productos. Crea el primero.</p>
+</div>

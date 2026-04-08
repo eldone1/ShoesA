@@ -1,0 +1,92 @@
+<!-- src/app/features/layout/shell/shell.component.html -->
+<mat-sidenav-container class="shell-container">
+
+  <!-- ── Sidenav ─────────────────────────────────────────────────────────── -->
+  <mat-sidenav #sidenav
+    [mode]="isMobile ? 'over' : 'side'"
+    [opened]="!isMobile"
+    class="sidenav">
+
+    <!-- Branding -->
+    <div class="sidenav-header">
+      <mat-icon class="brand-icon">storefront</mat-icon>
+      <div>
+        <span class="brand-name">Calzados POS</span>
+        <span class="brand-role">{{ currentUser?.rol }}</span>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Usuario -->
+    <div class="user-info">
+      <div class="avatar">{{ userInitials }}</div>
+      <div class="user-details">
+        <span class="user-name">{{ currentUser?.nombre }}</span>
+        <span class="user-email">{{ currentUser?.email }}</span>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Navegación -->
+    <mat-nav-list class="nav-list">
+      <a mat-list-item
+         *ngFor="let item of visibleNavItems"
+         [routerLink]="item.route"
+         routerLinkActive="active-link"
+         [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }">
+        <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+        <span matListItemTitle>{{ item.label }}</span>
+      </a>
+    </mat-nav-list>
+
+    <mat-divider></mat-divider>
+
+    <!-- Logout -->
+    <div class="sidenav-footer">
+      <button mat-list-item class="logout-btn" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Cerrar sesión</span>
+      </button>
+    </div>
+
+  </mat-sidenav>
+
+  <!-- ── Contenido principal ──────────────────────────────────────────────── -->
+  <mat-sidenav-content class="main-content">
+
+    <!-- Toolbar -->
+    <mat-toolbar color="primary" class="toolbar">
+      <button mat-icon-button (click)="sidenav.toggle()" *ngIf="isMobile">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span class="toolbar-title">Calzados POS</span>
+      <span class="spacer"></span>
+
+      <!-- Menú de usuario -->
+      <button mat-icon-button [matMenuTriggerFor]="userMenu" matTooltip="{{ currentUser?.nombre }}">
+        <div class="toolbar-avatar">{{ userInitials }}</div>
+      </button>
+      <mat-menu #userMenu="matMenu" xPosition="before">
+        <div class="menu-user-info">
+          <strong>{{ currentUser?.nombre }}</strong>
+          <small>{{ currentUser?.email }}</small>
+          <small class="role-tag">{{ currentUser?.rol }}</small>
+        </div>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          Cerrar sesión
+        </button>
+      </mat-menu>
+    </mat-toolbar>
+
+    <!-- Router outlet -->
+    <div class="content-area">
+      <router-outlet></router-outlet>
+    </div>
+
+  </mat-sidenav-content>
+
+</mat-sidenav-container>
