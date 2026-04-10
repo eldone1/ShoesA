@@ -56,6 +56,10 @@ services:
     container_name: calzados_backend
     restart: unless-stopped
     environment:
+      TIME_ZONE: "America/Lima"
+      SPRING_PORT: "8080"
+      LOG_LEVEL_APP: DEBUG
+      LOG_LEVEL_SQL: DEBUG
       # ── Base de datos ──────────────────────────────────────────────────────
       # "mysql" es el nombre del servicio de arriba — Docker lo resuelve por red
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/calzados_pos?useSSL=false&serverTimezone=America/Lima&allowPublicKeyRetrieval=true
@@ -64,7 +68,7 @@ services:
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
 
       # ── JPA ───────────────────────────────────────────────────────────────
-      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_SHOW_SQL: "false"        # true solo para debug
 
       # ── JWT ───────────────────────────────────────────────────────────────
@@ -82,12 +86,12 @@ services:
       mysql:
         condition: service_healthy        # espera a que MySQL esté listo de verdad
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
-      interval: 15s
-      timeout: 5s
+      test: ["CMD-SHELL", "curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/actuator/health | grep -qE '200|403' || exit 1"]
+      timeout: 10s
+      interval: 20s
       retries: 5
-      start_period: 60s   # Spring Boot tarda en compilar y arrancar
-
+      start_period: 3m  # Spring Boot tarda en compilar y arrancar
+    
   # ── Frontend Angular (Nginx) ────────────────────────────────────────────────
   frontend:
     build:
