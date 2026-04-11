@@ -6,6 +6,19 @@
       <mat-icon>add</mat-icon> Nuevo producto
     </button>
   </div>
+   <div class="header-actions">
+      <!-- Botón exportar Excel -->
+      <button mat-stroked-button color="accent" (click)="exportarExcel()"
+              [disabled]="exportando || loading"
+              matTooltip="Descargar lista de productos con stock en Excel">
+        <mat-icon>download</mat-icon>
+        {{ exportando ? 'Generando...' : 'Exportar Excel' }}
+      </button>
+ 
+      <button mat-raised-button color="primary" (click)="openDialog()" *ngIf="isAdmin">
+        <mat-icon>add</mat-icon> Nuevo producto
+      </button>
+    </div>
 
   <!-- Filtros -->
   <mat-card class="filter-card">

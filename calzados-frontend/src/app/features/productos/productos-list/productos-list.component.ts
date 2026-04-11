@@ -5,6 +5,7 @@ import { MatSnackBar }  from '@angular/material/snack-bar';
 import { ProductoService } from '../../../core/services/producto.service';
 import { MarcaService }    from '../../../core/services/marca.service';
 import { AuthService }     from '../../../core/services/auth.service';
+import { ExportService }   from '../../../core/services/export.service';
 import { Producto, Marca } from '../../../core/models/index';
 import { ProductoDialogComponent } from '../producto-dialog/producto-dialog.component';
 
@@ -17,6 +18,7 @@ export class ProductosListComponent implements OnInit {
   productos: Producto[] = [];
   marcas: Marca[] = [];
   loading = false;
+  exportando = false;
   isAdmin: boolean;
 
   filtroNombre = '';
@@ -27,6 +29,7 @@ export class ProductosListComponent implements OnInit {
     private productoService: ProductoService,
     private marcaService: MarcaService,
     private authService: AuthService,
+    private exportService: ExportService,
     private dialog: MatDialog,
     private snack: MatSnackBar,
   ) {
@@ -81,5 +84,22 @@ export class ProductosListComponent implements OnInit {
 
   toggleExpand(id: number): void {
     this.expandedId = this.expandedId === id ? null : id;
+  }
+
+  // ── Exportar Excel ────────────────────────────────────────────────────────
+  exportarExcel(): void {
+    if (this.productos.length === 0) {
+      this.snack.open('No hay productos para exportar', 'OK', { duration: 3000 });
+      return;
+    }
+    this.exportando = true;
+    try {
+      this.exportService.exportarProductos(this.productos);
+      this.snack.open('Excel descargado correctamente', 'OK', { duration: 3000, panelClass: 'snack-success' });
+    } catch (e) {
+      this.snack.open('Error al generar el Excel', 'OK', { duration: 3000, panelClass: 'snack-error' });
+    } finally {
+      this.exportando = false;
+    }
   }
 }

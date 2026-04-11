@@ -65,6 +65,16 @@
           <button mat-raised-button color="primary" (click)="cargarVentasPorProducto()">
             <mat-icon>bar_chart</mat-icon> Generar
           </button>
+
+          <!-- Botón exportar Excel (solo visible cuando hay datos) -->
+          <button mat-stroked-button color="accent"
+                  *ngIf="ventasProd.length > 0"
+                  (click)="exportarVentas()"
+                  [disabled]="exportandoVentas"
+                  matTooltip="Descargar reporte de ventas en Excel">
+            <mat-icon>download</mat-icon>
+            {{ exportandoVentas ? 'Generando...' : 'Exportar Excel' }}
+          </button>
         </div>
 
         <div *ngIf="loadingProd" class="spinner-center"><mat-spinner diameter="40"></mat-spinner></div>

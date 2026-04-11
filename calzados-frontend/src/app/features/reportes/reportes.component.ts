@@ -1,6 +1,8 @@
 // src/app/features/reportes/reportes.component.ts
 import { Component, OnInit } from '@angular/core';
+import { MatSnackBar }       from '@angular/material/snack-bar';
 import { ReporteService }    from '../../core/services/reporte.service';
+import { ExportService }     from '../../core/services/export.service';
 import { ResumenDiario, ReporteVentaProducto, StockBajo } from '../../core/models/index';
 
 @Component({
@@ -21,6 +23,7 @@ export class ReportesComponent implements OnInit {
   finProd     = this.today;
   ventasProd: ReporteVentaProducto[] = [];
   loadingProd = false;
+  exportandoVentas = false;
   colsProd = ['pos', 'producto', 'talla', 'color', 'cantidad', 'total'];
 
   // Stock bajo
@@ -28,7 +31,9 @@ export class ReportesComponent implements OnInit {
   loadingStock = false;
   colsStock = ['producto', 'marca', 'talla', 'color', 'sku', 'stockActual', 'stockMinimo'];
 
-  constructor(private reporteService: ReporteService) {}
+  constructor(private reporteService: ReporteService,
+    private exportService: ExportService,
+    private snack: MatSnackBar,) {}
 
   ngOnInit(): void {
     this.cargarResumen();
@@ -60,4 +65,21 @@ export class ReportesComponent implements OnInit {
   }
 
   get totalVendido(): number { return this.ventasProd.reduce((s, v) => s + v.totalVendido, 0); }
+
+   // ── Exportar ventas ───────────────────────────────────────────────────────
+  exportarVentas(): void {
+    if (this.ventasProd.length === 0) {
+      this.snack.open('Primero genera el reporte antes de exportar', 'OK', { duration: 3000 });
+      return;
+    }
+    this.exportandoVentas = true;
+    try {
+      this.exportService.exportarVentas(this.ventasProd, this.inicioProd, this.finProd);
+      this.snack.open('Excel descargado correctamente', 'OK', { duration: 3000, panelClass: 'snack-success' });
+    } catch (e) {
+      this.snack.open('Error al generar el Excel', 'OK', { duration: 3000, panelClass: 'snack-error' });
+    } finally {
+      this.exportandoVentas = false;
+    }
+  }
 }
