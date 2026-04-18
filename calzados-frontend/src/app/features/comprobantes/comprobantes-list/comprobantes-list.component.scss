@@ -1,47 +1,80 @@
-// src/app/features/comprobantes/comprobantes-list/comprobantes-list.component.scss
+:host { display:block; color:#111827; }
+
 .spinner-center { display:flex; justify-content:center; padding:32px; }
-.empty-msg { text-align:center; color:#9e9e9e; padding:32px; }
-.filter-card { margin-bottom:16px; }
-.filter-content { display:flex; gap:12px; align-items:center; flex-wrap:wrap; padding:12px 16px !important; }
-.table-wrapper { overflow-x:auto; }
-.clickable-row { cursor:pointer; &:hover { background:#f5f5f5; } }
+.empty-msg { text-align:center; color:#64748b; padding:32px; }
 
-// Métricas
+.filter-card {
+  margin-bottom:16px;
+  border-radius:24px;
+  overflow:hidden;
+  box-shadow:0 12px 30px rgba(15,23,42,.06);
+}
+
+.filter-content {
+  display:flex;
+  gap:12px;
+  align-items:center;
+  flex-wrap:wrap;
+  padding:14px 16px !important;
+}
+
+.filter-content mat-form-field { min-width: 170px; }
+.filter-content button { border-radius:999px; }
+.table-wrapper { overflow-x:auto; border-radius:18px; box-shadow:0 12px 30px rgba(15,23,42,.06); }
+.clickable-row { cursor:pointer; &:hover { background:#f8fafc; } }
+
 .resumen-grid {
-  display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));
-  gap:12px; margin-bottom:16px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(190px, 1fr));
+  gap:12px;
+  margin-bottom:16px;
 }
+
 .metric-card {
-  display:flex; align-items:center; gap:16px;
-  background:#fff; border-radius:12px; padding:16px;
-  box-shadow:0 1px 4px rgba(0,0,0,.08);
-  &.boleta  .metric-icon { background:#e8f5e9; mat-icon { color:#2e7d32; } }
-  &.factura .metric-icon { background:#e3f2fd; mat-icon { color:#1565c0; } }
-  &.total   .metric-icon { background:#e8eaf6; mat-icon { color:#3949ab; } }
+  display:flex;
+  align-items:center;
+  gap:14px;
+  background:#fff;
+  border-radius:20px;
+  padding:14px;
+  box-shadow:0 12px 28px rgba(15,23,42,.08);
+  border:1px solid rgba(15,23,42,.06);
+
+  &.boleta  .metric-icon { background:#ecfdf5; mat-icon { color:#047857; } }
+  &.factura .metric-icon { background:#eff6ff; mat-icon { color:#1d4ed8; } }
+  &.total   .metric-icon { background:#eef2ff; mat-icon { color:#0f172a; } }
 }
+
 .metric-icon {
-  width:48px; height:48px; border-radius:12px;
-  display:flex; align-items:center; justify-content:center; flex-shrink:0;
-  mat-icon { font-size:24px; width:24px; height:24px; }
-}
-.metric-lbl { font-size:12px; color:#9e9e9e; margin:0; }
-.metric-val { font-size:22px; font-weight:700; color:#212121; margin:2px 0; }
-.metric-sub { font-size:12px; color:#757575; margin:0; }
+  width:46px;
+  height:46px;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
 
-// Serie badge
+  mat-icon { font-size:22px; width:22px; height:22px; }
+}
+
+.metric-lbl { font-size:11px; color:#64748b; margin:0; text-transform:uppercase; letter-spacing:.06em; }
+.metric-val { font-size:20px; font-weight:800; color:#0f172a; margin:2px 0; }
+.metric-sub { font-size:11px; color:#94a3b8; margin:0; }
+
 .serie-badge {
-  font-family:monospace; font-size:13px; font-weight:700;
-  padding:3px 8px; border-radius:6px;
-  &.chip-boleta  { background:#e8f5e9; color:#2e7d32; }
-  &.chip-factura { background:#e3f2fd; color:#1565c0; }
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size:11px;
+  font-weight:700;
+  padding:3px 8px;
+  border-radius:999px;
+  &.chip-boleta  { background:#ecfdf5; color:#047857; }
+  &.chip-factura { background:#eff6ff; color:#1d4ed8; }
 }
 
-// Cliente cell
 .cliente-cell { display:flex; flex-direction:column; gap:2px; }
-.cli-nombre   { font-size:13px; font-weight:500; color:#212121; }
-.cli-doc      { font-size:11px; color:#757575; font-family:monospace; }
-.sin-datos    { font-size:12px; color:#bdbdbd; font-style:italic; }
+.cli-nombre   { font-size:13px; font-weight:700; color:#0f172a; }
+.cli-doc      { font-size:11px; color:#64748b; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+.sin-datos    { font-size:12px; color:#cbd5e1; font-style:italic; }
 
-// Chips reutilizados
-.chip-boleta   { background:#e8f5e9 !important; color:#2e7d32 !important; }
-.chip-factura  { background:#e3f2fd !important; color:#1565c0 !important; }
+.chip-boleta   { background:#ecfdf5 !important; color:#047857 !important; }
+.chip-factura  { background:#eff6ff !important; color:#1d4ed8 !important; }

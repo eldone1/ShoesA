@@ -14,6 +14,7 @@ export interface Variante {
   productoNombre?: string;
   color: string;
   talla: string;
+  ubicacion?: string;
   sku: string;
   codigoBarras: string;
   precioCompra: number;
@@ -26,6 +27,7 @@ export interface Variante {
 export interface VarianteRequest {
   color: string;
   talla: string;
+  ubicacion?: string;
   sku: string;
   codigoBarras: string;
   precioCompra: number;
@@ -159,7 +161,7 @@ export interface StockBajo {
   color: string;
   sku: string;
   codigoBarras: string;
-  stockActual: number;
+  stock: number;
   stockMinimo: number;
 }
 

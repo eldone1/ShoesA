@@ -5,6 +5,7 @@ import { ReporteService }    from '../../core/services/reporte.service';
 import { ExportService }     from '../../core/services/export.service';
 import { ResumenDiario, ReporteVentaProducto, StockBajo } from '../../core/models/index';
 import { CajaService } from '../../core/services/caja.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-reportes',
@@ -13,6 +14,7 @@ import { CajaService } from '../../core/services/caja.service';
 })
 export class ReportesComponent implements OnInit {
   today = new Date().toISOString().split('T')[0];
+  selectedTabIndex = 0;
 
   // Resumen diario
   fechaResumen = this.today;
@@ -36,9 +38,15 @@ export class ReportesComponent implements OnInit {
   constructor(private reporteService: ReporteService,
     private exportService: ExportService,
     private cajaService: CajaService,
-    private snack: MatSnackBar,) {}
+    private snack: MatSnackBar,
+    private route: ActivatedRoute,
+  ) {}
 
   ngOnInit(): void {
+    this.route.queryParamMap.subscribe(params => {
+      const tab = params.get('tab');
+      this.selectedTabIndex = tab === 'stock-bajo' ? 2 : 0;
+    });
     this.cargarResumen();
     this.cargarStockBajo();
   }

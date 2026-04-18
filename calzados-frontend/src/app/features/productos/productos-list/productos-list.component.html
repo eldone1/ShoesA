@@ -14,10 +14,6 @@
         <mat-icon>download</mat-icon>
         {{ exportando ? 'Generando...' : 'Exportar Excel' }}
       </button>
- 
-      <button mat-raised-button color="primary" (click)="openDialog()" *ngIf="isAdmin">
-        <mat-icon>add</mat-icon> Nuevo producto
-      </button>
     </div>
 
   <!-- Filtros -->
@@ -28,6 +24,11 @@
         <mat-icon matPrefix>search</mat-icon>
         <input matInput [(ngModel)]="filtroNombre" (keydown.enter)="load()" placeholder="Zapatilla...">
       </mat-form-field>
+      <mat-form-field appearance="outline" style="width:230px">
+        <mat-label>Código de barras</mat-label>
+        <mat-icon matPrefix>qr_code_scanner</mat-icon>
+        <input matInput [(ngModel)]="filtroCodigo" (keydown.enter)="load()" placeholder="Escanear o escribir código">
+      </mat-form-field>
       <mat-form-field appearance="outline" style="width:200px">
         <mat-label>Marca</mat-label>
         <mat-select [(ngModel)]="filtroMarca">
@@ -37,6 +38,9 @@
       </mat-form-field>
       <button mat-raised-button color="primary" (click)="load()">
         <mat-icon>search</mat-icon> Buscar
+      </button>
+      <button mat-stroked-button (click)="limpiarFiltros()" [disabled]="loading">
+        <mat-icon>filter_alt_off</mat-icon> Limpiar
       </button>
     </mat-card-content>
   </mat-card>
@@ -78,7 +82,7 @@
       <table class="variantes-table" *ngIf="p.variantes && p.variantes.length > 0">
         <thead>
           <tr>
-            <th>Talla</th><th>Color</th><th>SKU</th><th>Cód. Barras</th>
+            <th>Talla</th><th>Color</th><th>Ubic.</th><th>SKU</th><th>Cód. Barras</th>
             <th>P. Compra</th><th>% Ganancia</th><th>P. Venta</th>
             <th>Stock</th><th>Mín.</th>
           </tr>
@@ -87,6 +91,7 @@
           <tr *ngFor="let v of p.variantes" [class.stock-low]="v.stockBajo">
             <td>{{ v.talla }}</td>
             <td>{{ v.color }}</td>
+            <td>{{ v.ubicacion || '—' }}</td>
             <td class="mono">{{ v.sku }}</td>
             <td class="mono">{{ v.codigoBarras }}</td>
             <td>S/ {{ v.precioCompra | number:'1.2-2' }}</td>

@@ -26,60 +26,38 @@
 <!-- ── Comprobante ──────────────────────────────────────────────────────────── -->
 <div class="comprobante-wrapper" *ngIf="comprobante && !loading">
   <div class="comprobante-doc">
-
-    <!-- Cabecera -->
-    <div class="doc-header">
-      <div class="empresa-info">
-        <h2 class="empresa-nombre">CALZADOS POS</h2>
-        <p class="empresa-sub">Sistema de Punto de Venta</p>
-      </div>
-      <div class="serie-box" [class]="tipoClass">
-        <p class="serie-tipo">{{ comprobante.tipo }}</p>
-        <p class="serie-num">{{ comprobante.serie }}</p>
-      </div>
+    <div class="ticket-header">
+      <h2 class="empresa-nombre">CALZADOS POS</h2>
+      <p class="empresa-sub">Sistema de Punto de Venta</p>
+      <p class="serie-linea">{{ comprobante.tipo }} - {{ comprobante.serie }}</p>
     </div>
 
     <div class="doc-divider"></div>
 
-    <!-- Datos del comprobante -->
     <div class="doc-meta">
-      <div class="meta-item">
-        <span class="meta-lbl">Fecha Emision</span>
+      <div class="meta-row">
+        <span>Fecha de emisión:</span>
         <span class="meta-val mono">{{ comprobante.fechaEmision | date:'dd/MM/yyyy HH:mm' }}</span>
       </div>
-      <div class="meta-item">
-        <span class="meta-lbl">Cajero</span>
+      <div class="meta-row">
+        <span>Cajero:</span>
         <span class="meta-val">{{ comprobante.cajeroNombre }}</span>
       </div>
-      <div class="meta-item">
-        <span class="meta-lbl">Metodo de Pago</span>
-        <span class="meta-val">
-          <span class="mono">{{ comprobante.metodoPago }}</span>
-        </span>
+      <div class="meta-row">
+        <span>Método de pago:</span>
+        <span class="meta-val mono">{{ comprobante.metodoPago }}</span>
       </div>
     </div>
 
     <div class="doc-divider"></div>
 
-    <!-- Datos del cliente -->
     <div class="doc-cliente">
-      <p class="section-title">Cliente</p>
-      <div class="cliente-grid">
-        <div class="cli-item">
-          <span class="cli-lbl">Nombre / Razon Social</span>
-          <span class="cli-val">{{ clienteNombreTicket }}</span>
-        </div>
-        <div class="cli-item" *ngIf="clienteDocTicket">
-          <span class="cli-lbl">Documento</span>
-          <span class="cli-val mono">{{ clienteDocTicket }}</span>
-        </div>
-      </div>
+      <div><strong>Cliente:</strong> {{ clienteNombreTicket }}</div>
+      <div *ngIf="clienteDocTicket"><strong>Documento:</strong> {{ clienteDocTicket }}</div>
     </div>
 
     <div class="doc-divider"></div>
 
-    <!-- Detalle de ítems -->
-    <p class="section-title">Detalle de la venta</p>
     <table class="items-table">
       <thead>
         <tr>
@@ -94,7 +72,7 @@
         <tr *ngFor="let d of comprobante.detalles">
           <td class="col-desc">
             <span class="item-nombre">{{ d.productoNombre }}</span>
-            <span class="item-det">T: {{ d.talla }} · {{ d.color }} · {{ d.sku }}</span>
+            <span class="item-det">T: {{ d.talla }} | {{ d.color }} | {{ d.sku }}</span>
           </td>
           <td class="col-cant text-center">{{ d.cantidad }}</td>
           <td class="col-precio text-right">S/ {{ d.precioUnitario | number:'1.2-2' }}</td>
@@ -108,7 +86,6 @@
 
     <div class="doc-divider"></div>
 
-    <!-- Totales -->
     <div class="totales">
       <div class="total-row" *ngIf="comprobante.descuento > 0">
         <span>Subtotal</span>
@@ -126,16 +103,15 @@
         <span>IGV (18%)</span>
         <span>S/ {{ comprobante.igv | number:'1.2-2' }}</span>
       </div>
-      <div class="doc-divider thin"></div>
       <div class="total-row total-final">
         <span>TOTAL</span>
         <span>S/ {{ comprobante.total | number:'1.2-2' }}</span>
       </div>
     </div>
 
-    <!-- Pie del comprobante -->
     <div class="doc-footer">
       <p>Gracias por su compra</p>
+      <p>Representación impresa del comprobante</p>
     </div>
 
   </div>

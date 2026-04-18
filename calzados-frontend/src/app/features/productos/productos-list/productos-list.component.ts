@@ -22,6 +22,7 @@ export class ProductosListComponent implements OnInit {
   isAdmin: boolean;
 
   filtroNombre = '';
+  filtroCodigo = '';
   filtroMarca: number | null = null;
   expandedId: number | null = null;
 
@@ -43,12 +44,56 @@ export class ProductosListComponent implements OnInit {
 
   load(): void {
     this.loading = true;
+
+    const codigo = this.filtroCodigo.trim();
+    if (codigo) {
+      this.buscarPorCodigo(codigo);
+      return;
+    }
+
     this.productoService.buscar(
       this.filtroNombre || undefined,
       this.filtroMarca  || undefined,
     ).subscribe({
       next:  data => { this.productos = data; this.loading = false; },
       error: ()   => { this.loading = false; },
+    });
+  }
+
+  private buscarPorCodigo(codigo: string): void {
+    this.productoService.scanearCodigoBarras(codigo).subscribe({
+      next: variante => {
+        this.productoService.buscar(
+          variante.productoNombre || undefined,
+          this.filtroMarca || undefined,
+        ).subscribe({
+          next: data => {
+            this.productos = data.filter(p =>
+              (p.variantes ?? []).some(v => v.codigoBarras === codigo),
+            );
+
+            this.expandedId = this.productos.length === 1 ? this.productos[0].id : null;
+            this.loading = false;
+
+            if (this.productos.length === 0) {
+              this.snack.open(`No se encontró producto para el código ${codigo}`, 'OK', {
+                duration: 3000,
+                panelClass: 'snack-warn',
+              });
+            }
+          },
+          error: () => { this.loading = false; },
+        });
+      },
+      error: () => {
+        this.productos = [];
+        this.expandedId = null;
+        this.loading = false;
+        this.snack.open(`Código no encontrado: ${codigo}`, 'OK', {
+          duration: 3000,
+          panelClass: 'snack-error',
+        });
+      },
     });
   }
 
@@ -84,6 +129,14 @@ export class ProductosListComponent implements OnInit {
 
   toggleExpand(id: number): void {
     this.expandedId = this.expandedId === id ? null : id;
+  }
+
+  limpiarFiltros(): void {
+    this.filtroNombre = '';
+    this.filtroCodigo = '';
+    this.filtroMarca = null;
+    this.expandedId = null;
+    this.load();
   }
 
   // ── Exportar Excel ────────────────────────────────────────────────────────

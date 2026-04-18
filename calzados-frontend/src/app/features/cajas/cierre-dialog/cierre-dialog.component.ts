@@ -35,7 +35,7 @@ export class CierreDialogComponent implements OnInit {
   });
 
   // 🔥 CARGAR TOTALES AL ABRIR MODAL
-  /* this.loading = true;
+  this.loading = true;
   this.cajaService.cerrar(this.caja.id, {} as any).subscribe({
     next: (c) => {
       this.caja = c; // 🔥 ACTUALIZA LOS TOTALES
@@ -44,7 +44,7 @@ export class CierreDialogComponent implements OnInit {
     error: () => {
       this.loading = false;
     }
-  }); */
+  });
 }
 
   get efectivoEsperado(): number {

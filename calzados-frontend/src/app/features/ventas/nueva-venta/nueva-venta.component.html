@@ -12,12 +12,10 @@
           <mat-label>Escanear código de barras</mat-label>
           <input matInput #scanInput
                  [(ngModel)]="codigoBarras"
-                 (keydown)="onScanKeydown($event)"
-                 (change)="onScan($event)"
                  placeholder="Apunta el lector o escribe el código..."
                  autocomplete="off">
           <mat-spinner matSuffix *ngIf="buscando" diameter="20"></mat-spinner>
-          <mat-hint>Presiona Enter para buscar</mat-hint>
+          <mat-hint>Escaneo automático activo. No necesita foco.</mat-hint>
         </mat-form-field>
       </mat-card-content>
     </mat-card>
@@ -41,7 +39,7 @@
           <div class="item-info">
             <span class="item-nombre">{{ item.variante.productoNombre || item.variante.sku }}</span>
             <span class="item-detalle">
-              SKU {{ item.variante.sku }} · Talla {{ item.variante.talla }} · {{ item.variante.color }}
+              Talla {{ item.variante.talla }} · {{ item.variante.color }} · Ubic. {{ item.variante.ubicacion || '—' }}
             </span>
             <span class="item-precio">S/ {{ item.variante.precioVenta | number:'1.2-2' }} c/u</span>
           </div>

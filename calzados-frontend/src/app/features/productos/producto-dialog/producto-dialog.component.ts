@@ -54,6 +54,7 @@ export class ProductoDialogComponent implements OnInit {
       id: [v?.id ?? null],
       color:              [v?.color ?? ''],
       talla:              [v?.talla ?? ''],
+      ubicacion:          [v?.ubicacion ?? ''],
       sku:                [v?.sku ?? ''],
       codigoBarras:       [v?.codigoBarras ?? ''],
       precioCompra:       [v?.precioCompra ?? null, [Validators.required, Validators.min(0.01)]],

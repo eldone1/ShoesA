@@ -42,10 +42,7 @@ export class ComprobanteDetalleComponent implements OnInit {
 
     const popup = window.open('', '_blank', 'noopener,noreferrer,width=420,height=900');
     if (!popup) {
-      // Fallback si el navegador bloquea popups.
-      document.body.classList.add('printing-ticket');
-      window.print();
-      setTimeout(() => document.body.classList.remove('printing-ticket'), 500);
+      alert('El navegador bloqueó la impresión automática. Haz clic en "Imprimir".');
       return;
     }
 
@@ -53,7 +50,7 @@ export class ComprobanteDetalleComponent implements OnInit {
       <tr>
         <td>
           <div class="nombre">${this.escapeHtml(d.productoNombre ?? '')}</div>
-          <div class="det">T: ${this.escapeHtml(d.talla ?? '')} - ${this.escapeHtml(d.color ?? '')}</div>
+          <div class="det">T: ${this.escapeHtml(d.talla ?? '')} | ${this.escapeHtml(d.color ?? '')}</div>
         </td>
         <td class="c">${d.cantidad ?? 0}</td>
         <td class="r">${this.formatMoney(d.precioUnitario)}</td>
@@ -67,80 +64,70 @@ export class ComprobanteDetalleComponent implements OnInit {
 <html lang="es">
 <head>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Ticket ${this.escapeHtml(this.comprobante.serie)}</title>
   <style>
-    @page { size: 80mm auto; margin: 4mm; }
+    @page { size: 80mm auto; margin: 3mm; }
     * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
     body {
-      margin: 0;
-      font-family: "Courier New", monospace;
-      color: #111;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: #000;
       background: #fff;
       display: flex;
       justify-content: center;
     }
-    .ticket { width: 72mm; padding: 0; font-size: 11px; }
-    .head { display: flex; justify-content: space-between; align-items: flex-start; }
-    .empresa { font-weight: 700; font-size: 18px; }
-    .sub { font-size: 11px; color: #666; }
-    .serie {
-      border: 1px solid #222; border-radius: 4px; padding: 4px 6px;
-      text-align: center; font-size: 10px; font-weight: 700;
-    }
-    .serie-num { font-size: 12px; margin-top: 2px; }
-    .line { border-top: 1px dashed #888; margin: 8px 0; }
-    .lbl { font-size: 10px; color: #666; text-transform: uppercase; }
-    .val { font-size: 11px; font-weight: 700; margin-bottom: 4px; }
+    .ticket { width: 74mm; font-size: 11px; line-height: 1.35; }
+    .center { text-align: center; }
+    .empresa { font-size: 14px; font-weight: 700; letter-spacing: .2px; }
+    .sub { font-size: 10px; }
+    .line { border-top: 1px dashed #000; margin: 6px 0; }
+    .meta { font-size: 10.5px; }
+    .meta-row { display: flex; justify-content: space-between; gap: 8px; }
+    .cliente { font-size: 10.5px; }
     table { width: 100%; border-collapse: collapse; font-size: 10px; }
-    th { text-align: left; border-bottom: 1px solid #bbb; padding: 4px 2px; }
-    td { border-bottom: 1px solid #eee; padding: 5px 2px; vertical-align: top; }
-    .nombre { font-weight: 700; }
-    .det { color: #666; }
-    .c { text-align: center; width: 28px; }
+    th { text-align: left; border-bottom: 1px solid #000; padding: 3px 1px; font-weight: 700; }
+    td { border-bottom: 1px dotted #bbb; padding: 3px 1px; vertical-align: top; }
+    .nombre { font-weight: 600; }
+    .det { font-size: 9px; }
+    .c { text-align: center; width: 26px; }
     .r { text-align: right; white-space: nowrap; }
-    .total { font-weight: 700; }
-    .totales { margin-top: 6px; }
-    .row { display: flex; justify-content: space-between; padding: 2px 0; }
-    .row.total { font-size: 12px; font-weight: 800; }
-    .footer { text-align: center; margin-top: 10px; border-top: 1px dashed #888; padding-top: 8px; }
+    .totales { margin-top: 4px; font-size: 10.5px; }
+    .row { display: flex; justify-content: space-between; padding: 1px 0; }
+    .row.total { font-size: 12px; font-weight: 700; margin-top: 2px; }
+    .footer { text-align: center; margin-top: 8px; border-top: 1px dashed #000; padding-top: 6px; font-size: 10px; }
   </style>
 </head>
 <body>
   <div class="ticket">
-    <div class="head">
-      <div>
-        <div class="empresa">CALZADOS POS</div>
-        <div class="sub">Sistema de Punto de Venta</div>
-      </div>
-      <div class="serie">
-        ${this.escapeHtml(this.comprobante.tipo)}
-        <div class="serie-num">${this.escapeHtml(this.comprobante.serie)}</div>
-      </div>
+    <div class="center">
+      <div class="empresa">CALZADOS POS</div>
+      <div class="sub">Sistema de Punto de Venta</div>
+      <div>${this.escapeHtml(this.comprobante.tipo)} - ${this.escapeHtml(this.comprobante.serie)}</div>
     </div>
 
     <div class="line"></div>
-    <div class="lbl">Fecha Emision</div>
-    <div class="val">${this.escapeHtml(this.formatDate(this.comprobante.fechaEmision))}</div>
-    <div class="lbl">Cajero</div>
-    <div class="val">${this.escapeHtml(this.comprobante.cajeroNombre)}</div>
-    <div class="lbl">Metodo de Pago</div>
-    <div class="val">${this.escapeHtml(this.comprobante.metodoPago)}</div>
+    <div class="meta">
+      <div class="meta-row"><span>Fecha de emisión:</span><span>${this.escapeHtml(this.formatDate(this.comprobante.fechaEmision))}</span></div>
+      <div class="meta-row"><span>Cajero:</span><span>${this.escapeHtml(this.comprobante.cajeroNombre)}</span></div>
+      <div class="meta-row"><span>Método de pago:</span><span>${this.escapeHtml(this.comprobante.metodoPago)}</span></div>
+    </div>
 
     <div class="line"></div>
-    <div class="lbl">Cliente</div>
-    <div class="val">${this.escapeHtml(this.clienteNombreTicket)}</div>
-    ${this.clienteDocTicket ? `<div class="val">${this.escapeHtml(this.clienteDocTicket)}</div>` : ''}
+    <div class="cliente">
+      <div><strong>Cliente:</strong> ${this.escapeHtml(this.clienteNombreTicket)}</div>
+      ${this.clienteDocTicket ? `<div><strong>Documento:</strong> ${this.escapeHtml(this.clienteDocTicket)}</div>` : ''}
+    </div>
 
     <div class="line"></div>
-    <div class="lbl" style="margin-bottom:4px">Detalle de la Venta</div>
     <table>
       <thead>
         <tr>
-          <th>Descripcion</th>
-          <th class="c">Cant.</th>
-          <th class="r">P. Unit.</th>
-          <th class="r">Desc.</th>
-          <th class="r">Subtotal</th>
+          <th>Descripción</th>
+          <th class="c">Cant</th>
+          <th class="r">P.Unit</th>
+          <th class="r">Desc</th>
+          <th class="r">Subt</th>
         </tr>
       </thead>
       <tbody>${detalleRows}</tbody>
@@ -152,11 +139,13 @@ export class ComprobanteDetalleComponent implements OnInit {
       ${this.comprobante.descuento > 0 ? `<div class="row"><span>Descuento</span><span>- ${this.formatMoney(this.comprobante.descuento)}</span></div>` : ''}
       <div class="row"><span>Base imponible</span><span>${this.formatMoney(this.comprobante.baseImponible)}</span></div>
       <div class="row"><span>IGV (18%)</span><span>${this.formatMoney(this.comprobante.igv)}</span></div>
-      <div class="line"></div>
       <div class="row total"><span>TOTAL</span><span>${this.formatMoney(this.comprobante.total)}</span></div>
     </div>
 
-    <div class="footer">Gracias por su compra</div>
+    <div class="footer">
+      <div>Gracias por su compra</div>
+      <div>Representación impresa del comprobante</div>
+    </div>
   </div>
 
   <script>
@@ -221,8 +210,9 @@ export class ComprobanteDetalleComponent implements OnInit {
     }).format(d);
   }
 
-  private escapeHtml(value: string): string {
-    return value
+  private escapeHtml(value: unknown): string {
+    const text = String(value ?? '').normalize('NFC');
+    return text
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')

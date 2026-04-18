@@ -1,5 +1,5 @@
 // src/app/features/ventas/nueva-venta/nueva-venta.component.ts
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -21,10 +21,18 @@ interface ItemCarrito {
   templateUrl: './nueva-venta.component.html',
   styleUrls: ['./nueva-venta.component.scss'],
 })
-export class NuevaVentaComponent implements OnInit {
+export class NuevaVentaComponent implements OnInit, OnDestroy {
   @ViewChild('scanInput') scanInput!: ElementRef;
 
   private readonly REDONDEO_EFECTIVO_STEP = 0.05;
+  private readonly SCAN_MAX_GAP_MS = 60;
+  private readonly SCAN_MIN_LENGTH = 5;
+
+  private scanBuffer = '';
+  private scanTimer: ReturnType<typeof setTimeout> | null = null;
+  private scanLastKeyAt = 0;
+  private scanOriginElement: HTMLInputElement | HTMLTextAreaElement | null = null;
+  private scanOriginValue = '';
 
   pagoForm!: FormGroup;
   codigoBarras = '';
@@ -71,19 +79,83 @@ export class NuevaVentaComponent implements OnInit {
     });
   }
 
-  // ── Scanner ───────────────────────────────────────────────────────────────
-  onScan(event: Event): void {
-    const input = (event.target as HTMLInputElement).value.trim();
-    if (!input) return;
-    this.buscarProducto(input);
-    this.codigoBarras = '';
+  ngOnDestroy(): void {
+    this.limpiarBufferScanner();
   }
 
-  onScanKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Enter' && this.codigoBarras.trim()) {
-      this.buscarProducto(this.codigoBarras.trim());
-      this.codigoBarras = '';
+  @HostListener('window:keydown', ['$event'])
+  onGlobalKeydown(event: KeyboardEvent): void {
+    if (this.procesando) return;
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+
+    if (event.key === 'Escape') {
+      this.limpiarBufferScanner();
+      return;
     }
+
+    if (event.key === 'Enter' || event.key === 'Tab') {
+      if (this.scanBuffer.trim().length >= this.SCAN_MIN_LENGTH) {
+        event.preventDefault();
+        this.procesarBufferScanner();
+      }
+      return;
+    }
+
+    if (event.key.length !== 1) return;
+
+    const now = Date.now();
+    if (this.scanLastKeyAt && now - this.scanLastKeyAt > this.SCAN_MAX_GAP_MS) {
+      this.limpiarBufferScanner();
+    }
+
+    if (!this.scanBuffer) {
+      this.scanOriginElement = this.obtenerEditable(event.target);
+      this.scanOriginValue = this.scanOriginElement?.value ?? '';
+    }
+
+    this.scanLastKeyAt = now;
+    this.scanBuffer += event.key;
+
+    if (this.scanTimer) {
+      clearTimeout(this.scanTimer);
+    }
+
+    this.scanTimer = setTimeout(() => this.procesarBufferScanner(), this.SCAN_MAX_GAP_MS);
+  }
+
+  private obtenerEditable(target: EventTarget | null): HTMLInputElement | HTMLTextAreaElement | null {
+    if (!target || !(target instanceof HTMLElement)) return null;
+    if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) return target;
+    return null;
+  }
+
+  private procesarBufferScanner(): void {
+    const codigo = this.scanBuffer.trim();
+    const origin = this.scanOriginElement;
+    const originValue = this.scanOriginValue;
+    this.limpiarBufferScanner();
+
+    if (codigo.length < this.SCAN_MIN_LENGTH) return;
+
+    if (origin && origin.value !== originValue) {
+      origin.value = originValue;
+      origin.dispatchEvent(new Event('input', { bubbles: true }));
+      origin.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    this.codigoBarras = codigo;
+    this.buscarProducto(codigo);
+  }
+
+  private limpiarBufferScanner(): void {
+    if (this.scanTimer) {
+      clearTimeout(this.scanTimer);
+      this.scanTimer = null;
+    }
+    this.scanBuffer = '';
+    this.scanLastKeyAt = 0;
+    this.scanOriginElement = null;
+    this.scanOriginValue = '';
   }
 
   buscarProducto(codigo: string): void {
@@ -96,11 +168,13 @@ export class NuevaVentaComponent implements OnInit {
           return;
         }
         this.agregarAlCarrito(variante);
+        this.codigoBarras = '';
         this.scanInput?.nativeElement?.focus();
       },
       error: () => {
         this.buscando = false;
         this.snack.open(`Producto no encontrado: ${codigo}`, 'OK', { duration: 3000, panelClass: 'snack-error' });
+        this.codigoBarras = '';
         this.scanInput?.nativeElement?.focus();
       },
     });
