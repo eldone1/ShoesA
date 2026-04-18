@@ -39,9 +39,9 @@
 
         <div class="carrito-item" *ngFor="let item of carrito">
           <div class="item-info">
-            <span class="item-nombre">{{ item.variante.sku }}</span>
+            <span class="item-nombre">{{ item.variante.productoNombre || item.variante.sku }}</span>
             <span class="item-detalle">
-              Talla {{ item.variante.talla }} · {{ item.variante.color }}
+              SKU {{ item.variante.sku }} · Talla {{ item.variante.talla }} · {{ item.variante.color }}
             </span>
             <span class="item-precio">S/ {{ item.variante.precioVenta | number:'1.2-2' }} c/u</span>
           </div>
@@ -110,10 +110,14 @@
           <span>Descuento ({{ descuentoGlobal }}%)</span>
           <span class="descuento-val">- S/ {{ subtotal * descuentoGlobal / 100 | number:'1.2-2' }}</span>
         </div>
+        <div class="total-row" *ngIf="esEfectivo && totalCobrar !== totalExacto">
+          <span>Ajuste por redondeo</span>
+          <span>{{ totalCobrar > totalExacto ? '+ ' : '- ' }}S/ {{ (totalCobrar > totalExacto ? totalCobrar - totalExacto : totalExacto - totalCobrar) | number:'1.2-2' }}</span>
+        </div>
         <mat-divider style="margin: 12px 0"></mat-divider>
         <div class="total-row total-final">
           <span>TOTAL</span>
-          <span>S/ {{ total | number:'1.2-2' }}</span>
+          <span>S/ {{ totalCobrar | number:'1.2-2' }}</span>
         </div>
 
         <!-- Forma de pago -->
@@ -164,7 +168,7 @@
                 (click)="procesarVenta()" [disabled]="procesando || carrito.length === 0">
           <mat-spinner *ngIf="procesando" diameter="20" style="display:inline-block"></mat-spinner>
           <mat-icon *ngIf="!procesando">point_of_sale</mat-icon>
-          {{ procesando ? 'Procesando...' : 'Cobrar S/ ' + (total | number:'1.2-2') }}
+          {{ procesando ? 'Procesando...' : 'Cobrar S/ ' + (totalCobrar | number:'1.2-2') }}
         </button>
       </mat-card-actions>
     </mat-card>

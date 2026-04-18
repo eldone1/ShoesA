@@ -30,3 +30,11 @@
   tfoot td { background:#f9f9f9; font-size:14px; border-top:1px solid #e0e0e0; }
   .text-right { text-align:right; }
 }
+
+// Comprobante serie en tabla
+.comp-serie {
+  font-family: monospace; font-size: 12px; font-weight: 700;
+  padding: 2px 7px; border-radius: 5px;
+  &.serie-boleta  { background: #e8f5e9; color: #2e7d32; }
+  &.serie-factura { background: #e3f2fd; color: #1565c0; }
+}

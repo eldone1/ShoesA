@@ -1,0 +1,44 @@
+// src/app/features/clientes/clientes-list/clientes-list.component.scss
+.spinner-center { display:flex; justify-content:center; padding:32px; }
+.empty-msg { text-align:center; color:#9e9e9e; padding:32px; }
+.search-card { margin-bottom:16px; }
+.search-content { display:flex; gap:12px; align-items:center; padding:12px 16px !important; flex-wrap:wrap; }
+
+// Layout con panel lateral
+.content-layout { display:flex; gap:16px; align-items:flex-start; }
+.main-panel { flex:1; min-width:0; }
+.side-panel { width:340px; flex-shrink:0; position:sticky; top:84px; }
+
+// Tabla
+.cliente-nombre { font-size:14px; font-weight:500; color:#212121; }
+.cliente-sub    { font-size:12px; color:#757575; margin-top:2px; }
+.mono { font-family:monospace; font-size:13px; }
+.empty { color:#bdbdbd; }
+.row-selected { background:#e8eaf6 !important; }
+
+// Panel historial
+.historial-card { position:relative; }
+.avatar-icon { color:#3949ab !important; }
+.close-btn { position:absolute; top:8px; right:8px; }
+.historial-title { font-size:13px; font-weight:600; color:#757575; margin:0 0 12px; text-transform:uppercase; letter-spacing:.05em; }
+
+.empty-historial {
+  display:flex; flex-direction:column; align-items:center;
+  padding:24px; color:#bdbdbd; text-align:center;
+  mat-icon { font-size:40px; width:40px; height:40px; margin-bottom:8px; }
+  p { font-size:13px; margin:0; }
+}
+
+.historial-item {
+  display:flex; align-items:center; gap:8px;
+  padding:8px 0; border-bottom:1px solid #f0f0f0;
+  &:last-child { border-bottom:none; }
+}
+.hist-serie { display:flex; align-items:center; gap:6px; flex:1; }
+.serie-txt  { font-family:monospace; font-size:13px; font-weight:600; color:#212121; }
+.hist-info  { display:flex; flex-direction:column; align-items:flex-end; gap:2px; }
+.hist-fecha { font-size:11px; color:#9e9e9e; }
+.hist-total { font-size:14px; font-weight:700; color:#1a237e; }
+
+.chip-boleta  { background:#e8f5e9 !important; color:#2e7d32 !important; font-size:11px !important; }
+.chip-factura { background:#e3f2fd !important; color:#1565c0 !important; font-size:11px !important; }

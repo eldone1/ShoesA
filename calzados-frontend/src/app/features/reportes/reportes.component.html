@@ -30,6 +30,20 @@
             <p class="lbl">Ventas</p>
             <p class="val">{{ resumen.cantidadVentas }}</p>
           </div>
+          <!-- ↓ Fondo inicial informativo -->
+          <div class="metric-card apertura">
+            <mat-icon>account_balance_wallet</mat-icon>
+            <p class="lbl">Fondo apertura</p>
+            <p class="val">S/ {{ montoApertura | number: "1.2-2" }}</p>
+          </div>
+
+          <!-- ↓ Efectivo real en caja = ventas efectivo + fondo -->
+          <div class="metric-card efectivo-real">
+            <mat-icon>savings</mat-icon>
+            <p class="lbl">Efectivo en caja</p>
+            <p class="val">S/ {{ efectivoEnCaja | number: "1.2-2" }}</p>
+          </div>
+          
           <div class="metric-card efectivo">
             <mat-icon>payments</mat-icon>
             <p class="lbl">Efectivo</p>

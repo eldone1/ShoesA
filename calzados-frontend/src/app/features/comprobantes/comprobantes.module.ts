@@ -1,4 +1,4 @@
-// src/app/features/ventas/ventas.module.ts
+// src/app/features/comprobantes/comprobantes.module.ts
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -10,32 +10,36 @@ import { MatIconModule }            from '@angular/material/icon';
 import { MatFormFieldModule }       from '@angular/material/form-field';
 import { MatInputModule }           from '@angular/material/input';
 import { MatSelectModule }          from '@angular/material/select';
+import { MatDialogModule }          from '@angular/material/dialog';
 import { MatSnackBarModule }        from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule }           from '@angular/material/chips';
-import { MatDividerModule }         from '@angular/material/divider';
-import { MatDialogModule }          from '@angular/material/dialog';
 import { MatTooltipModule }         from '@angular/material/tooltip';
-import { MatDatepickerModule }      from '@angular/material/datepicker';
-import { MatNativeDateModule }      from '@angular/material/core';
-import { NuevaVentaComponent }      from './nueva-venta/nueva-venta.component';
-import { VentasListComponent }      from './ventas-list/ventas-list.component';
+import { MatDividerModule }         from '@angular/material/divider';
+import { MatAutocompleteModule }    from '@angular/material/autocomplete';
+import { ComprobantesListComponent }  from './comprobantes-list/comprobantes-list.component';
+import { ComprobanteDetalleComponent } from './comprobante-detalle/comprobante-detalle.component';
+import { EmitirComprobanteDialogComponent } from './emitir-comprobante-dialog/emitir-comprobante-dialog.component';
 
 const routes: Routes = [
-  { path: '',         component: VentasListComponent },
-  { path: 'nueva',    component: NuevaVentaComponent },
-  { path: 'caja/:id', component: VentasListComponent },
+  { path: '',    component: ComprobantesListComponent },
+  { path: ':id', component: ComprobanteDetalleComponent },
 ];
 
 @NgModule({
-  declarations: [NuevaVentaComponent, VentasListComponent],
+  declarations: [
+    ComprobantesListComponent,
+    ComprobanteDetalleComponent,
+    EmitirComprobanteDialogComponent,
+  ],
   imports: [
     CommonModule, ReactiveFormsModule, FormsModule,
     RouterModule.forChild(routes),
     MatCardModule, MatTableModule, MatButtonModule, MatIconModule,
-    MatFormFieldModule, MatInputModule, MatSelectModule, MatSnackBarModule,
-    MatProgressSpinnerModule, MatChipsModule, MatDividerModule,
-    MatDialogModule, MatTooltipModule, MatDatepickerModule, MatNativeDateModule,
+    MatFormFieldModule, MatInputModule, MatSelectModule, MatDialogModule,
+    MatSnackBarModule, MatProgressSpinnerModule, MatChipsModule,
+    MatTooltipModule, MatDividerModule, MatAutocompleteModule,
   ],
+  exports: [EmitirComprobanteDialogComponent],
 })
-export class VentasModule {}
+export class ComprobantesModule {}

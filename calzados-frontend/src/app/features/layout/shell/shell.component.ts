@@ -26,15 +26,32 @@ export class ShellComponent implements OnInit {
   currentUser: AuthUser | null = null;
 
   navItems: NavItem[] = [
-    { label: 'Dashboard',  icon: 'dashboard',      route: '/dashboard' },
-    { label: 'Nueva Venta',icon: 'point_of_sale',  route: '/ventas/nueva' },
-    { label: 'Mis Ventas', icon: 'receipt_long',   route: '/ventas',        roles: ['CAJERO'] },
-    { label: 'Ventas',     icon: 'receipt_long',   route: '/ventas',        roles: ['ADMIN'] },
-    { label: 'Productos',  icon: 'inventory_2',    route: '/productos' },
-    { label: 'Marcas',     icon: 'label',          route: '/marcas',        roles: ['ADMIN'] },
-    { label: 'Cajas',      icon: 'local_atm',      route: '/cajas' },
-    { label: 'Reportes',   icon: 'bar_chart',      route: '/reportes',      roles: ['ADMIN'] },
-    { label: 'Usuarios',   icon: 'people',         route: '/usuarios',      roles: ['ADMIN'] },
+    { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
+    { label: 'Nueva Venta', icon: 'point_of_sale', route: '/ventas/nueva' },
+    {
+      label: 'Mis Ventas',
+      icon: 'receipt_long',
+      route: '/ventas',
+      roles: ['CAJERO'],
+    },
+    {
+      label: 'Ventas',
+      icon: 'receipt_long',
+      route: '/ventas',
+      roles: ['ADMIN'],
+    },
+    { label: 'Productos', icon: 'inventory_2', route: '/productos' },
+    { label: 'Marcas', icon: 'label', route: '/marcas', roles: ['ADMIN'] },
+    { label: 'Clientes', icon: 'people', route: '/clientes' },
+    { label: 'Comprobantes', icon: 'receipt', route: '/comprobantes' },
+    { label: 'Cajas', icon: 'local_atm', route: '/cajas' },
+    {
+      label: 'Reportes',
+      icon: 'bar_chart',
+      route: '/reportes',
+      roles: ['ADMIN'],
+    },
+    { label: 'Usuarios', icon: 'people', route: '/usuarios', roles: ['ADMIN'] },
   ];
 
   constructor(
@@ -46,22 +63,24 @@ export class ShellComponent implements OnInit {
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
 
-    this.breakpointObserver.observe([Breakpoints.Handset]).subscribe(result => {
-      this.isMobile = result.matches;
-    });
+    this.breakpointObserver
+      .observe([Breakpoints.Handset])
+      .subscribe((result) => {
+        this.isMobile = result.matches;
+      });
 
     // Cerrar sidenav en mobile al navegar
-    this.router.events.pipe(
-      filter(e => e instanceof NavigationEnd)
-    ).subscribe(() => {
-      if (this.isMobile) this.sidenav?.close();
-    });
+    this.router.events
+      .pipe(filter((e) => e instanceof NavigationEnd))
+      .subscribe(() => {
+        if (this.isMobile) this.sidenav?.close();
+      });
   }
 
   get visibleNavItems(): NavItem[] {
     const rol = this.currentUser?.rol;
-    return this.navItems.filter(item =>
-      !item.roles || item.roles.includes(rol as any)
+    return this.navItems.filter(
+      (item) => !item.roles || item.roles.includes(rol as any),
     );
   }
 
@@ -72,7 +91,7 @@ export class ShellComponent implements OnInit {
   get userInitials(): string {
     return (this.currentUser?.nombre ?? 'U')
       .split(' ')
-      .map(n => n[0])
+      .map((n) => n[0])
       .slice(0, 2)
       .join('')
       .toUpperCase();

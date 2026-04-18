@@ -1,0 +1,73 @@
+<!-- src/app/features/clientes/cliente-dialog/cliente-dialog.component.html -->
+<h2 mat-dialog-title>{{ isEdit ? 'Editar' : 'Nuevo' }} Cliente</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="cliente-form">
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nombre completo</mat-label>
+      <mat-icon matPrefix>person</mat-icon>
+      <input matInput formControlName="nombre" placeholder="Juan Pérez">
+      <mat-error *ngIf="form.get('nombre')?.hasError('required')">El nombre es requerido</mat-error>
+    </mat-form-field>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="flex-1">
+        <mat-label>DNI</mat-label>
+        <mat-icon matPrefix>badge</mat-icon>
+        <input matInput formControlName="dni" placeholder="12345678" maxlength="8">
+        <mat-hint>8 dígitos</mat-hint>
+        <mat-error *ngIf="form.get('dni')?.hasError('pattern')">Solo 8 dígitos numéricos</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="flex-1">
+        <mat-label>RUC</mat-label>
+        <mat-icon matPrefix>business</mat-icon>
+        <input matInput formControlName="ruc" placeholder="20123456789" maxlength="11">
+        <mat-hint>11 dígitos</mat-hint>
+        <mat-error *ngIf="form.get('ruc')?.hasError('pattern')">Solo 11 dígitos numéricos</mat-error>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Razón social (si tiene RUC)</mat-label>
+      <mat-icon matPrefix>store</mat-icon>
+      <input matInput formControlName="razonSocial" placeholder="Empresa SAC">
+    </mat-form-field>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="flex-1">
+        <mat-label>Teléfono</mat-label>
+        <mat-icon matPrefix>phone</mat-icon>
+        <input matInput formControlName="numeroTelefono" placeholder="987654321">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="flex-1">
+        <mat-label>Email</mat-label>
+        <mat-icon matPrefix>email</mat-icon>
+        <input matInput type="email" formControlName="email" placeholder="correo@ejemplo.com">
+        <mat-error *ngIf="form.get('email')?.hasError('email')">Email inválido</mat-error>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Dirección</mat-label>
+      <mat-icon matPrefix>location_on</mat-icon>
+      <input matInput formControlName="direccion" placeholder="Av. Lima 123, Lima">
+    </mat-form-field>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancelar</button>
+  <button mat-raised-button color="primary" (click)="save()" [disabled]="loading">
+    <mat-spinner *ngIf="loading" diameter="18" style="display:inline-block;margin-right:6px"></mat-spinner>
+    {{ isEdit ? 'Actualizar' : 'Crear cliente' }}
+  </button>
+</mat-dialog-actions>
+
+<style>
+.cliente-form { display:flex; flex-direction:column; gap:4px; padding-top:8px; }
+.form-row { display:flex; gap:12px; }
+</style>

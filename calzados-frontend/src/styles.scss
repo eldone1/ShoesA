@@ -101,3 +101,25 @@ html, body {
 .diff-pos { color: #2e7d32; font-weight: 600; }
 .diff-neg { color: #c62828; font-weight: 600; }
 .diff-zero{ color: #616161; }
+
+// ── Impresion exclusiva de ticket ────────────────────────────────────────────
+@media print {
+  body.printing-ticket * {
+    visibility: hidden !important;
+  }
+
+  body.printing-ticket .comprobante-wrapper,
+  body.printing-ticket .comprobante-wrapper * {
+    visibility: visible !important;
+  }
+
+  body.printing-ticket .comprobante-wrapper {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+}

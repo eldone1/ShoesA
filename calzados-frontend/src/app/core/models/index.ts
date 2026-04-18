@@ -11,6 +11,7 @@ export interface MarcaRequest {
 // src/app/core/models/variante.model.ts — included here for simplicity
 export interface Variante {
   id: number;
+  productoNombre?: string;
   color: string;
   talla: string;
   sku: string;
@@ -160,4 +161,66 @@ export interface StockBajo {
   codigoBarras: string;
   stockActual: number;
   stockMinimo: number;
+}
+
+// ── Cliente ───────────────────────────────────────────────────────────────────
+export interface Cliente {
+  id: number;
+  nombre: string;
+  dni: string;
+  ruc: string;
+  razonSocial: string;
+  numeroTelefono: string;
+  email: string;
+  direccion: string;
+  activo: boolean;
+  createdAt: string;
+}
+export interface ClienteRequest {
+  nombre: string;
+  dni?: string;
+  ruc?: string;
+  razonSocial?: string;
+  numeroTelefono?: string;
+  email?: string;
+  direccion?: string;
+}
+
+// ── Comprobante ───────────────────────────────────────────────────────────────
+export type TipoComprobante = 'BOLETA' | 'FACTURA';
+
+export interface ComprobanteRequest {
+  ventaId: number;
+  tipo: TipoComprobante;
+  clienteId?: number | null;
+  clienteNombre?: string;
+  clienteDni?: string;
+  clienteRuc?: string;
+  clienteRazonSocial?: string;
+  clienteDireccion?: string;
+  clienteEmail?: string;
+}
+
+export interface ComprobanteResponse {
+  id: number;
+  serie: string;
+  tipo: TipoComprobante;
+  numero: number;
+  fechaEmision: string;
+  clienteId: number | null;
+  clienteNombre: string;
+  clienteDni: string;
+  clienteRuc: string;
+  clienteRazonSocial: string;
+  clienteDireccion: string;
+  clienteEmail: string;
+  ventaId: number;
+  cajeroNombre: string;
+  subtotal: number;
+  descuento: number;
+  total: number;
+  igv: number;
+  baseImponible: number;
+  metodoPago: string;
+  detalles: any[];
 }

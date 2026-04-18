@@ -4,6 +4,7 @@ import { MatSnackBar }       from '@angular/material/snack-bar';
 import { ReporteService }    from '../../core/services/reporte.service';
 import { ExportService }     from '../../core/services/export.service';
 import { ResumenDiario, ReporteVentaProducto, StockBajo } from '../../core/models/index';
+import { CajaService } from '../../core/services/caja.service';
 
 @Component({
   selector: 'app-reportes',
@@ -17,6 +18,7 @@ export class ReportesComponent implements OnInit {
   fechaResumen = this.today;
   resumen: ResumenDiario | null = null;
   loadingResumen = false;
+  montoApertura = 0;
 
   // Ventas por producto
   inicioProd = this.today;
@@ -33,6 +35,7 @@ export class ReportesComponent implements OnInit {
 
   constructor(private reporteService: ReporteService,
     private exportService: ExportService,
+    private cajaService: CajaService,
     private snack: MatSnackBar,) {}
 
   ngOnInit(): void {
@@ -42,10 +45,28 @@ export class ReportesComponent implements OnInit {
 
   cargarResumen(): void {
     this.loadingResumen = true;
+    this.montoApertura = 0;
+
+    
     this.reporteService.resumenDiario(this.fechaResumen).subscribe({
       next:  r => { this.resumen = r; this.loadingResumen = false; },
       error: () => { this.loadingResumen = false; },
     });
+
+    // Busca la caja del dia y extrae montoInicial
+    this.cajaService.listarPorFecha(this.fechaResumen, this.fechaResumen).subscribe({
+      next: cajas => {
+        if (cajas && cajas.length > 0) {
+          this.montoApertura = cajas[0].montoInicial ?? 0;
+        }
+      },
+      error: () => { this.montoApertura = 0; },
+    });
+  }
+
+  // getter util 
+  get efectivoEnCaja(): number {
+    return (this.resumen?.totalEfectivo ?? 0) + this.montoApertura;
   }
 
   cargarVentasPorProducto(): void {

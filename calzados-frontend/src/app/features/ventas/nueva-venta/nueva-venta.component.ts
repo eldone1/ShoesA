@@ -3,10 +3,11 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { ProductoService } from '../../../core/services/producto.service';
 import { VentaService }    from '../../../core/services/venta.service';
 import { CajaService }     from '../../../core/services/caja.service';
-import { Variante, Caja, MetodoPago, DetalleVentaRequest } from '../../../core/models/index';
+import { Variante, Caja, MetodoPago, DetalleVentaRequest, ComprobanteResponse } from '../../../core/models/index';
 
 interface ItemCarrito {
   variante: Variante;
@@ -23,6 +24,8 @@ interface ItemCarrito {
 export class NuevaVentaComponent implements OnInit {
   @ViewChild('scanInput') scanInput!: ElementRef;
 
+  private readonly REDONDEO_EFECTIVO_STEP = 0.05;
+
   pagoForm!: FormGroup;
   codigoBarras = '';
   carrito: ItemCarrito[] = [];
@@ -38,6 +41,7 @@ export class NuevaVentaComponent implements OnInit {
     private productoService: ProductoService,
     private ventaService: VentaService,
     private cajaService: CajaService,
+    private dialog: MatDialog,
     private snack: MatSnackBar,
     private router: Router,
   ) {}
@@ -116,7 +120,8 @@ export class NuevaVentaComponent implements OnInit {
       const item: ItemCarrito = { variante, cantidad: 1, descuentoItem: 0, subtotal: variante.precioVenta };
       this.carrito.push(item);
     }
-    this.snack.open(`✓ ${variante.sku} (T:${variante.talla}) agregado`, '', { duration: 1500 });
+    const itemLabel = variante.productoNombre ?? variante.sku;
+    this.snack.open(`✓ ${itemLabel} (T:${variante.talla}) agregado`, '', { duration: 1500 });
   }
 
   cambiarCantidad(item: ItemCarrito, delta: number): void {
@@ -152,14 +157,31 @@ export class NuevaVentaComponent implements OnInit {
   get subtotal(): number { return this.carrito.reduce((s, i) => s + i.subtotal, 0); }
 
   // total aplica descuento global como porcentaje sobre el subtotal
-  get total(): number { return Math.max(0, this.subtotal * (1 - this.descuentoGlobal / 100)); }
+  get totalExacto(): number { return Math.max(0, this.subtotal * (1 - this.descuentoGlobal / 100)); }
+
+  // En efectivo se redondea al sol más cercano para facilitar vuelto.
+  get totalCobrar(): number {
+    if (!this.esEfectivo) return this.totalExacto;
+
+    // Redondeo a favor del cliente: siempre hacia abajo al multiplo configurado.
+    const factor = 1 / this.REDONDEO_EFECTIVO_STEP;
+    return Math.floor(this.totalExacto * factor) / factor;
+  }
 
   get vuelto(): number {
     const recibido = this.pagoForm.get('montoRecibido')?.value ?? 0;
-    return Math.max(0, recibido - this.total);
+    return Math.max(0, recibido - this.totalCobrar);
   }
 
   get esEfectivo(): boolean { return this.pagoForm.get('metodoPago')?.value === 'EFECTIVO'; }
+
+  getSubtotalBrutoItem(item: ItemCarrito): number {
+    return item.variante.precioVenta * item.cantidad;
+  }
+
+  getMontoDescuentoItem(item: ItemCarrito): number {
+    return this.getSubtotalBrutoItem(item) * (item.descuentoItem / 100);
+  }
 
   // ── Procesar venta ────────────────────────────────────────────────────────
   procesarVenta(): void {
@@ -167,7 +189,7 @@ export class NuevaVentaComponent implements OnInit {
       this.snack.open('El carrito está vacío', 'OK', { duration: 2500 }); return;
     }
     if (this.pagoForm.invalid) { this.pagoForm.markAllAsTouched(); return; }
-    if (this.esEfectivo && (this.pagoForm.get('montoRecibido')?.value ?? 0) < this.total) {
+    if (this.esEfectivo && (this.pagoForm.get('montoRecibido')?.value ?? 0) < this.totalCobrar) {
       this.snack.open('El monto recibido es menor al total', 'OK', { duration: 3000, panelClass: 'snack-error' }); return;
     }
 
@@ -180,10 +202,15 @@ export class NuevaVentaComponent implements OnInit {
       descuentoItem: i.variante.precioVenta * i.cantidad * (i.descuentoItem / 100),
     }));
 
+    const descuentoGlobalBase = this.subtotal * (this.descuentoGlobal / 100);
+    const ajusteRedondeo = this.totalExacto - this.totalCobrar;
+    const descuentoAEnviar = Math.max(0, descuentoGlobalBase + ajusteRedondeo);
+
     const body = {
       metodoPago:    this.pagoForm.get('metodoPago')!.value,
       montoRecibido: this.esEfectivo ? this.pagoForm.get('montoRecibido')!.value : null,
-      descuento:     this.subtotal * (this.descuentoGlobal / 100),  // monto real en soles al backend
+      // Ajuste de redondeo (sin enviar descuentos negativos por validación backend).
+      descuento:     descuentoAEnviar,
       notas:         this.pagoForm.get('notas')!.value,
       detalles,
     };
@@ -191,17 +218,55 @@ export class NuevaVentaComponent implements OnInit {
     this.ventaService.registrar(body).subscribe({
       next: venta => {
         this.procesando = false;
-        const msg = this.esEfectivo
-          ? `Venta #${venta.id} registrada. Vuelto: S/ ${venta.vuelto?.toFixed(2)}`
-          : `Venta #${venta.id} registrada exitosamente`;
-        this.snack.open(msg, 'OK', { duration: 5000, panelClass: 'snack-success' });
-        this.limpiar();
+        this.abrirDialogoComprobante(venta);
       },
       error: e => {
         this.procesando = false;
         this.snack.open(e?.error?.message ?? 'Error al registrar venta', 'OK', { duration: 5000, panelClass: 'snack-error' });
       },
     });
+  }
+
+  private abrirDialogoComprobante(venta: any): void {
+    import('../../comprobantes/emitir-comprobante-dialog/emitir-comprobante-dialog.component')
+      .then(m => {
+        const ref = this.dialog.open(m.EmitirComprobanteDialogComponent, {
+          width: '580px',
+          disableClose: true,
+          data: venta,
+        });
+
+        ref.afterClosed().subscribe((comp: ComprobanteResponse | undefined) => {
+          const vueltoLocal = this.vuelto;
+          const msg = this.esEfectivo
+            ? `Venta #${venta.id} registrada. Vuelto: S/ ${vueltoLocal.toFixed(2)}`
+            : `Venta #${venta.id} registrada exitosamente`;
+
+          if (comp?.id) {
+            this.snack.open(`Comprobante ${comp.serie} emitido. Enviando a impresión...`, 'OK', {
+              duration: 4000,
+              panelClass: 'snack-success',
+            });
+            this.limpiar();
+            this.router.navigate(['/comprobantes', comp.id], { queryParams: { print: '1' } });
+            return;
+          }
+
+          this.snack.open(`${msg} (sin comprobante emitido)`, 'OK', {
+            duration: 5000,
+            panelClass: 'snack-warn',
+          });
+          this.limpiar();
+        });
+      })
+      .catch(() => {
+        this.snack.open(
+          `Venta #${venta.id} registrada, pero no se pudo abrir emisión de comprobante.`,
+          'OK',
+          { duration: 5000, panelClass: 'snack-warn' },
+        );
+        this.limpiar();
+      });
   }
 
   limpiar(): void {

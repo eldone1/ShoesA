@@ -1,0 +1,139 @@
+// src/app/features/comprobantes/comprobante-detalle/comprobante-detalle.component.scss
+.spinner-center { display:flex; justify-content:center; padding:64px; }
+
+.error-msg {
+  display:flex; flex-direction:column; align-items:center;
+  gap:12px; padding:48px; text-align:center;
+  mat-icon { font-size:48px; width:48px; height:48px; color:#bdbdbd; }
+  p { font-size:16px; color:#757575; margin:0; }
+}
+
+// ── Wrapper en pantalla ────────────────────────────────────────────────────────
+.comprobante-wrapper {
+  display:flex; justify-content:center;
+  padding:24px 16px 48px;
+  background:#f5f5f5;
+  min-height:calc(100vh - 120px);
+}
+
+.comprobante-doc {
+  background:#fff;
+  width:100%;
+  max-width:420px;
+  border-radius:12px;
+  box-shadow:0 4px 24px rgba(0,0,0,.1);
+  padding:20px;
+  font-family: "Courier New", monospace;
+}
+
+// ── Cabecera ──────────────────────────────────────────────────────────────────
+.doc-header {
+  display:flex; justify-content:space-between; align-items:flex-start;
+  margin-bottom:10px;
+}
+.empresa-nombre { font-size:18px; font-weight:700; color:#212121; margin:0; }
+.empresa-sub    { font-size:11px; color:#757575; margin:2px 0 0; }
+
+.serie-box {
+  text-align:center; padding:6px 8px; border-radius:6px; min-width:86px;
+  &.chip-boleta  { background:#e8f5e9; border:2px solid #a5d6a7; }
+  &.chip-factura { background:#e3f2fd; border:2px solid #90caf9; }
+}
+.serie-tipo {
+  font-size:12px; font-weight:700; letter-spacing:.1em;
+  color:#757575; margin:0 0 4px; text-transform:uppercase;
+}
+.serie-num {
+  font-size:14px; font-weight:800; margin:0;
+  font-family:monospace;
+  .chip-boleta  & { color:#2e7d32; }
+  .chip-factura & { color:#1565c0; }
+}
+
+// ── Divisor ───────────────────────────────────────────────────────────────────
+.doc-divider { border:none; border-top:1px dashed #9e9e9e; margin:10px 0; &.thin { margin:6px 0; } }
+
+// ── Meta ──────────────────────────────────────────────────────────────────────
+.doc-meta {
+  display:grid; grid-template-columns:1fr; gap:8px;
+}
+.meta-item { display:flex; flex-direction:column; gap:3px; }
+.meta-lbl  { font-size:11px; color:#9e9e9e; text-transform:uppercase; letter-spacing:.05em; }
+.meta-val  { font-size:12px; font-weight:600; color:#212121; }
+
+// ── Cliente ───────────────────────────────────────────────────────────────────
+.section-title { font-size:13px; font-weight:700; color:#424242; margin:0 0 12px; text-transform:uppercase; letter-spacing:.05em; }
+.doc-cliente   { margin-bottom:4px; }
+.cliente-grid  { display:grid; grid-template-columns:1fr; gap:8px; }
+.cli-item      { display:flex; flex-direction:column; gap:2px; }
+.cli-lbl       { font-size:11px; color:#9e9e9e; }
+.cli-val       { font-size:12px; color:#212121; font-weight:600; &.mono { font-family:monospace; } }
+.sin-cliente {
+  display:flex; align-items:center; gap:8px; color:#9e9e9e; font-size:14px; font-style:italic;
+  mat-icon { font-size:18px; width:18px; height:18px; }
+}
+
+// ── Items table ───────────────────────────────────────────────────────────────
+.items-table {
+  width:100%; border-collapse:collapse; font-size:11px; margin-bottom:4px;
+  th {
+    padding:8px 6px; text-align:left; background:#f5f5f5;
+    font-size:11px; font-weight:700; color:#616161; text-transform:uppercase;
+    border-bottom:2px solid #e0e0e0;
+  }
+  td { padding:6px 4px; border-bottom:1px solid #f0f0f0; vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  .col-cant     { width:50px; }
+  .col-precio   { width:70px; }
+  .col-desc-item{ width:70px; }
+  .col-subtotal { width:84px; }
+  .text-center  { text-align:center; }
+  .text-right   { text-align:right; }
+}
+.item-nombre { display:block; font-weight:600; color:#212121; margin-bottom:2px; }
+.item-det    { display:block; font-size:10px; color:#757575; font-family:monospace; }
+
+// ── Totales ───────────────────────────────────────────────────────────────────
+.totales { max-width:280px; margin-left:auto; }
+.total-row {
+  display:flex; justify-content:space-between;
+  font-size:11px; color:#424242; padding:3px 0;
+  &.descuento { color:#c62828; }
+  &.igv       { color:#757575; font-size:12px; }
+  &.total-final {
+    font-size:13px; font-weight:800; color:#212121;
+    padding:6px 0 2px;
+  }
+}
+
+// ── Pie ───────────────────────────────────────────────────────────────────────
+.doc-footer {
+  text-align:center; margin-top:10px; padding-top:10px;
+  border-top:1px dashed #9e9e9e;
+  p { font-size:13px; color:#9e9e9e; margin:4px 0; }
+  .footer-serie { font-family:monospace; font-size:12px; }
+}
+
+// ── Impresión ─────────────────────────────────────────────────────────────────
+.print-only { display:none; }
+
+@media print {
+  @page {
+    size: 80mm auto;
+    margin: 4mm;
+  }
+
+  .no-print    { display:none !important; }
+  .print-only  { display:inline !important; }
+
+  .comprobante-wrapper {
+    padding:0; background:#fff; min-height:unset;
+  }
+  .comprobante-doc {
+    box-shadow:none; border-radius:0;
+    width: 72mm;
+    max-width:100%;
+    padding: 0;
+    margin: 0 auto;
+  }
+}

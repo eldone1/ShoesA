@@ -22,6 +22,7 @@ export class DashboardComponent implements OnInit {
   resumen: ResumenDiario | null = null;
   cajaAbierta: Caja | null = null;
   stockBajo: StockBajo[] = [];
+  montoApertura = 0;
 
   constructor(
     private authService: AuthService,
@@ -62,12 +63,29 @@ getTodayPeru(): string {
       ? this.productoService.stockBajo().pipe(catchError(() => of([])))
       : of([]);
 
-    forkJoin({ resumen: resumen$, caja: caja$, stock: stock$ }).subscribe(({ resumen, caja, stock }) => {
-      this.resumen     = resumen as ResumenDiario | null;
-      this.cajaAbierta = caja as Caja | null;
-      this.stockBajo   = stock as StockBajo[];
-      this.loading = false;
+    // ← nuevo: busca la caja del día para obtener el fondo inicial
+    const apertura$ = this.authService.isAdmin()
+      ? this.cajaService.listarPorFecha(this.today, this.today).pipe(catchError(() => of([])))
+      : of([]);
+
+    forkJoin({ resumen: resumen$, caja: caja$, stock: stock$, apertura: apertura$ })
+      .subscribe(({ resumen, caja, stock, apertura }) => {
+        this.resumen      = resumen as ResumenDiario | null;
+        this.cajaAbierta  = caja as Caja | null;
+        this.stockBajo    = stock as StockBajo[];
+
+        // ← extrae montoInicial de la caja del día si existe
+        const cajas = apertura as Caja[];
+        this.montoApertura = cajas.length > 0 ? (cajas[0].montoInicial ?? 0) : 0;
+
+        this.loading = false;
     });
+  }
+
+  // Efectivo real en caja = ventas efectivo + fondo apertura
+  get efectivoEnCaja(): number {
+    return (this.resumen?.totalEfectivo ?? 0) + this.montoApertura;
+  
   }
 
   get isAdmin(): boolean { return this.authService.isAdmin(); }

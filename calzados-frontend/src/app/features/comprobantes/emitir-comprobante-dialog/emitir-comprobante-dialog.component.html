@@ -1,0 +1,135 @@
+<!-- src/app/features/comprobantes/emitir-comprobante-dialog/emitir-comprobante-dialog.component.html -->
+<h2 mat-dialog-title>Emitir Comprobante — Venta #{{ venta.id }}</h2>
+
+<mat-dialog-content class="dialog-content">
+
+  <!-- Resumen de la venta -->
+  <div class="venta-resumen">
+    <div class="resumen-item">
+      <span class="rlbl">Total</span>
+      <span class="rval primary">S/ {{ venta.total | number:'1.2-2' }}</span>
+    </div>
+    <div class="resumen-item">
+      <span class="rlbl">Método de pago</span>
+      <span class="rval">{{ venta.metodoPago }}</span>
+    </div>
+    <div class="resumen-item">
+      <span class="rlbl">Items</span>
+      <span class="rval">{{ venta.detalles?.length ?? 0 }}</span>
+    </div>
+  </div>
+
+  <mat-divider style="margin:16px 0"></mat-divider>
+
+  <form [formGroup]="form">
+
+    <!-- Tipo de comprobante -->
+    <div class="tipo-selector">
+      <button type="button" class="tipo-btn"
+              [class.active]="esBoleta"
+              (click)="form.get('tipo')!.setValue('BOLETA')">
+        <mat-icon>receipt</mat-icon>
+        <span>Boleta</span>
+        <small>BO-XXXXX</small>
+      </button>
+      <button type="button" class="tipo-btn"
+              [class.active]="esFactura"
+              (click)="form.get('tipo')!.setValue('FACTURA')">
+        <mat-icon>description</mat-icon>
+        <span>Factura</span>
+        <small>FA-XXXXX · Requiere RUC</small>
+      </button>
+    </div>
+
+    <mat-divider style="margin:16px 0"></mat-divider>
+
+    <!-- Búsqueda de cliente registrado -->
+    <p class="section-label">Cliente (opcional para boleta)</p>
+
+    <div class="autocomplete-wrap">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Buscar cliente registrado</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput
+               [(ngModel)]="busquedaCliente"
+               [ngModelOptions]="{standalone: true}"
+               (input)="onBusquedaCliente(busquedaCliente)"
+               placeholder="Nombre, DNI o RUC...">
+        <mat-spinner matSuffix *ngIf="buscandoCliente" diameter="18"></mat-spinner>
+        <button mat-icon-button matSuffix *ngIf="clienteSeleccionado" (click)="limpiarCliente()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+
+      <!-- Dropdown resultados -->
+      <div class="autocomplete-results" *ngIf="clientesFiltrados.length > 0">
+        <div class="autocomplete-item" *ngFor="let c of clientesFiltrados"
+             (click)="seleccionarCliente(c)">
+          <mat-icon>person</mat-icon>
+          <div>
+            <span class="ac-nombre">{{ c.nombre }}</span>
+            <span class="ac-doc">
+              {{ c.dni ? 'DNI: ' + c.dni : '' }}{{ c.ruc ? ' · RUC: ' + c.ruc : '' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chip de cliente seleccionado -->
+    <div class="cliente-chip" *ngIf="clienteSeleccionado">
+      <mat-icon>check_circle</mat-icon>
+      <span>{{ clienteSeleccionado.nombre }}</span>
+      <small *ngIf="clienteSeleccionado.ruc">RUC: {{ clienteSeleccionado.ruc }}</small>
+    </div>
+
+    <!-- Datos manuales (siempre visibles, pre-llenados si hay cliente) -->
+    <p class="section-label mt-2">Datos del comprobante</p>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="flex-1">
+        <mat-label>Nombre / Razón social</mat-label>
+        <input matInput formControlName="clienteNombre">
+      </mat-form-field>
+      <mat-form-field appearance="outline" style="width:140px">
+        <mat-label>DNI</mat-label>
+        <input matInput formControlName="clienteDni" maxlength="8">
+        <mat-error *ngIf="form.get('clienteDni')?.hasError('pattern')">8 dígitos</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" style="width:160px">
+        <mat-label>RUC <span *ngIf="esFactura" class="required">*</span></mat-label>
+        <input matInput formControlName="clienteRuc" maxlength="11">
+        <mat-error *ngIf="form.get('clienteRuc')?.hasError('required')">RUC obligatorio para factura</mat-error>
+        <mat-error *ngIf="form.get('clienteRuc')?.hasError('pattern')">11 dígitos</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="flex-1">
+        <mat-label>Email</mat-label>
+        <input matInput type="email" formControlName="clienteEmail">
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Dirección</mat-label>
+      <input matInput formControlName="clienteDireccion">
+    </mat-form-field>
+
+    <!-- Boleta sin datos -->
+    <div class="boleta-rapida-hint" *ngIf="esBoleta && !form.get('clienteNombre')?.value">
+      <mat-icon>info</mat-icon>
+      <span>Si no ingresas datos del cliente, se emitirá como <strong>boleta sin datos</strong> (venta rápida).</span>
+    </div>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancelar</button>
+  <button mat-raised-button color="primary" (click)="emitir()" [disabled]="loading">
+    <mat-spinner *ngIf="loading" diameter="18" style="display:inline-block;margin-right:6px"></mat-spinner>
+    <mat-icon *ngIf="!loading">receipt</mat-icon>
+    Emitir {{ form.get('tipo')?.value === 'FACTURA' ? 'Factura' : 'Boleta' }}
+  </button>
+</mat-dialog-actions>

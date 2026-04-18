@@ -62,6 +62,19 @@
           <p class="metric-label">Ventas realizadas</p>
           <p class="metric-value">{{ resumen.cantidadVentas }}</p>
         </div>
+        <!-- ↓ Fondo apertura — solo si existe -->
+        <div class="metric-card">
+          <mat-icon class="metric-icon efectivo">account_balance_wallet</mat-icon>
+          <p class="metric-label">Fondo apertura</p>
+          <p class="metric-value">S/ {{ montoApertura | number:'1.2-2' }}</p>
+        </div>
+
+        <!-- ↓ Efectivo real en caja = ventas + fondo -->
+        <div class="metric-card">
+          <mat-icon class="metric-icon efectivo">savings</mat-icon>
+          <p class="metric-label">Efectivo en caja</p>
+          <p class="metric-value">S/ {{ efectivoEnCaja | number:'1.2-2' }}</p>
+        </div>
         <div class="metric-card">
           <mat-icon class="metric-icon efectivo">payments</mat-icon>
           <p class="metric-label">Efectivo</p>

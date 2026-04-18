@@ -1,0 +1,142 @@
+<!-- src/app/features/comprobantes/comprobante-detalle/comprobante-detalle.component.html -->
+<div class="page-container no-print">
+  <div class="page-header">
+    <button mat-icon-button (click)="volver()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1>Detalle del Comprobante</h1>
+    <button mat-raised-button color="primary" (click)="imprimir()">
+      <mat-icon>print</mat-icon> Imprimir
+    </button>
+  </div>
+</div>
+
+<!-- Spinner -->
+<div *ngIf="loading" class="spinner-center">
+  <mat-spinner diameter="48"></mat-spinner>
+</div>
+
+<!-- Error -->
+<div *ngIf="error && !loading" class="error-msg">
+  <mat-icon>error_outline</mat-icon>
+  <p>No se encontró el comprobante.</p>
+  <button mat-stroked-button (click)="volver()">Volver</button>
+</div>
+
+<!-- ── Comprobante ──────────────────────────────────────────────────────────── -->
+<div class="comprobante-wrapper" *ngIf="comprobante && !loading">
+  <div class="comprobante-doc">
+
+    <!-- Cabecera -->
+    <div class="doc-header">
+      <div class="empresa-info">
+        <h2 class="empresa-nombre">CALZADOS POS</h2>
+        <p class="empresa-sub">Sistema de Punto de Venta</p>
+      </div>
+      <div class="serie-box" [class]="tipoClass">
+        <p class="serie-tipo">{{ comprobante.tipo }}</p>
+        <p class="serie-num">{{ comprobante.serie }}</p>
+      </div>
+    </div>
+
+    <div class="doc-divider"></div>
+
+    <!-- Datos del comprobante -->
+    <div class="doc-meta">
+      <div class="meta-item">
+        <span class="meta-lbl">Fecha Emision</span>
+        <span class="meta-val mono">{{ comprobante.fechaEmision | date:'dd/MM/yyyy HH:mm' }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-lbl">Cajero</span>
+        <span class="meta-val">{{ comprobante.cajeroNombre }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-lbl">Metodo de Pago</span>
+        <span class="meta-val">
+          <span class="mono">{{ comprobante.metodoPago }}</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="doc-divider"></div>
+
+    <!-- Datos del cliente -->
+    <div class="doc-cliente">
+      <p class="section-title">Cliente</p>
+      <div class="cliente-grid">
+        <div class="cli-item">
+          <span class="cli-lbl">Nombre / Razon Social</span>
+          <span class="cli-val">{{ clienteNombreTicket }}</span>
+        </div>
+        <div class="cli-item" *ngIf="clienteDocTicket">
+          <span class="cli-lbl">Documento</span>
+          <span class="cli-val mono">{{ clienteDocTicket }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="doc-divider"></div>
+
+    <!-- Detalle de ítems -->
+    <p class="section-title">Detalle de la venta</p>
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th class="col-desc">Descripción</th>
+          <th class="col-cant">Cant.</th>
+          <th class="col-precio">P. Unit.</th>
+          <th class="col-desc-item">Desc.</th>
+          <th class="col-subtotal">Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let d of comprobante.detalles">
+          <td class="col-desc">
+            <span class="item-nombre">{{ d.productoNombre }}</span>
+            <span class="item-det">T: {{ d.talla }} · {{ d.color }} · {{ d.sku }}</span>
+          </td>
+          <td class="col-cant text-center">{{ d.cantidad }}</td>
+          <td class="col-precio text-right">S/ {{ d.precioUnitario | number:'1.2-2' }}</td>
+          <td class="col-desc-item text-right">
+            {{ d.descuentoItem > 0 ? 'S/ '+(d.descuentoItem | number:'1.2-2') : '—' }}
+          </td>
+          <td class="col-subtotal text-right"><strong>S/ {{ d.subtotal | number:'1.2-2' }}</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="doc-divider"></div>
+
+    <!-- Totales -->
+    <div class="totales">
+      <div class="total-row" *ngIf="comprobante.descuento > 0">
+        <span>Subtotal</span>
+        <span>S/ {{ comprobante.subtotal | number:'1.2-2' }}</span>
+      </div>
+      <div class="total-row descuento" *ngIf="comprobante.descuento > 0">
+        <span>Descuento</span>
+        <span>- S/ {{ comprobante.descuento | number:'1.2-2' }}</span>
+      </div>
+      <div class="total-row igv">
+        <span>Base imponible</span>
+        <span>S/ {{ comprobante.baseImponible | number:'1.2-2' }}</span>
+      </div>
+      <div class="total-row igv">
+        <span>IGV (18%)</span>
+        <span>S/ {{ comprobante.igv | number:'1.2-2' }}</span>
+      </div>
+      <div class="doc-divider thin"></div>
+      <div class="total-row total-final">
+        <span>TOTAL</span>
+        <span>S/ {{ comprobante.total | number:'1.2-2' }}</span>
+      </div>
+    </div>
+
+    <!-- Pie del comprobante -->
+    <div class="doc-footer">
+      <p>Gracias por su compra</p>
+    </div>
+
+  </div>
+</div>
