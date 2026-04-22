@@ -4,10 +4,15 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "variante")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Variante {
 
     @Id
@@ -50,4 +55,8 @@ public class Variante {
 
     @Column(nullable = false)
     private Boolean activo = true;
+
+    @Column(name = "fecha_ingreso")
+    private LocalDateTime fechaIngreso;
 }
+

@@ -32,7 +32,7 @@ services:
       MYSQL_USER: calzados_user           # TODO producción: cambiar
       MYSQL_PASSWORD: calzados_pass       # TODO producción: cambiar
     ports:
-      - "3307:3306"                       # útil para conectar con DBeaver/Workbench
+      - "3306:3306"                       # útil para conectar con DBeaver/Workbench
     volumes:
       # Datos persistentes — sobreviven a docker-compose down
       - calzados_mysql_data:/var/lib/mysql

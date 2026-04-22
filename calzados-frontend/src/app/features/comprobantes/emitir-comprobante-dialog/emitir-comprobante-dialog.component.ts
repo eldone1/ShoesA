@@ -135,4 +135,8 @@ export class EmitirComprobanteDialogComponent implements OnInit {
       },
     });
   }
+
+  volverAEditarVenta(): void {
+    this.dialogRef.close({ accion: 'VOLVER_EDITAR' });
+  }
 }

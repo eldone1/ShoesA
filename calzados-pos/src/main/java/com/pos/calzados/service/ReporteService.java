@@ -14,4 +14,5 @@ public interface ReporteService {
     List<VentaResponse> ventasDelDia(LocalDate fecha);
     List<CajaResponse> cajasPorRango(LocalDate inicio, LocalDate fin);
     List<Map<String, Object>> stockBajo();
+    List<Map<String, Object>> ingresosInventario(LocalDate desde, LocalDate hasta);
 }

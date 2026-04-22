@@ -33,4 +33,10 @@ export class ReporteService {
   stockBajo(): Observable<StockBajo[]> {
     return this.http.get<ApiResponse<StockBajo[]>>(`${this.api}/stock-bajo`).pipe(map(r => r.data));
   }
+
+  /* ingresosInventario(desde: string, hasta: string): Observable<IngresoInventario[]> {
+    const params = new HttpParams().set('desde', desde).set('hasta', hasta);
+    return this.http.get<ApiResponse<IngresoInventario[]>>(`${this.api}/ingresos-inventario`, { params })
+      .pipe(map(r => r.data));
+  } */
 }

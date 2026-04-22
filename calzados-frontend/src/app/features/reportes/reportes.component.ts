@@ -35,6 +35,12 @@ export class ReportesComponent implements OnInit {
   loadingStock = false;
   colsStock = ['producto', 'marca', 'talla', 'color', 'sku', 'stockActual', 'stockMinimo'];
 
+  // Ingresos inventario
+  desdeIngreso = this.today;
+  hastaIngreso = this.today;
+  loadingIngresos = false;
+  colsIngresos = ['fechaIngreso', 'dias', 'producto', 'marca', 'talla', 'color', 'sku', 'stockActual', 'precioCompra'];
+
   constructor(private reporteService: ReporteService,
     private exportService: ExportService,
     private cajaService: CajaService,
@@ -45,10 +51,17 @@ export class ReportesComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParamMap.subscribe(params => {
       const tab = params.get('tab');
-      this.selectedTabIndex = tab === 'stock-bajo' ? 2 : 0;
+      if (tab === 'stock-bajo') {
+        this.selectedTabIndex = 2;
+      } else if (tab === 'ingresos') {
+        this.selectedTabIndex = 3;
+      } else {
+        this.selectedTabIndex = 0;
+      }
     });
     this.cargarResumen();
     this.cargarStockBajo();
+    /* this.cargarIngresosInventario(); */
   }
 
   cargarResumen(): void {
@@ -92,6 +105,19 @@ export class ReportesComponent implements OnInit {
       error: () => { this.loadingStock = false; },
     });
   }
+
+  /* cargarIngresosInventario(): void {
+    this.loadingIngresos = true;
+    this.reporteService.ingresosInventario(this.desdeIngreso, this.hastaIngreso).subscribe({
+      next: r => {
+        this.ingresosInventario = r;
+        this.loadingIngresos = false;
+      },
+      error: () => {
+        this.loadingIngresos = false;
+      },
+    });
+  } */
 
   get totalVendido(): number { return this.ventasProd.reduce((s, v) => s + v.totalVendido, 0); }
 

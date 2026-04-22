@@ -5,12 +5,9 @@
 -- ============================================================
 
 -- ── Usuarios ─────────────────────────────────────────────────────────────────
--- Passwords hasheados con BCrypt (rounds=10)
--- admin123  → $2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi
--- cajero123 → $2a$10$7EqJtq98hPqEX7fNZaFWoOSogdtGkN7Gc3ItGS7Av/sNeMhBFcL6
 
 INSERT INTO users (nombre, email, password_hash, rol, activo) VALUES
-  ('Administrador',  'admin@calzados.com',  '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.', 'ADMIN',  true),
+  ('Administrador',  'admin@calzados.com',  '$2a$12$oRWX4yIVveUDDoykcsHIB.JUbcEdG.mVDgVKlA.Hat7yCVk40zaKK', 'ADMIN',  true),
   ('Juan Pérez',     'juan@calzados.com',   '$2a$10$7EqJtq98hPqEX7fNZaFWoOSogdtGkN7Gc3ItGS7Av/sNeMhBFcL6.', 'CAJERO', true),
   ('María García',   'maria@calzados.com',  '$2a$10$7EqJtq98hPqEX7fNZaFWoOSogdtGkN7Gc3ItGS7Av/sNeMhBFcL6.', 'CAJERO', true);
 
@@ -102,3 +99,27 @@ INSERT INTO clientes (nombre, dni, ruc, razon_social, numero_telefono, email, di
   ('Pedro Mendoza',     '34567890', NULL,          NULL,                        '965432109', 'pedro@email.com',   'Calle Arequipa 789, Lima',  true),
   ('Inversiones SAC',   '45678901', '20123456789', 'Inversiones Calzado SAC',   '954321098', 'inv@empresa.com',   'Av. Industrial 100, Lima',  true),
   ('Distribuidora XYZ', '56789012', '20987654321', 'Distribuidora XYZ EIRL',    '943210987', 'xyz@empresa.com',   'Av. Comercial 200, Lima',   true);
+
+-- ── Proveedores de prueba ───────────────────────────────────────────────────
+INSERT INTO proveedor (nombre, ruc, contacto, numero_telefono, email, direccion, dias_credito, activo) VALUES
+  ('Importadora Andina SAC',    '20600000001', 'Luis Paredes',    '987111222', 'ventas@andina.com',    'Av. Javier Prado 1200, Lima', 30, true),
+  ('Distribuciones Norte EIRL', '20600000002', 'Rosa Huamán',     '987333444', 'contacto@norte.pe',    'Jr. Libertad 450, Trujillo',  15, true),
+  ('Proveedor Global Shoes',    '20600000003', 'Carlos Tello',    '987555666', 'compras@globalshoes.pe','Calle Comercio 890, Arequipa', 45, true);
+
+-- ── Solicitudes de compra de prueba ─────────────────────────────────────────
+INSERT INTO solicitud_compra (codigo, proveedor_id, usuario_id, condicion_pago, fecha_vencimiento, total, pagado, estado, observacion, activo)
+VALUES
+  ('SC-SEED-0001', 1, 1, 'CREDITO', DATE_ADD(CURDATE(), INTERVAL 30 DAY), 1275.00, false, 'PENDIENTE_RECEPCION', 'Solicitud inicial de reposición', true);
+
+INSERT INTO detalle_solicitud_compra (solicitud_compra_id, producto_id, variante_id, cantidad_solicitada, cantidad_recibida, precio_unitario, subtotal)
+VALUES
+  (1, 1, 1, 10, 0, 70.00, 700.00),
+  (1, 3, 15, 5,  0, 100.00, 500.00),
+  (1, 6, 30, 1,  0, 75.00, 75.00);
+
+-- ── Gastos de operación de ejemplo ──────────────────────────────────────────
+INSERT INTO gasto (tipo, concepto, monto, fecha_gasto, descripcion, usuario_id)
+VALUES
+  ('LUZ', 'Recibo de energía eléctrica', 450.00, CURDATE(), 'Consumo del local principal', 1),
+  ('INTERNET', 'Servicio de internet', 169.90, CURDATE(), 'Plan fibra óptica mensual', 1),
+  ('CREDITO_PROVEEDOR', 'Pago parcial proveedor Importadora Andina SAC', 800.00, CURDATE(), 'Abono de crédito a 30 días', 1);

@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
+import { AuthService }    from '../../../core/services/auth.service';
 import { ProductoService } from '../../../core/services/producto.service';
 import { VentaService }    from '../../../core/services/venta.service';
 import { CajaService }     from '../../../core/services/caja.service';
@@ -42,10 +43,14 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
   cajaAbierta: Caja | null = null;
   descuentoGlobal = 0;  // porcentaje (0-100)
 
+  readonly DESCUENTO_MAX_CAJERO = 15;
+  readonly DESCUENTO_MAX_ADMIN = 100;
+
   readonly metodosPago: MetodoPago[] = ['EFECTIVO', 'YAPE', 'TARJETA'];
 
   constructor(
     private fb: FormBuilder,
+    private authService: AuthService,
     private productoService: ProductoService,
     private ventaService: VentaService,
     private cajaService: CajaService,
@@ -214,8 +219,17 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
 
   setDescuentoItem(item: ItemCarrito, val: string): void {
     const pct = parseFloat(val) || 0;
-    item.descuentoItem = Math.min(100, Math.max(0, pct));  // clamp 0-100
+    item.descuentoItem = Math.min(this.maxDescuentoPorRol, Math.max(0, pct));
     this.recalcItem(item);
+  }
+
+  onDescuentoGlobalChange(val: string | number): void {
+    const pct = Number(val) || 0;
+    this.descuentoGlobal = Math.min(this.maxDescuentoPorRol, Math.max(0, pct));
+  }
+
+  get maxDescuentoPorRol(): number {
+    return this.authService.isAdmin() ? this.DESCUENTO_MAX_ADMIN : this.DESCUENTO_MAX_CAJERO;
   }
 
   removeItem(item: ItemCarrito): void {
@@ -262,6 +276,22 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
     if (this.carrito.length === 0) {
       this.snack.open('El carrito está vacío', 'OK', { duration: 2500 }); return;
     }
+    if (this.descuentoGlobal > this.maxDescuentoPorRol) {
+      this.snack.open(`El descuento global excede el máximo permitido (${this.maxDescuentoPorRol}%)`, 'OK', {
+        duration: 3500,
+        panelClass: 'snack-warn',
+      });
+      return;
+    }
+
+    if (this.carrito.some(i => i.descuentoItem > this.maxDescuentoPorRol)) {
+      this.snack.open(`Hay descuentos por ítem que exceden el máximo permitido (${this.maxDescuentoPorRol}%)`, 'OK', {
+        duration: 3500,
+        panelClass: 'snack-warn',
+      });
+      return;
+    }
+
     if (this.pagoForm.invalid) { this.pagoForm.markAllAsTouched(); return; }
     if (this.esEfectivo && (this.pagoForm.get('montoRecibido')?.value ?? 0) < this.totalCobrar) {
       this.snack.open('El monto recibido es menor al total', 'OK', { duration: 3000, panelClass: 'snack-error' }); return;
@@ -311,6 +341,26 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
         });
 
         ref.afterClosed().subscribe((comp: ComprobanteResponse | undefined) => {
+          if ((comp as any)?.accion === 'VOLVER_EDITAR') {
+            this.ventaService.cancelarSinComprobante(venta.id).subscribe({
+              next: () => {
+                this.snack.open('Venta cancelada. Puedes seguir editando el carrito.', 'OK', {
+                  duration: 4000,
+                  panelClass: 'snack-warn',
+                });
+                this.procesando = false;
+              },
+              error: e => {
+                this.snack.open(e?.error?.message ?? 'No se pudo cancelar la venta para volver a editar', 'OK', {
+                  duration: 5000,
+                  panelClass: 'snack-error',
+                });
+                this.procesando = false;
+              },
+            });
+            return;
+          }
+
           const vueltoLocal = this.vuelto;
           const msg = this.esEfectivo
             ? `Venta #${venta.id} registrada. Vuelto: S/ ${vueltoLocal.toFixed(2)}`

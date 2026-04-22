@@ -1,0 +1,76 @@
+:host {
+  display: block;
+}
+
+.page-container {
+  padding: 24px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.filtros-card {
+  margin-bottom: 16px;
+}
+
+.filtros-content {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.resumen-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.resumen {
+  .label {
+    color: #64748b;
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+
+  .value {
+    font-size: 28px;
+    font-weight: 700;
+  }
+}
+
+.resumen.ventas .value { color: #0f766e; }
+.resumen.gastos .value { color: #b45309; }
+.resumen.saldo.ok .value { color: #15803d; }
+.resumen.saldo.warn .value { color: #b91c1c; }
+
+.spinner-center {
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+}
+
+.concepto {
+  font-weight: 600;
+}
+
+.monto {
+  font-weight: 700;
+}
+
+.empty-msg {
+  text-align: center;
+  color: #64748b;
+  padding: 16px;
+}
+
+@media (max-width: 900px) {
+  .resumen-grid {
+    grid-template-columns: 1fr;
+  }
+}

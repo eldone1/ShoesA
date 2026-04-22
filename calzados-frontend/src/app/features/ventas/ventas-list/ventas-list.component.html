@@ -18,9 +18,27 @@
         <mat-label>Hasta</mat-label>
         <input matInput type="date" [(ngModel)]="fin">
       </mat-form-field>
+
+      <mat-form-field appearance="outline" *ngIf="isAdmin">
+        <mat-label>Cajero</mat-label>
+        <mat-select [(ngModel)]="cajeroIdFiltro">
+          <mat-option [value]="null">Todos</mat-option>
+          <mat-option *ngFor="let c of cajeros" [value]="c.id">{{ c.nombre }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" *ngIf="isAdmin">
+        <mat-label>Metodo de pago</mat-label>
+        <mat-select [(ngModel)]="metodoPagoFiltro">
+          <mat-option [value]="null">Todos</mat-option>
+          <mat-option *ngFor="let m of metodosPago" [value]="m">{{ m }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
       <button mat-raised-button color="primary" (click)="load()">
         <mat-icon>search</mat-icon> Buscar
       </button>
+      <button mat-button *ngIf="isAdmin" (click)="limpiarFiltros()">Limpiar filtros</button>
     </mat-card-content>
   </mat-card>
 

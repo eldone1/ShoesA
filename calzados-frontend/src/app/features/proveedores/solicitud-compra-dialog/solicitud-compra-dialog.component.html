@@ -1,0 +1,84 @@
+<h2 mat-dialog-title>Crear Solicitud de Compra</h2>
+
+<mat-dialog-content class="dialog-content">
+  <div class="proveedor-info">
+    <strong>{{ proveedor.nombre }}</strong> · {{ proveedor.ruc }}
+  </div>
+
+  <form [formGroup]="solicitudForm" class="form-container">
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Condición de pago</mat-label>
+        <mat-select formControlName="condicionPago">
+          <mat-option value="CONTADO">Contado</mat-option>
+          <mat-option value="CREDITO">Crédito</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Fecha vencimiento</mat-label>
+        <input matInput type="date" formControlName="fechaVencimiento" />
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Observación</mat-label>
+      <textarea matInput rows="2" formControlName="observacion"></textarea>
+    </mat-form-field>
+
+    <div class="detalles-section">
+      <h3>Productos y variantes solicitadas</h3>
+
+      <div formArrayName="detalles" class="detalles-list">
+        <mat-card *ngFor="let detalle of detalles.controls; let i = index" [formGroupName]="i" class="detalle-card">
+          <mat-card-content>
+            <div class="detalle-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Producto</mat-label>
+                <mat-select formControlName="productoId" (selectionChange)="onProductoChange(i)">
+                  <mat-option *ngFor="let p of productos" [value]="p.id">
+                    {{ p.nombre }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Variante</mat-label>
+                <mat-select formControlName="varianteId">
+                  <mat-option *ngFor="let v of getVariantes(i)" [value]="v.id">
+                    {{ v.sku }} · {{ v.talla }}/{{ v.color }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="narrow">
+                <mat-label>Cantidad</mat-label>
+                <input matInput type="number" min="1" formControlName="cantidadSolicitada" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="narrow">
+                <mat-label>Precio S/</mat-label>
+                <input matInput type="number" min="0.01" step="0.01" formControlName="precioUnitario" />
+              </mat-form-field>
+
+              <button mat-icon-button color="warn" type="button" (click)="removeDetalle(i)" matTooltip="Quitar línea">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <button mat-stroked-button type="button" (click)="addDetalle()" class="add-btn">
+        <mat-icon>add</mat-icon> Agregar línea
+      </button>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancelar()">Cancelar</button>
+  <button mat-raised-button color="primary" (click)="guardarSolicitud()" [disabled]="guardando">
+    <mat-icon>save</mat-icon> Registrar solicitud
+  </button>
+</mat-dialog-actions>

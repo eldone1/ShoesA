@@ -59,7 +59,7 @@
           <div class="item-desc-wrap">
             <mat-form-field appearance="outline" class="desc-field">
               <mat-label>Desc. %</mat-label>
-              <input matInput type="number" min="0" max="100" [value]="item.descuentoItem"
+              <input matInput type="number" min="0" [max]="maxDescuentoPorRol" [value]="item.descuentoItem"
                      (change)="setDescuentoItem(item, $any($event.target).value)">
               <span matSuffix>%</span>
             </mat-form-field>
@@ -83,8 +83,9 @@
       <div class="descuento-global" *ngIf="carrito.length > 0">
         <mat-form-field appearance="outline" class="desc-global-field">
           <mat-label>Descuento global (%)</mat-label>
-          <input matInput type="number" min="0" max="100" [(ngModel)]="descuentoGlobal">
+          <input matInput type="number" min="0" [max]="maxDescuentoPorRol" [ngModel]="descuentoGlobal" (ngModelChange)="onDescuentoGlobalChange($event)">
           <span matSuffix>%</span>
+          <mat-hint>Máximo permitido: {{ maxDescuentoPorRol }}%</mat-hint>
         </mat-form-field>
       </div>
     </mat-card>

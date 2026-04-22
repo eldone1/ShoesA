@@ -56,7 +56,7 @@ export class VentasListComponent implements OnInit {
   }
 
   metodoPagoClass(m: string): string {
-    return { EFECTIVO: 'chip-efectivo', YAPE: 'chip-yape', TARJETA: 'chip-tarjeta' }[m] ?? '';
+    return { EFECTIVO: 'chip-efectivo', YAPE: 'chip-yape', TARJETA: 'chip-tarjeta', PLIN: 'chip-plin' }[m] ?? '';
   }
 
   get totalDia(): number { return this.ventas.reduce((s, v) => s + v.total, 0); }
@@ -72,7 +72,8 @@ import { VentaService }          from '../../../core/services/venta.service';
 import { ComprobanteService }      from '../../../core/services/comprobante.service';
 import { MatDialog }               from '@angular/material/dialog';
 import { AuthService }       from '../../../core/services/auth.service';
-import { Venta, ComprobanteResponse } from '../../../core/models/index';
+import { UserService } from '../../../core/services/user.service';
+import { Venta, ComprobanteResponse, MetodoPago, User } from '../../../core/models/index';
 
 @Component({
   selector: 'app-ventas-list',
@@ -87,6 +88,10 @@ export class VentasListComponent implements OnInit {
 
   inicio = new Date().toISOString().split('T')[0];
   fin    = new Date().toISOString().split('T')[0];
+  cajeros: User[] = [];
+  cajeroIdFiltro: number | null = null;
+  metodoPagoFiltro: MetodoPago | null = null;
+  readonly metodosPago: MetodoPago[] = ['EFECTIVO', 'YAPE', 'TARJETA'];
 
   displayedColumns = ['id', 'fecha', 'cajero', 'items', 'metodoPago', 'total', 'comprobante', 'acciones'];
   expandedVenta: Venta | null = null;
@@ -95,6 +100,7 @@ export class VentasListComponent implements OnInit {
   constructor(
     private ventaService: VentaService,
     private authService: AuthService,
+    private userService: UserService,
     private comprobanteService: ComprobanteService,
     private dialog: MatDialog,
     private route: ActivatedRoute,
@@ -106,7 +112,23 @@ export class VentasListComponent implements OnInit {
     this.cajaId = this.route.snapshot.paramMap.get('id')
       ? +this.route.snapshot.paramMap.get('id')!
       : null;
+
+    if (!this.cajaId && this.isAdmin) {
+      this.loadCajeros();
+    }
+
     this.load();
+  }
+
+  loadCajeros(): void {
+    this.userService.listar().subscribe({
+      next: users => {
+        this.cajeros = users.filter(u => u.rol === 'CAJERO' && u.activo);
+      },
+      error: () => {
+        this.cajeros = [];
+      },
+    });
   }
 
   load(): void {
@@ -114,7 +136,7 @@ export class VentasListComponent implements OnInit {
     const obs = this.cajaId
       ? this.ventaService.porCaja(this.cajaId)
       : this.isAdmin
-        ? this.ventaService.porFecha(this.inicio, this.fin)
+        ? this.ventaService.porFechaFiltrada(this.inicio, this.fin, this.cajeroIdFiltro, this.metodoPagoFiltro)
         : this.ventaService.misVentas(this.inicio, this.fin);
 
     obs.subscribe({
@@ -142,8 +164,14 @@ export class VentasListComponent implements OnInit {
   }
 
   metodoPagoClass(m: string): string {
-    return { EFECTIVO: 'chip-efectivo', YAPE: 'chip-yape', TARJETA: 'chip-tarjeta' }[m] ?? '';
+    return { EFECTIVO: 'chip-efectivo', YAPE: 'chip-yape', TARJETA: 'chip-tarjeta', PLIN: 'chip-plin' }[m] ?? '';
   }
 
   get totalDia(): number { return this.ventas.reduce((s, v) => s + v.total, 0); }
+
+  limpiarFiltros(): void {
+    this.cajeroIdFiltro = null;
+    this.metodoPagoFiltro = null;
+    this.load();
+  }
 }

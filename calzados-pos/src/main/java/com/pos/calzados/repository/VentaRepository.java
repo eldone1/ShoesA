@@ -28,11 +28,25 @@ public interface VentaRepository extends JpaRepository<Venta, Long> {
                                            @Param("inicio") LocalDateTime inicio,
                                            @Param("fin") LocalDateTime fin);
 
+    @Query("SELECT v FROM Venta v JOIN FETCH v.cajero JOIN FETCH v.caja " +
+           "WHERE v.fecha BETWEEN :inicio AND :fin " +
+           "AND (:cajeroId IS NULL OR v.cajero.id = :cajeroId) " +
+           "AND (:metodoPago IS NULL OR v.metodoPago = :metodoPago) " +
+           "ORDER BY v.fecha DESC")
+    List<Venta> findByFiltros(@Param("inicio") LocalDateTime inicio,
+                              @Param("fin") LocalDateTime fin,
+                              @Param("cajeroId") Long cajeroId,
+                              @Param("metodoPago") MetodoPago metodoPago);
+
     @Query("SELECT COALESCE(SUM(v.total), 0) FROM Venta v WHERE v.caja.id = :cajaId AND v.metodoPago = :metodo")
     BigDecimal sumTotalByCajaAndMetodo(@Param("cajaId") Long cajaId, @Param("metodo") MetodoPago metodo);
 
     @Query("SELECT COALESCE(SUM(v.total), 0) FROM Venta v WHERE v.caja.id = :cajaId")
     BigDecimal sumTotalByCaja(@Param("cajaId") Long cajaId);
+
+       @Query("SELECT COALESCE(SUM(v.total), 0) FROM Venta v WHERE v.fecha BETWEEN :inicio AND :fin")
+       BigDecimal sumTotalByRangoFecha(@Param("inicio") LocalDateTime inicio,
+                                                               @Param("fin") LocalDateTime fin);
 
     @Query("SELECT v FROM Venta v JOIN FETCH v.detalles d JOIN FETCH d.variante va " +
            "JOIN FETCH va.producto p JOIN FETCH p.marca WHERE v.id = :id")

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,4 +33,14 @@ public interface VarianteRepository extends JpaRepository<Variante, Long> {
 
     @Query("SELECT v FROM Variante v WHERE v.stock <= v.stockMinimo AND v.producto.activo = true")
     List<Variante> findVariantesConStockBajo();
+
+    @Query("SELECT v FROM Variante v " +
+            "JOIN FETCH v.producto p " +
+            "LEFT JOIN FETCH p.marca m " +
+            "WHERE v.fechaIngreso IS NOT NULL " +
+            "AND v.fechaIngreso BETWEEN :desde AND :hasta " +
+            "AND v.producto.activo = true " +
+            "ORDER BY v.fechaIngreso DESC")
+    List<Variante> findIngresosByFechaIngreso(@Param("desde") LocalDateTime desde,
+                                              @Param("hasta") LocalDateTime hasta);
 }

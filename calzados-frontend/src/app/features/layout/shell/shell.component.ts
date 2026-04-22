@@ -42,6 +42,8 @@ export class ShellComponent implements OnInit {
     },
     { label: 'Productos', icon: 'inventory_2', route: '/productos' },
     { label: 'Marcas', icon: 'label', route: '/marcas', roles: ['ADMIN'] },
+    { label: 'Proveedores', icon: 'local_shipping', route: '/proveedores', roles: ['ADMIN'] },
+    { label: 'Gastos', icon: 'request_quote', route: '/gastos', roles: ['ADMIN'] },
     { label: 'Clientes', icon: 'people', route: '/clientes' },
     { label: 'Comprobantes', icon: 'receipt', route: '/comprobantes' },
     { label: 'Cajas', icon: 'local_atm', route: '/cajas' },

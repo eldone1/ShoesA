@@ -126,7 +126,7 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close>Cancelar</button>
+  <button mat-button (click)="volverAEditarVenta()">Cancelar y volver</button>
   <button mat-raised-button color="primary" (click)="emitir()" [disabled]="loading">
     <mat-spinner *ngIf="loading" diameter="18" style="display:inline-block;margin-right:6px"></mat-spinner>
     <mat-icon *ngIf="!loading">receipt</mat-icon>

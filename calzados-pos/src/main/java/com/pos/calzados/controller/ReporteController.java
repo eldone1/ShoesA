@@ -73,4 +73,15 @@ public class ReporteController {
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> stockBajo() {
         return ResponseEntity.ok(ApiResponse.ok(reporteService.stockBajo()));
     }
+
+    /**
+     * GET /api/reportes/ingresos-inventario?desde=2025-01-01&hasta=2025-01-31
+     * Variantes con fecha de ingreso en el rango para control de antiguedad.
+     */
+    @GetMapping("/ingresos-inventario")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> ingresosInventario(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
+        return ResponseEntity.ok(ApiResponse.ok(reporteService.ingresosInventario(desde, hasta)));
+    }
 }

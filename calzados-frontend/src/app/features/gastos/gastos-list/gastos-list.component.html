@@ -1,0 +1,102 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>Control de Gastos</h1>
+    <button mat-raised-button color="primary" (click)="openNuevoGasto()">
+      <mat-icon>add</mat-icon> Nuevo gasto
+    </button>
+  </div>
+
+  <mat-card class="filtros-card">
+    <mat-card-content class="filtros-content">
+      <mat-form-field appearance="outline">
+        <mat-label>Año</mat-label>
+        <input matInput type="number" [(ngModel)]="year" min="2020" max="2100" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Mes</mat-label>
+        <mat-select [(ngModel)]="month">
+          <mat-option *ngFor="let m of [1,2,3,4,5,6,7,8,9,10,11,12]" [value]="m">
+            {{ monthLabel(m) | titlecase }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-raised-button color="accent" (click)="cargarTodo()">
+        <mat-icon>search</mat-icon> Ver mes
+      </button>
+    </mat-card-content>
+  </mat-card>
+
+  <div class="resumen-grid" *ngIf="!loadingResumen && resumen as r">
+    <mat-card class="resumen ventas">
+      <mat-card-content>
+        <div class="label">Ventas acumuladas del mes</div>
+        <div class="value">S/ {{ r.totalVentasMes | number:'1.2-2' }}</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="resumen gastos">
+      <mat-card-content>
+        <div class="label">Gastos del mes</div>
+        <div class="value">S/ {{ r.totalGastosMes | number:'1.2-2' }}</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="resumen saldo" [ngClass]="saldoClass">
+      <mat-card-content>
+        <div class="label">Saldo neto (ventas - gastos)</div>
+        <div class="value">S/ {{ r.saldoMes | number:'1.2-2' }}</div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Detalle de gastos del mes</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div *ngIf="loading" class="spinner-center">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+
+      <table mat-table [dataSource]="gastos" *ngIf="!loading">
+        <ng-container matColumnDef="fecha">
+          <th mat-header-cell *matHeaderCellDef>Fecha</th>
+          <td mat-cell *matCellDef="let g">{{ g.fechaGasto | date:'dd/MM/yyyy' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="tipo">
+          <th mat-header-cell *matHeaderCellDef>Tipo</th>
+          <td mat-cell *matCellDef="let g">{{ g.tipo }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="concepto">
+          <th mat-header-cell *matHeaderCellDef>Concepto</th>
+          <td mat-cell *matCellDef="let g">
+            <div class="concepto">{{ g.concepto }}</div>
+            <small *ngIf="g.descripcion">{{ g.descripcion }}</small>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="monto">
+          <th mat-header-cell *matHeaderCellDef>Monto</th>
+          <td mat-cell *matCellDef="let g" class="monto">S/ {{ g.monto | number:'1.2-2' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="usuario">
+          <th mat-header-cell *matHeaderCellDef>Registrado por</th>
+          <td mat-cell *matCellDef="let g">{{ g.usuarioNombre }}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+
+      <p *ngIf="!loading && gastos.length === 0" class="empty-msg">
+        No hay gastos registrados para este mes.
+      </p>
+    </mat-card-content>
+  </mat-card>
+</div>

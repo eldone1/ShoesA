@@ -165,3 +165,77 @@ CREATE INDEX idx_comprobantes_tipo     ON comprobantes(tipo);
 CREATE INDEX idx_comprobantes_cliente  ON comprobantes(cliente_id);
 CREATE INDEX idx_clientes_dni          ON clientes(dni);
 CREATE INDEX idx_clientes_ruc          ON clientes(ruc);
+
+-- ── Proveedores ───────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS proveedor (
+    id               BIGINT        AUTO_INCREMENT PRIMARY KEY,
+    nombre           VARCHAR(150)  NOT NULL,
+    ruc              VARCHAR(11)   NOT NULL UNIQUE,
+    contacto         VARCHAR(100)  NOT NULL,
+    numero_telefono  VARCHAR(15)   NOT NULL,
+    email            VARCHAR(150)  NOT NULL,
+    direccion        VARCHAR(250)  NOT NULL,
+    dias_credito     INT           NOT NULL DEFAULT 0,
+    activo           BOOLEAN       NOT NULL DEFAULT TRUE,
+    created_at       TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ── Solicitudes de compra ─────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS solicitud_compra (
+    id                BIGINT         AUTO_INCREMENT PRIMARY KEY,
+    codigo            VARCHAR(30)    NOT NULL UNIQUE,
+    proveedor_id      BIGINT         NOT NULL,
+    usuario_id        BIGINT         NOT NULL,
+    condicion_pago    VARCHAR(20)    NOT NULL,
+    fecha_vencimiento DATE,
+    fecha_solicitud   TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    total             DECIMAL(12,2)  NOT NULL,
+    pagado            BOOLEAN        NOT NULL DEFAULT FALSE,
+    estado            VARCHAR(30)    NOT NULL DEFAULT 'PENDIENTE_RECEPCION',
+    observacion       TEXT,
+    activo            BOOLEAN        NOT NULL DEFAULT TRUE,
+    CONSTRAINT fk_solicitud_proveedor FOREIGN KEY (proveedor_id) REFERENCES proveedor(id),
+    CONSTRAINT fk_solicitud_usuario   FOREIGN KEY (usuario_id) REFERENCES users(id),
+    CONSTRAINT chk_solicitud_condicion_pago CHECK (condicion_pago IN ('CONTADO','CREDITO')),
+    CONSTRAINT chk_solicitud_estado CHECK (estado IN ('PENDIENTE_RECEPCION','PARCIAL_RECEPCION','RECEPCIONADA','ANULADA'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS detalle_solicitud_compra (
+    id                    BIGINT         AUTO_INCREMENT PRIMARY KEY,
+    solicitud_compra_id   BIGINT         NOT NULL,
+    producto_id           BIGINT         NOT NULL,
+    variante_id           BIGINT         NOT NULL,
+    cantidad_solicitada   INT            NOT NULL,
+    cantidad_recibida     INT            NOT NULL DEFAULT 0,
+    precio_unitario       DECIMAL(12,2)  NOT NULL,
+    subtotal              DECIMAL(12,2)  NOT NULL,
+    CONSTRAINT fk_det_solicitud_compra FOREIGN KEY (solicitud_compra_id) REFERENCES solicitud_compra(id),
+    CONSTRAINT fk_det_solicitud_producto FOREIGN KEY (producto_id) REFERENCES producto(id),
+    CONSTRAINT fk_det_solicitud_variante FOREIGN KEY (variante_id) REFERENCES variante(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE INDEX idx_proveedor_nombre               ON proveedor(nombre);
+CREATE INDEX idx_solicitud_proveedor_estado     ON solicitud_compra(proveedor_id, estado);
+CREATE INDEX idx_solicitud_fecha                ON solicitud_compra(fecha_solicitud);
+CREATE INDEX idx_solicitud_pagado               ON solicitud_compra(pagado);
+CREATE INDEX idx_detalle_solicitud_compra_id    ON detalle_solicitud_compra(solicitud_compra_id);
+CREATE INDEX idx_detalle_solicitud_variante_id  ON detalle_solicitud_compra(variante_id);
+
+-- ── Gastos de operación ─────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS gasto (
+        id          BIGINT         AUTO_INCREMENT PRIMARY KEY,
+        tipo        VARCHAR(30)    NOT NULL,
+        concepto    VARCHAR(180)   NOT NULL,
+        monto       DECIMAL(12,2)  NOT NULL,
+        fecha_gasto DATE           NOT NULL,
+        descripcion TEXT,
+        usuario_id  BIGINT         NOT NULL,
+        created_at  TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT fk_gasto_usuario FOREIGN KEY (usuario_id) REFERENCES users(id),
+        CONSTRAINT chk_tipo_gasto CHECK (tipo IN (
+            'CREDITO_PROVEEDOR','LUZ','INTERNET','ALQUILER','PLANILLA','TRANSPORTE','OTRO'
+        ))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE INDEX idx_gasto_fecha       ON gasto(fecha_gasto);
+CREATE INDEX idx_gasto_tipo_fecha  ON gasto(tipo, fecha_gasto);

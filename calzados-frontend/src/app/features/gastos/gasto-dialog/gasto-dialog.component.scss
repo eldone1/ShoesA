@@ -1,0 +1,17 @@
+.grid-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  min-width: 560px;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 720px) {
+  .grid-form {
+    grid-template-columns: 1fr;
+    min-width: 0;
+  }
+}

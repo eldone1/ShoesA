@@ -3,6 +3,7 @@ package com.pos.calzados.controller;
 import com.pos.calzados.dto.request.VentaRequest;
 import com.pos.calzados.dto.response.ApiResponse;
 import com.pos.calzados.dto.response.VentaResponse;
+import com.pos.calzados.entity.MetodoPago;
 import com.pos.calzados.entity.User;
 import com.pos.calzados.service.VentaService;
 import jakarta.validation.Valid;
@@ -37,6 +38,15 @@ public class VentaController {
                 .body(ApiResponse.ok("Venta registrada exitosamente", response));
     }
 
+    /** DELETE /api/ventas/{id}/cancelar-sin-comprobante */
+    @DeleteMapping("/{id}/cancelar-sin-comprobante")
+    public ResponseEntity<ApiResponse<Void>> cancelarSinComprobante(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User user) {
+        ventaService.cancelarSinComprobante(id, user.getId());
+        return ResponseEntity.ok(ApiResponse.ok("Venta cancelada y stock repuesto", null));
+    }
+
     /** GET /api/ventas/{id} */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<VentaResponse>> obtener(@PathVariable Long id) {
@@ -57,8 +67,10 @@ public class VentaController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<List<VentaResponse>>> porFecha(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin) {
-        return ResponseEntity.ok(ApiResponse.ok(ventaService.listarPorFecha(inicio, fin)));
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin,
+            @RequestParam(required = false) Long cajeroId,
+            @RequestParam(required = false) MetodoPago metodoPago) {
+        return ResponseEntity.ok(ApiResponse.ok(ventaService.listarPorFiltros(inicio, fin, cajeroId, metodoPago)));
     }
 
     /**

@@ -1,0 +1,55 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar proveedor' : 'Nuevo proveedor' }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="grid-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nombre</mat-label>
+      <input matInput formControlName="nombre" />
+      <mat-error *ngIf="form.get('nombre')?.hasError('required')">Requerido</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>RUC</mat-label>
+      <input matInput formControlName="ruc" maxlength="11" />
+      <mat-error *ngIf="form.get('ruc')?.hasError('required')">Requerido</mat-error>
+      <mat-error *ngIf="form.get('ruc')?.hasError('pattern')">Debe tener 11 dígitos</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Días de crédito</mat-label>
+      <input matInput type="number" formControlName="diasCredito" min="0" max="365" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Contacto</mat-label>
+      <input matInput formControlName="contacto" />
+      <mat-error *ngIf="form.get('contacto')?.hasError('required')">Requerido</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Teléfono</mat-label>
+      <input matInput formControlName="numeroTelefono" />
+      <mat-error *ngIf="form.get('numeroTelefono')?.hasError('required')">Requerido</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email" />
+      <mat-error *ngIf="form.get('email')?.hasError('required')">Requerido</mat-error>
+      <mat-error *ngIf="form.get('email')?.hasError('email')">Email inválido</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Dirección</mat-label>
+      <textarea matInput rows="2" formControlName="direccion"></textarea>
+      <mat-error *ngIf="form.get('direccion')?.hasError('required')">Requerido</mat-error>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancelar</button>
+  <button mat-raised-button color="primary" (click)="save()" [disabled]="loading">
+    {{ isEdit ? 'Actualizar' : 'Crear' }}
+  </button>
+</mat-dialog-actions>

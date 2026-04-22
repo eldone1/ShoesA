@@ -8,6 +8,7 @@ import com.pos.calzados.exception.BusinessException;
 import com.pos.calzados.exception.ResourceNotFoundException;
 import com.pos.calzados.mapper.VentaMapper;
 import com.pos.calzados.repository.CajaRepository;
+import com.pos.calzados.repository.ComprobanteRepository;
 import com.pos.calzados.repository.UserRepository;
 import com.pos.calzados.repository.VarianteRepository;
 import com.pos.calzados.repository.VentaRepository;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -29,8 +31,12 @@ import java.util.stream.Collectors;
 @Transactional
 public class VentaServiceImpl implements VentaService {
 
+        private static final BigDecimal DESCUENTO_MAX_CAJERO = BigDecimal.valueOf(15);
+        private static final BigDecimal CIEN_PORCIENTO = BigDecimal.valueOf(100);
+
     private final VentaRepository ventaRepository;
     private final CajaRepository cajaRepository;
+        private final ComprobanteRepository comprobanteRepository;
     private final UserRepository userRepository;
     private final VarianteRepository varianteRepository;
     private final VentaMapper ventaMapper;
@@ -41,6 +47,8 @@ public class VentaServiceImpl implements VentaService {
         // 1. Obtener cajero
         User cajero = userRepository.findById(cajeroId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario", cajeroId));
+
+        BigDecimal descuentoMaximoPorRol = obtenerDescuentoMaximoPorRol(cajero.getRol());
 
         // 2. Obtener caja abierta del cajero
         Caja caja = cajaRepository.findByCajeroIdAndEstado(cajeroId, EstadoCaja.ABIERTA)
@@ -78,6 +86,11 @@ public class VentaServiceImpl implements VentaService {
             BigDecimal precioUnitario = variante.getPrecioVenta();
             BigDecimal descuentoItem = dReq.getDescuentoItem() != null
                     ? dReq.getDescuentoItem() : BigDecimal.ZERO;
+
+            BigDecimal brutoItem = precioUnitario.multiply(BigDecimal.valueOf(dReq.getCantidad()));
+            validarDescuentoMonto("ítem", descuentoItem, brutoItem);
+            validarDescuentoPorRol("ítem", descuentoItem, brutoItem, descuentoMaximoPorRol, cajero.getRol());
+
             BigDecimal subtotalItem = precioUnitario
                     .multiply(BigDecimal.valueOf(dReq.getCantidad()))
                     .subtract(descuentoItem);
@@ -101,6 +114,10 @@ public class VentaServiceImpl implements VentaService {
         // 5. Calcular total y vuelto
         BigDecimal descuentoGlobal = request.getDescuento() != null
                 ? request.getDescuento() : BigDecimal.ZERO;
+
+        validarDescuentoMonto("global", descuentoGlobal, subtotalVenta);
+        validarDescuentoPorRol("global", descuentoGlobal, subtotalVenta, descuentoMaximoPorRol, cajero.getRol());
+
         BigDecimal total = subtotalVenta.subtract(descuentoGlobal);
 
         BigDecimal vuelto = BigDecimal.ZERO;
@@ -134,6 +151,31 @@ public class VentaServiceImpl implements VentaService {
         return buildVentaResponse(ventaGuardada);
     }
 
+        @Override
+        public void cancelarSinComprobante(Long ventaId, Long userId) {
+                User user = userRepository.findById(userId)
+                                .orElseThrow(() -> new ResourceNotFoundException("Usuario", userId));
+
+                Venta venta = ventaRepository.findByIdWithDetalles(ventaId)
+                                .orElseThrow(() -> new ResourceNotFoundException("Venta", ventaId));
+
+                if (Boolean.TRUE.equals(comprobanteRepository.existsByVentaId(ventaId))) {
+                        throw new BusinessException("No se puede cancelar una venta con comprobante emitido");
+                }
+
+                if (user.getRol() == Rol.CAJERO && !venta.getCajero().getId().equals(userId)) {
+                        throw new BusinessException("Solo puedes cancelar tus propias ventas");
+                }
+
+                for (DetalleVenta detalle : venta.getDetalles()) {
+                        Variante variante = detalle.getVariante();
+                        variante.setStock(variante.getStock() + detalle.getCantidad());
+                        varianteRepository.save(variante);
+                }
+
+                ventaRepository.delete(venta);
+        }
+
     @Override
     @Transactional(readOnly = true)
     public VentaResponse obtenerPorId(Long id) {
@@ -160,6 +202,16 @@ public class VentaServiceImpl implements VentaService {
                 .collect(Collectors.toList());
     }
 
+        @Override
+        @Transactional(readOnly = true)
+        public List<VentaResponse> listarPorFiltros(LocalDate inicio, LocalDate fin, Long cajeroId, MetodoPago metodoPago) {
+                LocalDateTime desde = inicio.atStartOfDay();
+                LocalDateTime hasta = fin.atTime(LocalTime.MAX);
+                return ventaRepository.findByFiltros(desde, hasta, cajeroId, metodoPago).stream()
+                                .map(this::buildVentaResponse)
+                                .collect(Collectors.toList());
+        }
+
     @Override
     @Transactional(readOnly = true)
     public List<VentaResponse> listarPorCajeroYFecha(Long cajeroId, LocalDate inicio, LocalDate fin) {
@@ -181,4 +233,38 @@ public class VentaServiceImpl implements VentaService {
         );
         return response;
     }
+
+        private BigDecimal obtenerDescuentoMaximoPorRol(Rol rol) {
+                return rol == Rol.ADMIN ? CIEN_PORCIENTO : DESCUENTO_MAX_CAJERO;
+        }
+
+        private void validarDescuentoMonto(String tipo, BigDecimal descuento, BigDecimal base) {
+                if (descuento.compareTo(BigDecimal.ZERO) < 0) {
+                        throw new BusinessException("El descuento " + tipo + " no puede ser negativo");
+                }
+                if (base.compareTo(BigDecimal.ZERO) <= 0) {
+                        if (descuento.compareTo(BigDecimal.ZERO) > 0) {
+                                throw new BusinessException("No se puede aplicar descuento " + tipo + " cuando la base es cero");
+                        }
+                        return;
+                }
+                if (descuento.compareTo(base) > 0) {
+                        throw new BusinessException("El descuento " + tipo + " no puede ser mayor al monto base");
+                }
+        }
+
+        private void validarDescuentoPorRol(String tipo, BigDecimal descuento, BigDecimal base,
+                                                                                BigDecimal maxPorcentaje, Rol rol) {
+                if (descuento.compareTo(BigDecimal.ZERO) <= 0 || base.compareTo(BigDecimal.ZERO) <= 0) {
+                        return;
+                }
+                BigDecimal porcentaje = descuento
+                                .multiply(CIEN_PORCIENTO)
+                                .divide(base, 4, RoundingMode.HALF_UP);
+                if (porcentaje.compareTo(maxPorcentaje) > 0) {
+                        throw new BusinessException(String.format(
+                                        "El descuento %s (%.2f%%) excede el máximo permitido para %s: %.2f%%",
+                                        tipo, porcentaje, rol.name(), maxPorcentaje));
+                }
+        }
 }

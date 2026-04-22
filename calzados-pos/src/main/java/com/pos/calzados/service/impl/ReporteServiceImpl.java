@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -115,6 +116,31 @@ public class ReporteServiceImpl implements ReporteService {
             item.put("codigoBarras", v.getCodigoBarras());
             item.put("stockActual", v.getStock());
             item.put("stockMinimo", v.getStockMinimo());
+            return item;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Map<String, Object>> ingresosInventario(LocalDate desde, LocalDate hasta) {
+        LocalDateTime inicio = desde.atStartOfDay();
+        LocalDateTime fin = hasta.atTime(LocalTime.MAX);
+
+        List<Variante> variantes = varianteRepository.findIngresosByFechaIngreso(inicio, fin);
+        LocalDate hoy = LocalDate.now();
+
+        return variantes.stream().map(v -> {
+            Map<String, Object> item = new HashMap<>();
+            item.put("varianteId", v.getId());
+            item.put("productoNombre", v.getProducto().getNombre());
+            item.put("marcaNombre", v.getProducto().getMarca() != null
+                    ? v.getProducto().getMarca().getNombre() : null);
+            item.put("talla", v.getTalla());
+            item.put("color", v.getColor());
+            item.put("sku", v.getSku());
+            item.put("codigoBarras", v.getCodigoBarras());
+            item.put("stockActual", v.getStock());
+            item.put("stockMinimo", v.getStockMinimo());
+            item.put("precioCompra", v.getPrecioCompra());
             return item;
         }).collect(Collectors.toList());
     }

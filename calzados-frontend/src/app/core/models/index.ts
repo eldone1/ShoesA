@@ -226,3 +226,123 @@ export interface ComprobanteResponse {
   metodoPago: string;
   detalles: any[];
 }
+
+// ── Proveedores y Solicitudes de Compra ─────────────────────────────────────
+export type CondicionPagoCompra = 'CONTADO' | 'CREDITO';
+export type EstadoSolicitudCompra = 'PENDIENTE_RECEPCION' | 'PARCIAL_RECEPCION' | 'RECEPCIONADA' | 'ANULADA';
+
+export interface Proveedor {
+  id: number;
+  nombre: string;
+  ruc: string;
+  contacto: string;
+  numeroTelefono: string;
+  email: string;
+  direccion: string;
+  diasCredito: number;
+  activo: boolean;
+  createdAt: string;
+}
+
+export interface ProveedorRequest {
+  nombre: string;
+  ruc: string;
+  contacto: string;
+  numeroTelefono: string;
+  email: string;
+  direccion: string;
+  diasCredito: number;
+}
+
+export interface DetalleSolicitudCompra {
+  id: number;
+  productoId: number;
+  productoNombre: string;
+  varianteId: number;
+  varianteSku: string;
+  varianteColor: string;
+  varianteTalla: string;
+  cantidadSolicitada: number;
+  cantidadRecibida: number;
+  cantidadPendiente: number;
+  precioUnitario: number;
+  subtotal: number;
+}
+
+export interface SolicitudCompra {
+  id: number;
+  codigo: string;
+  proveedor: Proveedor;
+  usuarioId: number;
+  usuarioNombre: string;
+  condicionPago: CondicionPagoCompra;
+  fechaVencimiento: string | null;
+  fechaSolicitud: string;
+  total: number;
+  pagado: boolean;
+  estado: EstadoSolicitudCompra;
+  observacion: string;
+  detalles: DetalleSolicitudCompra[];
+}
+
+export interface DetalleSolicitudCompraRequest {
+  productoId: number;
+  varianteId: number;
+  cantidadSolicitada: number;
+  precioUnitario: number;
+}
+
+export interface SolicitudCompraRequest {
+  proveedorId: number;
+  condicionPago: CondicionPagoCompra;
+  fechaVencimiento?: string | null;
+  observacion?: string | null;
+  detalles: DetalleSolicitudCompraRequest[];
+}
+
+export interface RecepcionDetalleRequest {
+  detalleId: number;
+  cantidadRecibida: number;
+}
+
+export interface RecepcionMercaderiaRequest {
+  detalles: RecepcionDetalleRequest[];
+}
+
+// ── Gastos ──────────────────────────────────────────────────────────────────
+export type TipoGasto =
+  | 'CREDITO_PROVEEDOR'
+  | 'LUZ'
+  | 'INTERNET'
+  | 'ALQUILER'
+  | 'PLANILLA'
+  | 'TRANSPORTE'
+  | 'OTRO';
+
+export interface Gasto {
+  id: number;
+  tipo: TipoGasto;
+  concepto: string;
+  monto: number;
+  fechaGasto: string;
+  descripcion: string;
+  usuarioId: number;
+  usuarioNombre: string;
+  createdAt: string;
+}
+
+export interface GastoRequest {
+  tipo: TipoGasto;
+  concepto: string;
+  monto: number;
+  fechaGasto: string;
+  descripcion?: string | null;
+}
+
+export interface ResumenGastosMes {
+  year: number;
+  month: number;
+  totalVentasMes: number;
+  totalGastosMes: number;
+  saldoMes: number;
+}
