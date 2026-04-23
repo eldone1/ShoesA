@@ -40,7 +40,7 @@ export class ComprobanteDetalleComponent implements OnInit {
   imprimir(): void {
     if (!this.comprobante) return;
 
-    const popup = window.open('', '_blank', 'noopener,noreferrer,width=420,height=900');
+    const popup = window.open('', '_blank', 'noopener,noreferrer,width=320,height=900');
     if (!popup) {
       alert('El navegador bloqueó la impresión automática. Haz clic en "Imprimir".');
       return;
@@ -67,7 +67,7 @@ export class ComprobanteDetalleComponent implements OnInit {
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Ticket ${this.escapeHtml(this.comprobante.serie)}</title>
   <style>
-    @page { size: 80mm auto; margin: 3mm; }
+    @page { size: 58mm auto; margin: 2mm; }
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; }
     body {
@@ -77,7 +77,7 @@ export class ComprobanteDetalleComponent implements OnInit {
       display: flex;
       justify-content: center;
     }
-    .ticket { width: 74mm; font-size: 11px; line-height: 1.35; }
+    .ticket { width: 54mm; font-size: 10px; line-height: 1.3; }
     .center { text-align: center; }
     .empresa { font-size: 14px; font-weight: 700; letter-spacing: .2px; }
     .sub { font-size: 10px; }
