@@ -1,0 +1,106 @@
+# =============================================================
+#  Calzados POS — Docker Compose
+#
+#  Comandos útiles:
+#    docker-compose up -d                  → levantar todo en background
+#    docker-compose up -d --build          → forzar re-build de imágenes
+#    docker-compose down                   → bajar contenedores
+#    docker-compose down -v                → bajar + borrar volumen MySQL
+#    docker-compose logs -f backend        → ver logs del backend en vivo
+#    docker-compose logs -f mysql          → ver logs de MySQL en vivo
+#    docker-compose ps                     → ver estado de los servicios
+# =============================================================
+
+services:
+
+  # ── MySQL 8 ────────────────────────────────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: calzados_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      # Datos persistentes — sobreviven a docker-compose down
+      - calzados_mysql_data:/var/lib/mysql
+      # Scripts de inicialización — solo se ejecutan si el volumen está vacío
+      - ./calzados-pos/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./calzados-pos/src/main/resources/data.sql:/docker-entrypoint-initdb.d/02-data.sql:ro
+    networks:
+      - calzados_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+    
+
+  # ── Backend Spring Boot ─────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./calzados-pos
+      dockerfile: Dockerfile
+    container_name: calzados_backend
+    restart: unless-stopped
+    environment:
+      TIME_ZONE: "America/Lima"
+      SPRING_PORT: "8080"
+      LOG_LEVEL_APP: DEBUG
+      LOG_LEVEL_SQL: DEBUG
+      # ── Base de datos ──────────────────────────────────────────────────────
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/calzados_pos?useSSL=false&serverTimezone=America/Lima&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+
+      # ── JPA ───────────────────────────────────────────────────────────────
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_JPA_SHOW_SQL: "false"        # true solo para debug
+
+      # ── JWT ───────────────────────────────────────────────────────────────
+      APP_JWT_SECRET: ${JWT_SECRET}
+      APP_JWT_EXPIRATION: ${JWT_EXPIRATION}
+
+      # ── Spring profile ────────────────────────────────────────────────────
+      SPRING_PROFILES_ACTIVE: prod
+    networks:
+      - calzados_net
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      timeout: 10s
+      interval: 20s
+      retries: 5
+      start_period: 3m
+    
+  # ── Frontend Angular (Nginx) ────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./calzados-frontend
+      dockerfile: Dockerfile
+    container_name: calzados_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    networks:
+      - calzados_net
+    depends_on:
+      backend:
+        condition: service_healthy
+
+# ── Red interna ──────────────────────────────────────────────────────────────
+networks:
+  calzados_net:
+    driver: bridge
+    name: calzados_net
+
+# ── Volúmenes ────────────────────────────────────────────────────────────────
+volumes:
+  calzados_mysql_data:
+    name: calzados_mysql_data
