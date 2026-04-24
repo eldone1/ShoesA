@@ -104,6 +104,11 @@ html, body {
 
 // ── Impresion exclusiva de ticket ────────────────────────────────────────────
 @media print {
+  @page {
+    size: 58mm auto;
+    margin: 2mm;
+  }
+
   body.printing-ticket * {
     visibility: hidden !important;
   }

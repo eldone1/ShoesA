@@ -13,6 +13,7 @@ export class ComprobanteDetalleComponent implements OnInit {
   comprobante: ComprobanteResponse | null = null;
   loading = true;
   error = false;
+  private imprimiendo = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -38,14 +39,9 @@ export class ComprobanteDetalleComponent implements OnInit {
   volver(): void { this.router.navigate(['/comprobantes']); }
 
   imprimir(): void {
-    if (!this.comprobante) return;
+    if (!this.comprobante || this.imprimiendo) return;
 
-    const popup = window.open('', '_blank', 'noopener,noreferrer,width=320,height=900');
-    if (!popup) {
-      alert('El navegador bloqueó la impresión automática. Haz clic en "Imprimir".');
-      return;
-    }
-
+    this.imprimiendo = true;
     const detalleRows = (this.comprobante.detalles ?? []).map((d: any) => `
       <tr>
         <td>
@@ -76,6 +72,8 @@ export class ComprobanteDetalleComponent implements OnInit {
       background: #fff;
       display: flex;
       justify-content: center;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
     .ticket { width: 54mm; font-size: 10px; line-height: 1.3; }
     .center { text-align: center; }
@@ -108,9 +106,9 @@ export class ComprobanteDetalleComponent implements OnInit {
 
     <div class="line"></div>
     <div class="meta">
-      <div class="meta-row"><span>Fecha de emisión:</span><span>${this.escapeHtml(this.formatDate(this.comprobante.fechaEmision))}</span></div>
+      <div class="meta-row"><span>Fecha de emision:</span><span>${this.escapeHtml(this.formatDate(this.comprobante.fechaEmision))}</span></div>
       <div class="meta-row"><span>Cajero:</span><span>${this.escapeHtml(this.comprobante.cajeroNombre)}</span></div>
-      <div class="meta-row"><span>Método de pago:</span><span>${this.escapeHtml(this.comprobante.metodoPago)}</span></div>
+      <div class="meta-row"><span>Metodo de pago:</span><span>${this.escapeHtml(this.comprobante.metodoPago)}</span></div>
     </div>
 
     <div class="line"></div>
@@ -123,7 +121,7 @@ export class ComprobanteDetalleComponent implements OnInit {
     <table>
       <thead>
         <tr>
-          <th>Descripción</th>
+          <th>Descripcion</th>
           <th class="c">Cant</th>
           <th class="r">P.Unit</th>
           <th class="r">Desc</th>
@@ -144,23 +142,47 @@ export class ComprobanteDetalleComponent implements OnInit {
 
     <div class="footer">
       <div>Gracias por su compra</div>
-      <div>Representación impresa del comprobante</div>
+      <div>Representacion impresa del comprobante</div>
     </div>
   </div>
-
-  <script>
-    window.onload = function () {
-      window.focus();
-      window.print();
-    };
-    window.onafterprint = function () { window.close(); };
-  </script>
 </body>
 </html>`;
 
-    popup.document.open();
-    popup.document.write(html);
-    popup.document.close();
+    const frame = document.createElement('iframe');
+    frame.style.position = 'fixed';
+    frame.style.right = '0';
+    frame.style.bottom = '0';
+    frame.style.width = '0';
+    frame.style.height = '0';
+    frame.style.border = '0';
+    frame.style.opacity = '0';
+    document.body.appendChild(frame);
+
+    const frameDoc = frame.contentWindow?.document;
+    if (!frameDoc || !frame.contentWindow) {
+      document.body.removeChild(frame);
+      this.imprimiendo = false;
+      return;
+    }
+
+    frameDoc.open();
+    frameDoc.write(html);
+    frameDoc.close();
+
+    const limpiar = () => {
+      if (frame.parentNode) {
+        frame.parentNode.removeChild(frame);
+      }
+      this.imprimiendo = false;
+    };
+
+    setTimeout(() => {
+      frame.contentWindow?.focus();
+      frame.contentWindow?.print();
+    }, 160);
+
+    // Fallback de limpieza para navegadores sin eventos de impresion confiables.
+    setTimeout(limpiar, 3000);
   }
 
   get tipoClass(): string {
@@ -219,4 +241,5 @@ export class ComprobanteDetalleComponent implements OnInit {
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
   }
+
 }
