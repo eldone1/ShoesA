@@ -84,6 +84,7 @@ public class VentaServiceImpl implements VentaService {
 
             // Capturar precio de venta en el momento de la venta (inmutable)
             BigDecimal precioUnitario = variante.getPrecioVenta();
+            BigDecimal costoUnitario = variante.getPrecioCompra();
             BigDecimal descuentoItem = dReq.getDescuentoItem() != null
                     ? dReq.getDescuentoItem() : BigDecimal.ZERO;
 
@@ -99,6 +100,7 @@ public class VentaServiceImpl implements VentaService {
                     .variante(variante)
                     .cantidad(dReq.getCantidad())
                     .precioUnitario(precioUnitario)   // precio snapshot — no cambia si luego se edita la variante
+                    .costoUnitario(costoUnitario)
                     .descuentoItem(descuentoItem)
                     .subtotal(subtotalItem)
                     .build();

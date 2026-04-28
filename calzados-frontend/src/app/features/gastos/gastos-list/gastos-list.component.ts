@@ -4,6 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Gasto, ResumenGastosMes } from '../../../core/models/index';
 import { GastoService } from '../../../core/services/gasto.service';
 import { GastoDialogComponent } from '../gasto-dialog/gasto-dialog.component';
+import { DatePeruService } from '../../../core/services/date-peru.service';
 
 @Component({
   selector: 'app-gastos-list',
@@ -24,12 +25,13 @@ export class GastosListComponent implements OnInit {
 
   constructor(
     private gastoService: GastoService,
+    private datePeruService: DatePeruService,
     private dialog: MatDialog,
     private snack: MatSnackBar,
   ) {
-    const now = new Date();
-    this.year = now.getFullYear();
-    this.month = now.getMonth() + 1;
+    const current = this.datePeruService.getCurrentYearMonth();
+    this.year = current.year;
+    this.month = current.month;
   }
 
   ngOnInit(): void {

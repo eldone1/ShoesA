@@ -8,6 +8,7 @@ import { MatTableModule }           from '@angular/material/table';
 import { MatButtonModule }          from '@angular/material/button';
 import { MatIconModule }            from '@angular/material/icon';
 import { MatFormFieldModule }       from '@angular/material/form-field';
+import { MatSelectModule }          from '@angular/material/select';
 import { MatInputModule }           from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule }            from '@angular/material/tabs';
@@ -22,7 +23,7 @@ import { ReportesComponent }        from './reportes.component';
     RouterModule.forChild([{ path: '', component: ReportesComponent }]),
     MatCardModule, MatTableModule, MatButtonModule, MatIconModule,
     MatFormFieldModule, MatInputModule, MatProgressSpinnerModule,
-    MatTabsModule, MatDividerModule, MatChipsModule,
+    MatTabsModule, MatDividerModule, MatChipsModule, MatSelectModule,
   ],
 })
 export class ReportesModule {}

@@ -34,6 +34,14 @@ public interface VarianteRepository extends JpaRepository<Variante, Long> {
     @Query("SELECT v FROM Variante v WHERE v.stock <= v.stockMinimo AND v.producto.activo = true")
     List<Variante> findVariantesConStockBajo();
 
+    @Query("SELECT v FROM Variante v JOIN FETCH v.producto p LEFT JOIN FETCH p.marca m " +
+            "WHERE v.producto.activo = true ORDER BY p.nombre ASC, v.talla ASC, v.color ASC")
+    List<Variante> findVariantesActivasConProducto();
+
+    @Query("SELECT v FROM Variante v JOIN FETCH v.producto p LEFT JOIN FETCH p.marca m " +
+            "WHERE v.producto.activo = true AND v.stock = 0 ORDER BY p.nombre ASC, v.talla ASC, v.color ASC")
+    List<Variante> findVariantesAgotadas();
+
     @Query("SELECT v FROM Variante v " +
             "JOIN FETCH v.producto p " +
             "LEFT JOIN FETCH p.marca m " +

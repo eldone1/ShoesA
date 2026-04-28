@@ -11,6 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { GastoRequest, TipoGasto } from '../../../core/models/index';
 import { GastoService } from '../../../core/services/gasto.service';
+import { DatePeruService } from '../../../core/services/date-peru.service';
 
 @Component({
   selector: 'app-gasto-dialog',
@@ -44,12 +45,13 @@ export class GastoDialogComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private gastoService: GastoService,
+    private datePeruService: DatePeruService,
     private snack: MatSnackBar,
     public dialogRef: MatDialogRef<GastoDialogComponent>,
   ) {}
 
   ngOnInit(): void {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = this.datePeruService.getToday();
     this.form = this.fb.group({
       tipo: ['OTRO' as TipoGasto, Validators.required],
       concepto: ['', [Validators.required, Validators.maxLength(180)]],

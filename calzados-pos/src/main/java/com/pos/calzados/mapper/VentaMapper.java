@@ -24,5 +24,6 @@ public interface VentaMapper {
     @Mapping(source = "variante.color",                    target = "color")
     @Mapping(source = "variante.sku",                      target = "sku")
     @Mapping(source = "variante.codigoBarras",             target = "codigoBarras")
+    @Mapping(source = "costoUnitario",                     target = "costoUnitario")
     DetalleVentaResponse toDetalleResponse(DetalleVenta detalle);
 }

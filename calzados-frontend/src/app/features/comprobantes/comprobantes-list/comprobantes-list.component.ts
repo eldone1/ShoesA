@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { MatDialog }   from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ComprobanteService } from '../../../core/services/comprobante.service';
+import { DatePeruService } from '../../../core/services/date-peru.service';
 import { ComprobanteResponse, TipoComprobante } from '../../../core/models/index';
 
 @Component({
@@ -15,7 +16,7 @@ export class ComprobantesListComponent implements OnInit {
   comprobantes: ComprobanteResponse[] = [];
   loading = false;
 
-  today = new Date().toISOString().split('T')[0];
+  today = '';
   inicio = this.today;
   fin    = this.today;
   tipoFiltro: TipoComprobante | '' = '';
@@ -24,9 +25,14 @@ export class ComprobantesListComponent implements OnInit {
 
   constructor(
     private comprobanteService: ComprobanteService,
+    private datePeruService: DatePeruService,
     private router: Router,
     private snack: MatSnackBar,
-  ) {}
+  ) {
+    this.today = this.datePeruService.getToday();
+    this.inicio = this.today;
+    this.fin = this.today;
+  }
 
   ngOnInit(): void { this.load(); }
 

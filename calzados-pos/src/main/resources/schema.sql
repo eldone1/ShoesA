@@ -101,6 +101,7 @@ CREATE TABLE IF NOT EXISTS detalle_venta (
     variante_id    BIGINT        NOT NULL,
     cantidad       INT           NOT NULL,
     precio_unitario DECIMAL(12,2) NOT NULL,   -- capturado al vender
+    costo_unitario  DECIMAL(12,2) NOT NULL DEFAULT 0.00,
     descuento_item  DECIMAL(12,2)          DEFAULT 0.00,
     subtotal       DECIMAL(12,2) NOT NULL,
     CONSTRAINT fk_detalle_venta    FOREIGN KEY (venta_id)    REFERENCES ventas(id),

@@ -6,6 +6,7 @@ import { CajaService }    from '../../core/services/caja.service';
 import { ProductoService } from '../../core/services/producto.service';
 import { AuthUser }       from '../../core/models/auth.model';
 import { ResumenDiario, StockBajo, Caja } from '../../core/models/index';
+import { DatePeruService } from '../../core/services/date-peru.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -29,20 +30,11 @@ export class DashboardComponent implements OnInit {
     private reporteService: ReporteService,
     private cajaService: CajaService,
     private productoService: ProductoService,
+    private datePeruService: DatePeruService,
   ) {}
 
 getTodayPeru(): string {
-  const now = new Date();
-
-  const peruTime = new Date(
-    now.toLocaleString('en-US', { timeZone: 'America/Lima' })
-  );
-
-  const year = peruTime.getFullYear();
-  const month = String(peruTime.getMonth() + 1).padStart(2, '0');
-  const day = String(peruTime.getDate()).padStart(2, '0');
-
-  return `${year}-${month}-${day}`;
+  return this.datePeruService.getToday();
 }
 
   ngOnInit(): void {

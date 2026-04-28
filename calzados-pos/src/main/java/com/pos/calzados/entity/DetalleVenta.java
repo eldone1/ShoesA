@@ -29,6 +29,9 @@ public class DetalleVenta {
     @Column(name = "precio_unitario", nullable = false, precision = 12, scale = 2)
     private BigDecimal precioUnitario;
 
+    @Column(name = "costo_unitario", precision = 12, scale = 2)
+    private BigDecimal costoUnitario;
+
     @Column(name = "descuento_item", precision = 12, scale = 2)
     @Builder.Default
     private BigDecimal descuentoItem = BigDecimal.ZERO;

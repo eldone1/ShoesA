@@ -16,6 +16,7 @@ public class DetalleVentaResponse {
     private String codigoBarras;
     private Integer cantidad;
     private BigDecimal precioUnitario;
+    private BigDecimal costoUnitario;
     private BigDecimal descuentoItem;
     private BigDecimal subtotal;
 }

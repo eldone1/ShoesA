@@ -145,6 +145,88 @@ export interface ReporteVentaProducto {
   cantidadVendida: number;
   totalVendido: number;
 }
+
+export interface ReporteVentasPorDia {
+  fecha: string;
+  cantidadVentas: number;
+  totalVendido: number;
+}
+
+export interface ReporteVentasPorMes {
+  year: number;
+  month: number;
+  cantidadVentas: number;
+  totalVendido: number;
+}
+
+export interface ReporteUtilidad {
+  desde: string;
+  hasta: string;
+  totalVendido: number;
+  totalCosto: number;
+  totalGastos: number;
+  gananciaBruta: number;
+  gananciaReal: number;
+  margenBruto: number;
+  margenReal: number;
+}
+
+export interface ReporteVentasPorTalla {
+  talla: string;
+  cantidadVendida: number;
+  totalVendido: number;
+}
+
+export interface ReporteInventarioActual {
+  varianteId: number;
+  productoNombre: string;
+  marcaNombre: string;
+  talla: string;
+  color: string;
+  sku: string;
+  stockActual: number;
+  stockMinimo: number;
+  precioCompra: number;
+  precioVenta: number;
+}
+
+export interface ReporteProductoSinRotacion {
+  varianteId: number;
+  productoNombre: string;
+  marcaNombre: string;
+  talla: string;
+  color: string;
+  sku: string;
+  stockActual: number;
+  ultimaVenta: string | null;
+  diasSinVenta: number | null;
+  precioCompra: number;
+}
+
+export interface ReporteVentasPorCajero {
+  cajeroId: number;
+  cajeroNombre: string;
+  cantidadVentas: number;
+  totalVendido: number;
+  totalEfectivo: number;
+  totalYape: number;
+  totalTarjeta: number;
+}
+
+export interface ReporteVentasPorCajeroDia {
+  fecha: string;
+  cajeroId: number;
+  cajeroNombre: string;
+  cantidadVentas: number;
+  totalVendido: number;
+}
+
+export interface ReporteMetodoPago {
+  metodoPago: MetodoPago;
+  cantidadVentas: number;
+  totalVendido: number;
+}
+
 export interface ResumenDiario {
   fecha: string;
   cantidadVentas: number;
@@ -161,7 +243,8 @@ export interface StockBajo {
   color: string;
   sku: string;
   codigoBarras: string;
-  stock: number;
+  stock?: number;
+  stockActual: number;
   stockMinimo: number;
 }
 

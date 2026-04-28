@@ -52,6 +52,66 @@ public interface VentaRepository extends JpaRepository<Venta, Long> {
            "JOIN FETCH va.producto p JOIN FETCH p.marca WHERE v.id = :id")
     Optional<Venta> findByIdWithDetalles(@Param("id") Long id);
 
+    @Query("SELECT DATE(v.fecha), COUNT(v), COALESCE(SUM(v.total), 0) " +
+           "FROM Venta v WHERE v.fecha BETWEEN :inicio AND :fin " +
+           "GROUP BY DATE(v.fecha) ORDER BY DATE(v.fecha)")
+    List<Object[]> reporteVentasPorDia(@Param("inicio") LocalDateTime inicio,
+                                   @Param("fin") LocalDateTime fin);
+
+    @Query("SELECT YEAR(v.fecha), MONTH(v.fecha), COUNT(v), COALESCE(SUM(v.total), 0) " +
+           "FROM Venta v WHERE v.fecha BETWEEN :inicio AND :fin " +
+           "GROUP BY YEAR(v.fecha), MONTH(v.fecha) " +
+           "ORDER BY YEAR(v.fecha), MONTH(v.fecha)")
+    List<Object[]> reporteVentasPorMes(@Param("inicio") LocalDateTime inicio,
+                                   @Param("fin") LocalDateTime fin);
+
+    @Query("SELECT v.cajero.id, v.cajero.nombre, COUNT(v), COALESCE(SUM(v.total), 0), " +
+           "COALESCE(SUM(CASE WHEN v.metodoPago = com.pos.calzados.entity.MetodoPago.EFECTIVO THEN v.total ELSE 0 END), 0), " +
+           "COALESCE(SUM(CASE WHEN v.metodoPago = com.pos.calzados.entity.MetodoPago.YAPE THEN v.total ELSE 0 END), 0), " +
+           "COALESCE(SUM(CASE WHEN v.metodoPago = com.pos.calzados.entity.MetodoPago.TARJETA THEN v.total ELSE 0 END), 0) " +
+           "FROM Venta v WHERE v.fecha BETWEEN :inicio AND :fin " +
+           "GROUP BY v.cajero.id, v.cajero.nombre ORDER BY COALESCE(SUM(v.total), 0) DESC")
+    List<Object[]> reporteVentasPorCajero(@Param("inicio") LocalDateTime inicio,
+                                     @Param("fin") LocalDateTime fin);
+
+    @Query("SELECT DATE(v.fecha), v.cajero.id, v.cajero.nombre, COUNT(v), COALESCE(SUM(v.total), 0) " +
+           "FROM Venta v WHERE v.fecha BETWEEN :inicio AND :fin " +
+           "GROUP BY DATE(v.fecha), v.cajero.id, v.cajero.nombre " +
+           "ORDER BY DATE(v.fecha) DESC, COALESCE(SUM(v.total), 0) DESC")
+    List<Object[]> reporteVentasPorCajeroDia(@Param("inicio") LocalDateTime inicio,
+                                         @Param("fin") LocalDateTime fin);
+
+    @Query("SELECT v.metodoPago, COUNT(v), COALESCE(SUM(v.total), 0) " +
+           "FROM Venta v WHERE v.fecha BETWEEN :inicio AND :fin " +
+           "GROUP BY v.metodoPago ORDER BY COALESCE(SUM(v.total), 0) DESC")
+    List<Object[]> reporteMetodosPago(@Param("inicio") LocalDateTime inicio,
+                                   @Param("fin") LocalDateTime fin);
+
+    @Query("SELECT COALESCE(SUM(v.total), 0), COALESCE(SUM(COALESCE(dv.costoUnitario, 0) * dv.cantidad), 0), " +
+           "COALESCE(SUM(dv.subtotal), 0) " +
+           "FROM Venta v JOIN v.detalles dv WHERE v.fecha BETWEEN :inicio AND :fin")
+    Object[] resumenUtilidad(@Param("inicio") LocalDateTime inicio,
+                          @Param("fin") LocalDateTime fin);
+
+    @Query("SELECT dv.variante.talla, COALESCE(SUM(dv.cantidad), 0), COALESCE(SUM(dv.subtotal), 0) " +
+           "FROM DetalleVenta dv WHERE dv.venta.fecha BETWEEN :inicio AND :fin " +
+           "GROUP BY dv.variante.talla ORDER BY COALESCE(SUM(dv.cantidad), 0) DESC")
+    List<Object[]> reporteVentasPorTalla(@Param("inicio") LocalDateTime inicio,
+                                    @Param("fin") LocalDateTime fin);
+
+    @Query("SELECT DISTINCT dv.variante.id FROM DetalleVenta dv WHERE dv.venta.fecha BETWEEN :inicio AND :fin")
+    List<Long> variantesVendidasEnRango(@Param("inicio") LocalDateTime inicio,
+                                   @Param("fin") LocalDateTime fin);
+
+    @Query("SELECT dv.variante.id, dv.variante.producto.nombre, " +
+           "COALESCE(dv.variante.producto.marca.nombre, 'Sin marca'), dv.variante.talla, dv.variante.color, " +
+           "dv.variante.sku, COALESCE(SUM(dv.cantidad), 0), COALESCE(SUM(dv.subtotal), 0) " +
+           "FROM DetalleVenta dv WHERE dv.venta.fecha BETWEEN :inicio AND :fin " +
+           "GROUP BY dv.variante.id, dv.variante.producto.nombre, dv.variante.producto.marca.nombre, dv.variante.talla, dv.variante.color, dv.variante.sku " +
+           "ORDER BY COALESCE(SUM(dv.cantidad), 0) DESC")
+    List<Object[]> reporteVentasPorVariante(@Param("inicio") LocalDateTime inicio,
+                                       @Param("fin") LocalDateTime fin);
+
     // Reporte: ventas por producto en rango de fechas
     @Query("SELECT dv.variante.id, dv.variante.producto.nombre, dv.variante.talla, dv.variante.color, " +
            "SUM(dv.cantidad), SUM(dv.subtotal) " +

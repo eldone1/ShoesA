@@ -1,11 +1,22 @@
 package com.pos.calzados.service.impl;
 
 import com.pos.calzados.dto.response.CajaResponse;
+import com.pos.calzados.dto.response.ReporteInventarioActualResponse;
+import com.pos.calzados.dto.response.ReporteMetodoPagoResponse;
+import com.pos.calzados.dto.response.ReporteProductoSinRotacionResponse;
+import com.pos.calzados.dto.response.ReporteUtilidadResponse;
+import com.pos.calzados.dto.response.ReporteVentasPorCajeroDiaResponse;
+import com.pos.calzados.dto.response.ReporteVentasPorCajeroResponse;
 import com.pos.calzados.dto.response.ReporteVentaProductoResponse;
+import com.pos.calzados.dto.response.ReporteVentasPorDiaResponse;
+import com.pos.calzados.dto.response.ReporteVentasPorMesResponse;
+import com.pos.calzados.dto.response.ReporteVentasPorTallaResponse;
 import com.pos.calzados.dto.response.VentaResponse;
 import com.pos.calzados.entity.MetodoPago;
 import com.pos.calzados.entity.Variante;
+import com.pos.calzados.entity.Gasto;
 import com.pos.calzados.mapper.VarianteMapper;
+import com.pos.calzados.repository.GastoRepository;
 import com.pos.calzados.repository.VentaRepository;
 import com.pos.calzados.repository.VarianteRepository;
 import com.pos.calzados.service.CajaService;
@@ -16,9 +27,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +45,7 @@ public class ReporteServiceImpl implements ReporteService {
 
     private final VentaRepository ventaRepository;
     private final VarianteRepository varianteRepository;
+    private final GastoRepository gastoRepository;
     private final VentaService ventaService;
     private final CajaService cajaService;
     private final VarianteMapper varianteMapper;
@@ -53,6 +67,188 @@ public class ReporteServiceImpl implements ReporteService {
                 ))
                 .collect(Collectors.toList());
     }
+
+            @Override
+            public List<ReporteVentasPorDiaResponse> ventasPorDia(LocalDate inicio, LocalDate fin) {
+            LocalDateTime desde = inicio.atStartOfDay();
+            LocalDateTime hasta = fin.atTime(LocalTime.MAX);
+
+            return ventaRepository.reporteVentasPorDia(desde, hasta).stream()
+                .map(row -> new ReporteVentasPorDiaResponse(
+                    (LocalDate) row[0],
+                    ((Number) row[1]).longValue(),
+                    (BigDecimal) row[2]
+                ))
+                .collect(Collectors.toList());
+            }
+
+            @Override
+            public List<ReporteVentasPorMesResponse> ventasPorMes(LocalDate inicio, LocalDate fin) {
+            LocalDateTime desde = inicio.atStartOfDay();
+            LocalDateTime hasta = fin.atTime(LocalTime.MAX);
+
+            return ventaRepository.reporteVentasPorMes(desde, hasta).stream()
+                .map(row -> new ReporteVentasPorMesResponse(
+                    ((Number) row[0]).intValue(),
+                    ((Number) row[1]).intValue(),
+                    ((Number) row[2]).longValue(),
+                    (BigDecimal) row[3]
+                ))
+                .collect(Collectors.toList());
+            }
+
+            @Override
+            public ReporteUtilidadResponse utilidad(LocalDate inicio, LocalDate fin) {
+            LocalDateTime desde = inicio.atStartOfDay();
+            LocalDateTime hasta = fin.atTime(LocalTime.MAX);
+
+            Object[] resumen = ventaRepository.resumenUtilidad(desde, hasta);
+            BigDecimal totalVendido = (BigDecimal) resumen[0];
+            BigDecimal totalCosto = (BigDecimal) resumen[1];
+            BigDecimal subtotalSinDescuento = (BigDecimal) resumen[2];
+            BigDecimal totalGastos = gastoRepository.sumMontoByFechaGastoBetween(inicio, fin);
+
+            BigDecimal gananciaBruta = totalVendido.subtract(totalCosto);
+            BigDecimal gananciaReal = gananciaBruta.subtract(totalGastos);
+
+            BigDecimal margenBruto = totalVendido.compareTo(BigDecimal.ZERO) > 0
+                ? gananciaBruta.multiply(BigDecimal.valueOf(100)).divide(totalVendido, 2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO;
+            BigDecimal margenReal = totalVendido.compareTo(BigDecimal.ZERO) > 0
+                ? gananciaReal.multiply(BigDecimal.valueOf(100)).divide(totalVendido, 2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO;
+
+            return new ReporteUtilidadResponse(inicio, fin, totalVendido, totalCosto, totalGastos,
+                gananciaBruta, gananciaReal, margenBruto, margenReal);
+            }
+
+            @Override
+            public List<ReporteVentasPorTallaResponse> ventasPorTalla(LocalDate inicio, LocalDate fin) {
+            LocalDateTime desde = inicio.atStartOfDay();
+            LocalDateTime hasta = fin.atTime(LocalTime.MAX);
+
+            return ventaRepository.reporteVentasPorTalla(desde, hasta).stream()
+                .map(row -> new ReporteVentasPorTallaResponse(
+                    (String) row[0],
+                    ((Number) row[1]).longValue(),
+                    (BigDecimal) row[2]
+                ))
+                .collect(Collectors.toList());
+            }
+
+            @Override
+            public List<ReporteInventarioActualResponse> inventarioActual() {
+            return varianteRepository.findVariantesActivasConProducto().stream()
+                .map(v -> new ReporteInventarioActualResponse(
+                    v.getId(),
+                    v.getProducto().getNombre(),
+                    v.getProducto().getMarca() != null ? v.getProducto().getMarca().getNombre() : null,
+                    v.getTalla(),
+                    v.getColor(),
+                    v.getSku(),
+                    v.getStock(),
+                    v.getStockMinimo(),
+                    v.getPrecioCompra(),
+                    v.getPrecioVenta()
+                ))
+                .collect(Collectors.toList());
+            }
+
+            @Override
+            public List<ReporteInventarioActualResponse> productosAgotados() {
+            return varianteRepository.findVariantesAgotadas().stream()
+                .map(v -> new ReporteInventarioActualResponse(
+                    v.getId(),
+                    v.getProducto().getNombre(),
+                    v.getProducto().getMarca() != null ? v.getProducto().getMarca().getNombre() : null,
+                    v.getTalla(),
+                    v.getColor(),
+                    v.getSku(),
+                    v.getStock(),
+                    v.getStockMinimo(),
+                    v.getPrecioCompra(),
+                    v.getPrecioVenta()
+                ))
+                .collect(Collectors.toList());
+            }
+
+            @Override
+            public List<ReporteProductoSinRotacionResponse> productosSinRotacion(LocalDate inicio, LocalDate fin) {
+            LocalDateTime desde = inicio.atStartOfDay();
+            LocalDateTime hasta = fin.atTime(LocalTime.MAX);
+            List<Long> vendidas = ventaRepository.variantesVendidasEnRango(desde, hasta);
+            LocalDate hoy = LocalDate.now(ZoneId.of("America/Lima"));
+
+            return varianteRepository.findVariantesActivasConProducto().stream()
+                .filter(v -> !vendidas.contains(v.getId()))
+                .map(v -> {
+                    LocalDateTime ultimaVenta = v.getFechaIngreso();
+                    Long diasSinVenta = ultimaVenta != null
+                        ? ChronoUnit.DAYS.between(ultimaVenta.toLocalDate(), hoy)
+                        : null;
+                    return new ReporteProductoSinRotacionResponse(
+                        v.getId(),
+                        v.getProducto().getNombre(),
+                        v.getProducto().getMarca() != null ? v.getProducto().getMarca().getNombre() : null,
+                        v.getTalla(),
+                        v.getColor(),
+                        v.getSku(),
+                        v.getStock(),
+                        ultimaVenta,
+                        diasSinVenta,
+                        v.getPrecioCompra()
+                    );
+                })
+                .collect(Collectors.toList());
+            }
+
+            @Override
+            public List<ReporteVentasPorCajeroResponse> ventasPorCajero(LocalDate inicio, LocalDate fin) {
+            LocalDateTime desde = inicio.atStartOfDay();
+            LocalDateTime hasta = fin.atTime(LocalTime.MAX);
+
+            return ventaRepository.reporteVentasPorCajero(desde, hasta).stream()
+                .map(row -> new ReporteVentasPorCajeroResponse(
+                    ((Number) row[0]).longValue(),
+                    (String) row[1],
+                    ((Number) row[2]).longValue(),
+                    (BigDecimal) row[3],
+                    (BigDecimal) row[4],
+                    (BigDecimal) row[5],
+                    (BigDecimal) row[6]
+                ))
+                .collect(Collectors.toList());
+            }
+
+            @Override
+            public List<ReporteVentasPorCajeroDiaResponse> ventasPorCajeroDia(LocalDate inicio, LocalDate fin) {
+            LocalDateTime desde = inicio.atStartOfDay();
+            LocalDateTime hasta = fin.atTime(LocalTime.MAX);
+
+            return ventaRepository.reporteVentasPorCajeroDia(desde, hasta).stream()
+                .map(row -> new ReporteVentasPorCajeroDiaResponse(
+                    (LocalDate) row[0],
+                    ((Number) row[1]).longValue(),
+                    (String) row[2],
+                    ((Number) row[3]).longValue(),
+                    (BigDecimal) row[4]
+                ))
+                .collect(Collectors.toList());
+            }
+
+            @Override
+            public List<ReporteMetodoPagoResponse> metodosPago(LocalDate inicio, LocalDate fin) {
+            LocalDateTime desde = inicio.atStartOfDay();
+            LocalDateTime hasta = fin.atTime(LocalTime.MAX);
+
+            return ventaRepository.reporteMetodosPago(desde, hasta).stream()
+                .map(row -> new ReporteMetodoPagoResponse(
+                    (MetodoPago) row[0],
+                    ((Number) row[1]).longValue(),
+                    (BigDecimal) row[2]
+                ))
+                .collect(Collectors.toList());
+            }
 
     @Override
     public Map<String, Object> resumenDiario(LocalDate fecha) {

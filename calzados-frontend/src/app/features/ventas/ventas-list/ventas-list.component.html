@@ -38,6 +38,9 @@
       <button mat-raised-button color="primary" (click)="load()">
         <mat-icon>search</mat-icon> Buscar
       </button>
+      <button mat-stroked-button color="accent" (click)="exportarVentasExcel()" [disabled]="ventas.length === 0">
+        <mat-icon>download</mat-icon> Descargar reporte
+      </button>
       <button mat-button *ngIf="isAdmin" (click)="limpiarFiltros()">Limpiar filtros</button>
     </mat-card-content>
   </mat-card>

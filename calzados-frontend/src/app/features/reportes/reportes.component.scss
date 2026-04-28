@@ -66,6 +66,37 @@
 .spinner-center { display:flex; justify-content:center; padding:32px; }
 .empty-msg { text-align:center; color:#64748b; padding:32px; }
 
+.sub-help {
+  margin: 4px 0 12px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.row-clickable {
+  cursor: pointer;
+}
+
+.mes-detail {
+  margin-top: 14px;
+}
+
+.mes-detail h4 {
+  margin: 14px 0 10px;
+  font-size: 15px;
+  color: #0f172a;
+}
+
+.mes-detail h5 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: #334155;
+}
+
+.inner-card {
+  border: 1px solid rgba(15, 23, 42, .08);
+  background: rgba(248, 250, 252, .55);
+}
+
 .tab-content {
   padding: 22px 0 8px;
 }
@@ -86,6 +117,11 @@
 .filter-row mat-form-field {
   min-width: 150px;
   flex: 1 1 180px;
+}
+
+.filter-row .month-filter {
+  flex: 1 1 150px;
+  min-width: 150px;
 }
 
 .filter-row button {

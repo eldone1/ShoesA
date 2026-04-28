@@ -123,3 +123,119 @@ VALUES
   ('LUZ', 'Recibo de energía eléctrica', 450.00, CURDATE(), 'Consumo del local principal', 1),
   ('INTERNET', 'Servicio de internet', 169.90, CURDATE(), 'Plan fibra óptica mensual', 1),
   ('CREDITO_PROVEEDOR', 'Pago parcial proveedor Importadora Andina SAC', 800.00, CURDATE(), 'Abono de crédito a 30 días', 1);
+
+-- ── Historial de ventas (meses pasados) + comprobantes ─────────────────────
+-- Nota: Este bloque genera data histórica para reportes generales, productos,
+-- inventario/rotación y finanzas por cajero/método de pago.
+
+SET @admin_id = (SELECT id FROM users WHERE email = 'admin@calzados.com' LIMIT 1);
+SET @juan_id = (SELECT id FROM users WHERE email = 'juan@calzados.com' LIMIT 1);
+SET @maria_id = (SELECT id FROM users WHERE email = 'maria@calzados.com' LIMIT 1);
+
+SET @cliente_carlos = (SELECT id FROM clientes WHERE dni = '12345678' LIMIT 1);
+SET @cliente_ana = (SELECT id FROM clientes WHERE dni = '23456789' LIMIT 1);
+SET @cliente_pedro = (SELECT id FROM clientes WHERE dni = '34567890' LIMIT 1);
+SET @cliente_inv = (SELECT id FROM clientes WHERE ruc = '20123456789' LIMIT 1);
+SET @cliente_xyz = (SELECT id FROM clientes WHERE ruc = '20987654321' LIMIT 1);
+
+-- Cajas históricas (cerradas)
+INSERT INTO cajas (
+  cajero_id, apertura, cierre, monto_inicial,
+  total_efectivo, total_yape, total_tarjeta,
+  monto_final_esperado, monto_final_real, diferencia,
+  estado
+) VALUES
+  (@juan_id,  '2025-11-15 08:00:00', '2025-11-15 20:00:00', 300.00, 200.00,   0.00,   0.00, 500.00, 500.00, 0.00, 'CERRADA'),
+  (@maria_id, '2025-11-22 08:10:00', '2025-11-22 19:40:00', 280.00,   0.00, 174.00,   0.00, 454.00, 454.00, 0.00, 'CERRADA'),
+  (@juan_id,  '2025-12-10 08:00:00', '2025-12-10 20:10:00', 320.00,   0.00,   0.00, 310.00, 630.00, 630.00, 0.00, 'CERRADA'),
+  (@maria_id, '2026-01-18 08:20:00', '2026-01-18 19:20:00', 300.00, 230.00,   0.00,   0.00, 530.00, 530.00, 0.00, 'CERRADA'),
+  (@juan_id,  '2026-02-12 08:00:00', '2026-02-12 20:00:00', 350.00,   0.00, 240.00,   0.00, 590.00, 590.00, 0.00, 'CERRADA'),
+  (@maria_id, '2026-03-08 08:15:00', '2026-03-08 19:30:00', 300.00, 200.00,   0.00,   0.00, 500.00, 500.00, 0.00, 'CERRADA'),
+  (@juan_id,  '2026-04-05 08:00:00', '2026-04-05 20:00:00', 300.00,   0.00,   0.00, 340.00, 640.00, 640.00, 0.00, 'CERRADA'),
+  (@maria_id, '2026-04-20 08:10:00', '2026-04-20 19:40:00', 280.00, 210.00,   0.00,   0.00, 490.00, 490.00, 0.00, 'CERRADA');
+
+-- Resolver IDs de cajas recién creadas por timestamp
+SET @caja_nov_juan = (SELECT id FROM cajas WHERE cajero_id = @juan_id  AND apertura = '2025-11-15 08:00:00' LIMIT 1);
+SET @caja_nov_maria = (SELECT id FROM cajas WHERE cajero_id = @maria_id AND apertura = '2025-11-22 08:10:00' LIMIT 1);
+SET @caja_dic_juan = (SELECT id FROM cajas WHERE cajero_id = @juan_id  AND apertura = '2025-12-10 08:00:00' LIMIT 1);
+SET @caja_ene_maria = (SELECT id FROM cajas WHERE cajero_id = @maria_id AND apertura = '2026-01-18 08:20:00' LIMIT 1);
+SET @caja_feb_juan = (SELECT id FROM cajas WHERE cajero_id = @juan_id  AND apertura = '2026-02-12 08:00:00' LIMIT 1);
+SET @caja_mar_maria = (SELECT id FROM cajas WHERE cajero_id = @maria_id AND apertura = '2026-03-08 08:15:00' LIMIT 1);
+SET @caja_abr_juan = (SELECT id FROM cajas WHERE cajero_id = @juan_id  AND apertura = '2026-04-05 08:00:00' LIMIT 1);
+SET @caja_abr_maria = (SELECT id FROM cajas WHERE cajero_id = @maria_id AND apertura = '2026-04-20 08:10:00' LIMIT 1);
+
+-- Ventas históricas
+INSERT INTO ventas (
+  caja_id, cajero_id, fecha, subtotal, descuento, total,
+  metodo_pago, monto_recibido, vuelto, notas
+) VALUES
+  (@caja_nov_juan,  @juan_id,  '2025-11-15 10:25:00', 210.00, 10.00, 200.00, 'EFECTIVO', 220.00, 20.00, 'Venta campaña noviembre'),
+  (@caja_nov_maria, @maria_id, '2025-11-22 12:40:00', 174.00,  0.00, 174.00, 'YAPE',      NULL,  0.00, 'Venta por Yape'),
+  (@caja_dic_juan,  @juan_id,  '2025-12-10 18:15:00', 310.00,  0.00, 310.00, 'TARJETA',   NULL,  0.00, 'Venta navideña'),
+  (@caja_ene_maria, @maria_id, '2026-01-18 11:05:00', 239.25,  9.25, 230.00, 'EFECTIVO', 250.00, 20.00, 'Promoción verano'),
+  (@caja_feb_juan,  @juan_id,  '2026-02-12 16:30:00', 240.00,  0.00, 240.00, 'YAPE',      NULL,  0.00, 'Venta quincena'),
+  (@caja_mar_maria, @maria_id, '2026-03-08 14:50:00', 203.50,  3.50, 200.00, 'EFECTIVO', 210.00, 10.00, 'Cliente recurrente'),
+  (@caja_abr_juan,  @juan_id,  '2026-04-05 17:20:00', 348.00,  8.00, 340.00, 'TARJETA',   NULL,  0.00, 'Venta fin de semana'),
+  (@caja_abr_maria, @maria_id, '2026-04-20 09:40:00', 210.00,  0.00, 210.00, 'EFECTIVO', 220.00, 10.00, 'Venta apertura de día');
+
+-- Resolver IDs de ventas recién creadas
+SET @v_nov_juan = (SELECT id FROM ventas WHERE caja_id = @caja_nov_juan  AND fecha = '2025-11-15 10:25:00' LIMIT 1);
+SET @v_nov_maria = (SELECT id FROM ventas WHERE caja_id = @caja_nov_maria AND fecha = '2025-11-22 12:40:00' LIMIT 1);
+SET @v_dic_juan = (SELECT id FROM ventas WHERE caja_id = @caja_dic_juan  AND fecha = '2025-12-10 18:15:00' LIMIT 1);
+SET @v_ene_maria = (SELECT id FROM ventas WHERE caja_id = @caja_ene_maria AND fecha = '2026-01-18 11:05:00' LIMIT 1);
+SET @v_feb_juan = (SELECT id FROM ventas WHERE caja_id = @caja_feb_juan  AND fecha = '2026-02-12 16:30:00' LIMIT 1);
+SET @v_mar_maria = (SELECT id FROM ventas WHERE caja_id = @caja_mar_maria AND fecha = '2026-03-08 14:50:00' LIMIT 1);
+SET @v_abr_juan = (SELECT id FROM ventas WHERE caja_id = @caja_abr_juan  AND fecha = '2026-04-05 17:20:00' LIMIT 1);
+SET @v_abr_maria = (SELECT id FROM ventas WHERE caja_id = @caja_abr_maria AND fecha = '2026-04-20 09:40:00' LIMIT 1);
+
+-- Detalle de ventas históricas (incluye costo_unitario para utilidad real)
+INSERT INTO detalle_venta (
+  venta_id, variante_id, cantidad, precio_unitario, costo_unitario, descuento_item, subtotal
+) VALUES
+  (@v_nov_juan,   1, 2, 105.00, 70.00, 10.00, 200.00),
+  (@v_nov_maria, 10, 1, 174.00, 120.00, 0.00, 174.00),
+  (@v_dic_juan,  16, 2, 155.00, 100.00, 0.00, 310.00),
+  (@v_ene_maria, 21, 3, 79.75, 55.00, 9.25, 230.00),
+  (@v_feb_juan,  26, 2, 120.00, 80.00, 0.00, 240.00),
+  (@v_mar_maria, 35, 2, 69.75, 45.00, 0.00, 139.50),
+  (@v_mar_maria, 31, 1, 64.00, 40.00, 3.50, 60.50),
+  (@v_abr_juan,  10, 2, 174.00, 120.00, 8.00, 340.00),
+  (@v_abr_maria,  1, 2, 105.00, 70.00, 0.00, 210.00);
+
+-- Comprobantes históricos vinculados a ventas
+INSERT INTO comprobantes (
+  serie, tipo, numero, venta_id, cliente_id,
+  cliente_nombre, cliente_dni, cliente_ruc, cliente_razon_social, cliente_direccion, cliente_email,
+  subtotal, descuento, total, igv, base_imponible, fecha_emision
+) VALUES
+  ('B001-000101', 'BOLETA', 101, @v_nov_juan,  @cliente_carlos,
+   'Carlos Ramírez', '12345678', NULL, NULL, 'Av. Lima 123, Lima', 'carlos@email.com',
+   210.00, 10.00, 200.00, 30.51, 169.49, '2025-11-15 10:30:00'),
+
+  ('B001-000102', 'BOLETA', 102, @v_nov_maria, @cliente_ana,
+   'Ana Torres', '23456789', NULL, NULL, 'Jr. Cusco 456, Lima', 'ana@email.com',
+   174.00, 0.00, 174.00, 26.54, 147.46, '2025-11-22 12:45:00'),
+
+  ('F001-000051', 'FACTURA', 51, @v_dic_juan, @cliente_inv,
+   'Inversiones SAC', NULL, '20123456789', 'Inversiones Calzado SAC', 'Av. Industrial 100, Lima', 'inv@empresa.com',
+   310.00, 0.00, 310.00, 47.29, 262.71, '2025-12-10 18:20:00'),
+
+  ('B001-000103', 'BOLETA', 103, @v_ene_maria, @cliente_pedro,
+   'Pedro Mendoza', '34567890', NULL, NULL, 'Calle Arequipa 789, Lima', 'pedro@email.com',
+   239.25, 9.25, 230.00, 35.08, 194.92, '2026-01-18 11:10:00'),
+
+  ('B001-000104', 'BOLETA', 104, @v_feb_juan, @cliente_ana,
+   'Ana Torres', '23456789', NULL, NULL, 'Jr. Cusco 456, Lima', 'ana@email.com',
+   240.00, 0.00, 240.00, 36.61, 203.39, '2026-02-12 16:35:00'),
+
+  ('F001-000052', 'FACTURA', 52, @v_mar_maria, @cliente_xyz,
+   'Distribuidora XYZ', NULL, '20987654321', 'Distribuidora XYZ EIRL', 'Av. Comercial 200, Lima', 'xyz@empresa.com',
+   203.50, 3.50, 200.00, 30.51, 169.49, '2026-03-08 14:55:00'),
+
+  ('F001-000053', 'FACTURA', 53, @v_abr_juan, @cliente_inv,
+   'Inversiones SAC', NULL, '20123456789', 'Inversiones Calzado SAC', 'Av. Industrial 100, Lima', 'inv@empresa.com',
+   348.00, 8.00, 340.00, 51.86, 288.14, '2026-04-05 17:25:00'),
+
+  ('B001-000105', 'BOLETA', 105, @v_abr_maria, @cliente_carlos,
+   'Carlos Ramírez', '12345678', NULL, NULL, 'Av. Lima 123, Lima', 'carlos@email.com',
+   210.00, 0.00, 210.00, 32.03, 177.97, '2026-04-20 09:45:00');
