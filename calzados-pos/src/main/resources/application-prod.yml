@@ -19,6 +19,12 @@ spring:
         jdbc:
           time_zone: ${TIME_ZONE}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
 server:
   port: ${SPRING_PORT}
 

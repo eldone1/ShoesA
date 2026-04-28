@@ -43,6 +43,7 @@ public class SecurityConfig {
         http.cors(cors -> {})
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/actuator/health").permitAll() 
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
