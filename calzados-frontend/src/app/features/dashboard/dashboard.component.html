@@ -58,7 +58,7 @@
       <div class="metrics-grid">
         <div class="metric-card">
           <mat-icon class="metric-icon total">payments</mat-icon>
-          <p class="metric-label">Total del día</p>
+          <p class="metric-label">Ventas de hoy</p>
           <p class="metric-value">
             S/ {{ resumen.totalGeneral | number: "1.2-2" }}
           </p>
@@ -85,21 +85,21 @@
         </div>
         <div class="metric-card">
           <mat-icon class="metric-icon efectivo">payments</mat-icon>
-          <p class="metric-label">Efectivo</p>
+          <p class="metric-label">Ventas en efectivo</p>
           <p class="metric-value">
             S/ {{ resumen.totalEfectivo | number: "1.2-2" }}
           </p>
         </div>
         <div class="metric-card">
           <mat-icon class="metric-icon yape">smartphone</mat-icon>
-          <p class="metric-label">Yape</p>
+          <p class="metric-label">Ventas por Yape</p>
           <p class="metric-value">
             S/ {{ resumen.totalYape | number: "1.2-2" }}
           </p>
         </div>
         <div class="metric-card">
           <mat-icon class="metric-icon tarjeta">credit_card</mat-icon>
-          <p class="metric-label">Tarjeta</p>
+          <p class="metric-label">Ventas por tarjeta</p>
           <p class="metric-value">
             S/ {{ resumen.totalTarjeta | number: "1.2-2" }}
           </p>
