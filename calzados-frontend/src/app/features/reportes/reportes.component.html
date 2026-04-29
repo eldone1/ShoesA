@@ -210,12 +210,12 @@
           </button>
           <button mat-stroked-button color="accent" (click)="exportarProductos()" [disabled]="exportandoProductos">
             <mat-icon>download</mat-icon>
-            {{ exportandoProductos ? 'Generando...' : 'Exportar Pestaña' }}
+            {{ exportandoProductos ? 'Generando...' : 'Descargar' }}
           </button>
-          <button mat-stroked-button color="accent" (click)="exportarTopProductos()" [disabled]="exportandoTopProductos">
+          <!-- <button mat-stroked-button color="accent" (click)="exportarTopProductos()" [disabled]="exportandoTopProductos">
             <mat-icon>download</mat-icon>
             {{ exportandoTopProductos ? 'Generando...' : 'Exportar Top Ventas' }}
-          </button>
+          </button> -->
         </div>
 
         <div *ngIf="loadingProductos" class="spinner-center"><mat-spinner diameter="40"></mat-spinner></div>
@@ -333,10 +333,10 @@
             <mat-icon>download</mat-icon>
             {{ exportandoInventario ? 'Generando...' : 'Exportar Inventario' }}
           </button>
-          <button mat-stroked-button color="warn" (click)="exportarStockBajo()" [disabled]="exportandoStockBajo">
+          <!-- <button mat-stroked-button color="warn" (click)="exportarStockBajo()" [disabled]="exportandoStockBajo">
             <mat-icon>warning</mat-icon>
             {{ exportandoStockBajo ? 'Generando...' : 'Exportar Stock Bajo' }}
-          </button>
+          </button> -->
         </div>
 
         <div *ngIf="loadingInventario" class="spinner-center"><mat-spinner diameter="40"></mat-spinner></div>
