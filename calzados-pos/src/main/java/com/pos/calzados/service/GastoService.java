@@ -10,4 +10,7 @@ public interface GastoService {
     GastoResponse crear(GastoRequest request, Long userId);
     List<GastoResponse> listarMes(int year, int month);
     ResumenGastosMesResponse resumenMes(int year, int month);
+    GastoResponse obtenerPorId(Long id);
+    GastoResponse actualizar(Long id, GastoRequest request);
+    void eliminar(Long id);
 }

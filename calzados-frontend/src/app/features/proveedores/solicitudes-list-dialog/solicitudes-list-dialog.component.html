@@ -81,6 +81,10 @@
           </table>
 
           <div class="acciones-section">
+            <button mat-stroked-button color="accent" (click)="descargar(s)" [disabled]="!s.detalles.length">
+              <mat-icon>download</mat-icon>
+              Descargar
+            </button>
             <button mat-stroked-button color="primary" (click)="recepcionar(s)">
               <mat-icon>inventory</mat-icon> Recepcionar
             </button>

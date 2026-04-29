@@ -3,8 +3,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Gasto, ResumenGastosMes } from '../../../core/models/index';
 import { GastoService } from '../../../core/services/gasto.service';
+import { ExportService } from '../../../core/services/export.service';
 import { GastoDialogComponent } from '../gasto-dialog/gasto-dialog.component';
 import { DatePeruService } from '../../../core/services/date-peru.service';
+import { ConfirmService } from '../../../core/services/confirm.service';
 
 @Component({
   selector: 'app-gastos-list',
@@ -21,13 +23,15 @@ export class GastosListComponent implements OnInit {
   year: number;
   month: number;
 
-  displayedColumns = ['fecha', 'tipo', 'concepto', 'monto', 'usuario'];
+  displayedColumns = ['fecha', 'tipo', 'concepto', 'monto', 'usuario', 'acciones'];
 
   constructor(
     private gastoService: GastoService,
+    private exportService: ExportService,
     private datePeruService: DatePeruService,
     private dialog: MatDialog,
     private snack: MatSnackBar,
+    private confirmService: ConfirmService,
   ) {
     const current = this.datePeruService.getCurrentYearMonth();
     this.year = current.year;
@@ -81,6 +85,57 @@ export class GastosListComponent implements OnInit {
         this.cargarTodo();
       }
     });
+  }
+
+  editarGasto(gasto: Gasto): void {
+    const ref = this.dialog.open(GastoDialogComponent, {
+      width: '620px',
+      data: gasto,
+    });
+
+    ref.afterClosed().subscribe(ok => {
+      if (ok) {
+        this.cargarTodo();
+      }
+    });
+  }
+
+  eliminarGasto(gasto: Gasto): void {
+    this.confirmService.delete(gasto.concepto).subscribe((ok: boolean) => {
+      if (ok) {
+        this.gastoService.eliminar(gasto.id).subscribe({
+          next: () => {
+            this.snack.open('Gasto eliminado', 'OK', { duration: 3000, panelClass: 'snack-success' });
+            this.cargarTodo();
+          },
+          error: () => {
+            this.snack.open('No se pudo eliminar el gasto', 'OK', { duration: 3500, panelClass: 'snack-error' });
+          },
+        });
+      }
+    });
+  }
+
+  moverAOtroMes(gasto: Gasto): void {
+    const ref = this.dialog.open(GastoDialogComponent, {
+      width: '620px',
+      data: gasto,
+    });
+
+    ref.afterClosed().subscribe(ok => {
+      if (ok) {
+        this.cargarTodo();
+      }
+    });
+  }
+
+  descargarGastos(): void {
+    if (this.gastos.length === 0) {
+      this.snack.open('No hay gastos para descargar', 'OK', { duration: 3000 });
+      return;
+    }
+    this.exportService.exportarGastos(this.gastos, this.year, this.month);
+    this.snack.open('Descarga generada', 'OK', { duration: 2500 });
   }
 
   monthLabel(month: number): string {

@@ -25,4 +25,16 @@ export class GastoService {
   crear(body: GastoRequest): Observable<Gasto> {
     return this.http.post<ApiResponse<Gasto>>(this.api, body).pipe(map(r => r.data));
   }
+
+  obtener(id: number): Observable<Gasto> {
+    return this.http.get<ApiResponse<Gasto>>(`${this.api}/${id}`).pipe(map(r => r.data));
+  }
+
+  actualizar(id: number, body: GastoRequest): Observable<Gasto> {
+    return this.http.put<ApiResponse<Gasto>>(`${this.api}/${id}`, body).pipe(map(r => r.data));
+  }
+
+  eliminar(id: number): Observable<void> {
+    return this.http.delete<ApiResponse<void>>(`${this.api}/${id}`).pipe(map(() => void 0));
+  }
 }

@@ -14,6 +14,8 @@ import {
   ReporteVentasPorMes,
   ReporteVentasPorTalla,
   StockBajo,
+  SolicitudCompra,
+  Gasto,
   Venta,
 } from '../models/index';
 import { DatePeruService } from './date-peru.service';
@@ -300,7 +302,86 @@ export class ExportService {
     XLSX.writeFile(wb, `ventas_${inicio}_${fin}.xlsx`);
   }
 
-  // ── Reporte 1: Lista de Productos con stock y detalles ──────────────────
+  exportarSolicitudCompra(solicitud: SolicitudCompra): void {
+    const wb = XLSX.utils.book_new();
+    const generado = this.datePeruService.toLocaleString();
+
+    const resumenRows: any[] = [
+      ['SOLICITUD DE COMPRA'],
+      [`Código: ${solicitud.codigo}`],
+      [`Proveedor: ${solicitud.proveedor.nombre}`],
+      [`RUC: ${solicitud.proveedor.ruc}`],
+      [`Estado: ${solicitud.estado}`],
+      [`Condición de pago: ${solicitud.condicionPago}`],
+      [`Fecha solicitud: ${solicitud.fechaSolicitud}`],
+      [`Fecha vencimiento: ${solicitud.fechaVencimiento ?? '-'}`],
+      [`Total: S/ ${solicitud.total.toFixed(2)}`],
+      [`Generado: ${generado}`],
+      [],
+      ['Producto', 'Variante', 'Solicitado', 'Recibido', 'Pendiente', 'P. Unitario', 'Subtotal'],
+      ...solicitud.detalles.map(d => [
+        d.productoNombre,
+        `${d.varianteSku} · ${d.varianteTalla}/${d.varianteColor}`,
+        d.cantidadSolicitada,
+        d.cantidadRecibida,
+        d.cantidadPendiente,
+        d.precioUnitario,
+        d.subtotal,
+      ]),
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(resumenRows);
+    ws['!cols'] = [
+      { wch: 28 },
+      { wch: 28 },
+      { wch: 12 },
+      { wch: 12 },
+      { wch: 12 },
+      { wch: 12 },
+      { wch: 12 },
+    ];
+    XLSX.utils.book_append_sheet(wb, ws, 'Solicitud');
+
+    XLSX.writeFile(wb, `${solicitud.codigo}.xlsx`);
+  }
+
+  exportarGastos(gastos: Gasto[], year: number, month: number): void {
+    const wb = XLSX.utils.book_new();
+    const generado = this.datePeruService.toLocaleString();
+    const totalGastos = gastos.reduce((sum, g) => sum + (g.monto ?? 0), 0);
+
+    const resumenRows: any[] = [
+      ['REPORTE DE GASTOS'],
+      [`Mes: ${new Date(year, month - 1, 1).toLocaleDateString('es-PE', { month: 'long', year: 'numeric' })}`],
+      [`Generado: ${generado}`],
+      [],
+      ['Fecha', 'Tipo', 'Concepto', 'Descripción', 'Monto', 'Registrado por'],
+      ...gastos.map(g => [
+        g.fechaGasto,
+        g.tipo,
+        g.concepto,
+        g.descripcion ?? '-',
+        g.monto,
+        g.usuarioNombre,
+      ]),
+      [],
+      ['', '', '', 'TOTAL', totalGastos, ''],
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(resumenRows);
+    ws['!cols'] = [
+      { wch: 12 },
+      { wch: 20 },
+      { wch: 30 },
+      { wch: 30 },
+      { wch: 12 },
+      { wch: 20 },
+    ];
+    XLSX.utils.book_append_sheet(wb, ws, 'Gastos');
+
+    const fecha = this.datePeruService.getToday();
+    XLSX.writeFile(wb, `gastos_${year}_${String(month).padStart(2, '0')}_${fecha}.xlsx`);
+  }
   exportarProductos(productos: Producto[]): void {
     const wb = XLSX.utils.book_new();
 

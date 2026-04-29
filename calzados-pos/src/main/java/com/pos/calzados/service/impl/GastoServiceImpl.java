@@ -83,6 +83,28 @@ public class GastoServiceImpl implements GastoService {
                 .build();
     }
 
+    @Override
+    public GastoResponse actualizar(Long id, GastoRequest request) {
+        Gasto gasto = gastoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Gasto", id));
+
+        gasto.setTipo(request.getTipo());
+        gasto.setConcepto(request.getConcepto().trim());
+        gasto.setMonto(request.getMonto());
+        gasto.setFechaGasto(request.getFechaGasto());
+        gasto.setDescripcion(request.getDescripcion());
+
+        return toResponse(gastoRepository.save(gasto));
+    }
+
+    @Override
+    public void eliminar(Long id) {
+        if (!gastoRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Gasto", id);
+        }
+        gastoRepository.deleteById(id);
+    }
+
     private GastoResponse toResponse(Gasto g) {
         return GastoResponse.builder()
                 .id(g.getId())
@@ -95,5 +117,12 @@ public class GastoServiceImpl implements GastoService {
                 .usuarioNombre(g.getUsuario().getNombre())
                 .createdAt(g.getCreatedAt())
                 .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public GastoResponse obtenerPorId(Long id) {
+        return toResponse(gastoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Gasto", id)));
     }
 }

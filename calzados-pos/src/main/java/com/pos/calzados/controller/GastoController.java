@@ -53,4 +53,23 @@ public class GastoController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok("Gasto registrado exitosamente", created));
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<GastoResponse>> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.ok(gastoService.obtenerPorId(id)));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<GastoResponse>> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody GastoRequest request) {
+        GastoResponse updated = gastoService.actualizar(id, request);
+        return ResponseEntity.ok(ApiResponse.ok("Gasto actualizado exitosamente", updated));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> eliminar(@PathVariable Long id) {
+        gastoService.eliminar(id);
+        return ResponseEntity.ok(ApiResponse.ok("Gasto eliminado exitosamente", null));
+    }
 }

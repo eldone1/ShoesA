@@ -25,6 +25,10 @@
       <button mat-raised-button color="accent" (click)="cargarTodo()">
         <mat-icon>search</mat-icon> Ver mes
       </button>
+
+      <button mat-raised-button color="primary" (click)="descargarGastos()" [disabled]="gastos.length === 0">
+        <mat-icon>download</mat-icon> Descargar
+      </button>
     </mat-card-content>
   </mat-card>
 
@@ -88,6 +92,21 @@
         <ng-container matColumnDef="usuario">
           <th mat-header-cell *matHeaderCellDef>Registrado por</th>
           <td mat-cell *matCellDef="let g">{{ g.usuarioNombre }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef>Acciones</th>
+          <td mat-cell *matCellDef="let g" class="acciones-cell">
+            <button mat-icon-button color="primary" (click)="editarGasto(g)" matTooltip="Editar gasto">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="accent" (click)="moverAOtroMes(g)" matTooltip="Mover a otro mes">
+              <mat-icon>date_range</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="eliminarGasto(g)" matTooltip="Eliminar gasto">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

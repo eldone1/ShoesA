@@ -2,6 +2,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Proveedor, SolicitudCompra, RecepcionDetalleRequest } from '../../../core/models/index';
+import { ExportService } from '../../../core/services/export.service';
 import { ProveedorService } from '../../../core/services/proveedor.service';
 
 @Component({
@@ -15,6 +16,7 @@ export class SolicitudesListDialogComponent implements OnInit {
 
   constructor(
     private proveedorService: ProveedorService,
+    private exportService: ExportService,
     private snack: MatSnackBar,
     private dialog: MatDialog,
     private dialogRef: MatDialogRef<SolicitudesListDialogComponent>,
@@ -65,6 +67,11 @@ export class SolicitudesListDialogComponent implements OnInit {
         this.snack.open('Error al actualizar pago', 'OK', { duration: 3000 });
       },
     });
+  }
+
+  descargar(solicitud: SolicitudCompra): void {
+    this.exportService.exportarSolicitudCompra(solicitud);
+    this.snack.open('Descarga generada', 'OK', { duration: 2500 });
   }
 
   recepcionar(solicitud: SolicitudCompra): void {
