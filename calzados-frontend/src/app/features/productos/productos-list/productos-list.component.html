@@ -88,14 +88,16 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let v of p.variantes" [class.stock-low]="v.stockBajo">
+          <tr *ngFor="let v of p.variantes"
+              [class.stock-low]="v.stockBajo"
+              [class.variante-encontrada]="codigoBarrasResaltado && v.codigoBarras === codigoBarrasResaltado">
             <td>{{ v.talla }}</td>
             <td>{{ v.color }}</td>
             <td>{{ v.ubicacion || '—' }}</td>
             <td class="mono">{{ v.sku }}</td>
             <td class="mono">{{ v.codigoBarras }}</td>
             <td>S/ {{ v.precioCompra | number:'1.2-2' }}</td>
-            <td>{{ v.porcentajeGanancia }}%</td>
+            <td>{{ formatPorcentajeEnSoles(v.precioCompra, v.porcentajeGanancia) }}</td>
             <td><strong>S/ {{ v.precioVenta | number:'1.2-2' }}</strong></td>
             <td>
               <span [class.stock-ok]="!v.stockBajo" [class.stock-warn]="v.stockBajo">

@@ -100,10 +100,8 @@ public class ReporteServiceImpl implements ReporteService {
         LocalDateTime desde = inicio.atStartOfDay();
         LocalDateTime hasta = fin.atTime(LocalTime.MAX);
 
-        UtilidadBaseDTO resumen = ventaRepository.resumenUtilidad(desde, hasta);
-
-        BigDecimal totalVendido = resumen.getTotalVendido();
-        BigDecimal totalCosto = resumen.getTotalCosto();
+        BigDecimal totalVendido = ventaRepository.totalVendido(desde, hasta);
+        BigDecimal totalCosto = ventaRepository.totalCosto(desde, hasta);
         BigDecimal totalGastos = gastoRepository.sumMontoByFechaGastoBetween(inicio, fin);
 
         BigDecimal gananciaBruta = totalVendido.subtract(totalCosto);

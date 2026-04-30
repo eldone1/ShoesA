@@ -49,6 +49,12 @@
 
   tr:hover td { background:#f8fafc; }
   tr.stock-low td { background:#fff7ed; }
+  tr.variante-encontrada td {
+    background:#ecfeff;
+    box-shadow: inset 0 0 0 1px #22d3ee;
+  }
+
+  tr.variante-encontrada:hover td { background:#cffafe; }
   .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size:11px; }
 }
 

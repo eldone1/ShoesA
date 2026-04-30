@@ -25,6 +25,7 @@ export class ProductosListComponent implements OnInit {
   filtroCodigo = '';
   filtroMarca: number | null = null;
   expandedId: number | null = null;
+  codigoBarrasResaltado: string | null = null;
 
   constructor(
     private productoService: ProductoService,
@@ -51,6 +52,8 @@ export class ProductosListComponent implements OnInit {
       return;
     }
 
+    this.codigoBarrasResaltado = null;
+
     this.productoService.buscar(
       this.filtroNombre || undefined,
       this.filtroMarca  || undefined,
@@ -61,6 +64,7 @@ export class ProductosListComponent implements OnInit {
   }
 
   private buscarPorCodigo(codigo: string): void {
+    this.codigoBarrasResaltado = codigo;
     this.productoService.scanearCodigoBarras(codigo).subscribe({
       next: variante => {
         this.productoService.buscar(
@@ -87,6 +91,7 @@ export class ProductosListComponent implements OnInit {
       },
       error: () => {
         this.productos = [];
+        this.codigoBarrasResaltado = null;
         this.expandedId = null;
         this.loading = false;
         this.snack.open(`Código no encontrado: ${codigo}`, 'OK', {
@@ -134,6 +139,7 @@ export class ProductosListComponent implements OnInit {
   limpiarFiltros(): void {
     this.filtroNombre = '';
     this.filtroCodigo = '';
+    this.codigoBarrasResaltado = null;
     this.filtroMarca = null;
     this.expandedId = null;
     this.load();
@@ -154,5 +160,12 @@ export class ProductosListComponent implements OnInit {
     } finally {
       this.exportando = false;
     }
+  }
+
+  formatPorcentajeEnSoles(precioBase: number, porcentaje: number): string {
+    const pct = Number(porcentaje) || 0;
+    const base = Number(precioBase) || 0;
+    const monto = base * (pct / 100);
+    return `${pct}% - S/ ${monto.toFixed(2)}`;
   }
 }

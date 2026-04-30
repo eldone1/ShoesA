@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog }    from '@angular/material/dialog';
 import { MatSnackBar }  from '@angular/material/snack-bar';
 import { ClienteService } from '../../../core/services/cliente.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ComprobanteService } from '../../../core/services/comprobante.service';
 import { Cliente, ComprobanteResponse } from '../../../core/models/index';
 import { ClienteDialogComponent } from '../cliente-dialog/cliente-dialog.component';
@@ -28,18 +29,32 @@ export class ClientesListComponent implements OnInit {
     private comprobanteService: ComprobanteService,
     private dialog: MatDialog,
     private snack: MatSnackBar,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void { this.load(); }
 
   load(): void {
     this.loading = true;
-    const obs = this.busqueda.trim()
-      ? this.clienteService.buscar(this.busqueda.trim())
-      : this.clienteService.listar();
-    obs.subscribe({
-      next:  data => { this.clientes = data; this.loading = false; },
-      error: ()   => { this.loading = false; },
+    const q = this.busqueda.trim();
+    if (q) {
+      this.clienteService.buscar(q).subscribe({
+        next: data => { this.clientes = data; this.loading = false; },
+        error: () => { this.loading = false; },
+      });
+      return;
+    }
+
+    // Si es CAJERO no mostrar el listado completo — esperar a que busque
+    if (this.authService.isCajero()) {
+      this.clientes = [];
+      this.loading = false;
+      return;
+    }
+
+    this.clienteService.listar().subscribe({
+      next: data => { this.clientes = data; this.loading = false; },
+      error: () => { this.loading = false; },
     });
   }
 

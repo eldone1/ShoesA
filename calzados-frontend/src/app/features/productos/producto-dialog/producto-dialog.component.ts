@@ -76,6 +76,13 @@ export class ProductoDialogComponent implements OnInit {
     return `S/ ${pv.toFixed(2)}`;
   }
 
+  montoPorcentajePreview(ctrl: AbstractControl): string {
+    const compra = Number(ctrl.get('precioCompra')?.value ?? 0);
+    const pct = Number(ctrl.get('porcentajeGanancia')?.value ?? 0);
+    if (!compra || pct <= 0) return 'S/ 0.00';
+    return `S/ ${(compra * (pct / 100)).toFixed(2)}`;
+  }
+
   // primer save
  /*  save(): void {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
