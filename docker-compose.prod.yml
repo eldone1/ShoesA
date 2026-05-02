@@ -78,7 +78,7 @@ services:
       mysql:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep UP || exit 1"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       timeout: 10s
       interval: 20s
       retries: 5
@@ -96,7 +96,8 @@ services:
     networks:
       - calzados_net
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 
 # ── Red interna ──────────────────────────────────────────────────────────────
 networks:
