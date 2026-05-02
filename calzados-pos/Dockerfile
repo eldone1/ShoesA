@@ -3,6 +3,10 @@ FROM eclipse-temurin:17-jdk AS build
 WORKDIR /app
 COPY .mvn/ .mvn
 COPY mvnw pom.xml ./
+
+#fix
+
+RUN chmod +x mvnw
 # Esto permite que Docker cachee las dependencias y no las descargue siempre
 RUN ./mvnw dependency:go-offline -B
 COPY src ./src
