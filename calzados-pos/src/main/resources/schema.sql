@@ -54,6 +54,8 @@ CREATE TABLE IF NOT EXISTS variante (
     precio_venta        DECIMAL(12,2)   NOT NULL,
     stock               INT             NOT NULL DEFAULT 0,
     stock_minimo        INT                      DEFAULT 5,
+    activo              BOOLEAN                  NOT NULL DEFAULT TRUE,
+    fecha_ingreso       TIMESTAMP                NULL,
     CONSTRAINT fk_variante_producto FOREIGN KEY (producto_id) REFERENCES producto(id)
         ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

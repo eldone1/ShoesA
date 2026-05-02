@@ -21,7 +21,7 @@ public class Gasto {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
+    @Column(nullable = false, columnDefinition = "VARCHAR(20)", length = 30)
     private TipoGasto tipo;
 
     @Column(nullable = false, length = 180)

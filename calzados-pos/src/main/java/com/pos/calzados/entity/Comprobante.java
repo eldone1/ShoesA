@@ -24,7 +24,7 @@ public class Comprobante {
     private String serie;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "tipo", nullable = false, length = 10)
+    @Column(name = "tipo", columnDefinition = "VARCHAR(20)", nullable = false, length = 10)
     private TipoComprobante tipo;
 
     // Número correlativo numérico (para generar la serie)

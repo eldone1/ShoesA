@@ -39,7 +39,7 @@ public class Venta {
     private BigDecimal total;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "metodo_pago", length = 50)
+    @Column(name = "metodo_pago", columnDefinition = "VARCHAR(20)", length = 50)
     private MetodoPago metodoPago;
 
     @Column(name = "monto_recibido", precision = 12, scale = 2)

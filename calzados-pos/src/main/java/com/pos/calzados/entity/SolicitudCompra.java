@@ -34,7 +34,7 @@ public class SolicitudCompra {
     private User usuario;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "condicion_pago", nullable = false, length = 20)
+    @Column(name = "condicion_pago", columnDefinition = "VARCHAR(20)", nullable = false, length = 20)
     private CondicionPagoCompra condicionPago;
 
     @Column(name = "fecha_vencimiento")
@@ -51,7 +51,7 @@ public class SolicitudCompra {
     private Boolean pagado = false;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
+    @Column(name = "estado", columnDefinition = "VARCHAR(20)", nullable = false)
     private EstadoSolicitudCompra estado;
 
     @Column(columnDefinition = "TEXT")

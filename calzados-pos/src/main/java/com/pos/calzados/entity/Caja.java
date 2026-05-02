@@ -8,7 +8,11 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "cajas")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Caja {
 
     @Id
@@ -52,7 +56,7 @@ public class Caja {
     private BigDecimal diferencia = BigDecimal.ZERO;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 20, nullable = false)
+    @Column(name = "estado", columnDefinition = "VARCHAR(20)", nullable = false)
     @Builder.Default
     private EstadoCaja estado = EstadoCaja.ABIERTA;
 
