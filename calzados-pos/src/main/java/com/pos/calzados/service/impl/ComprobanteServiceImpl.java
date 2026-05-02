@@ -102,36 +102,54 @@ public class ComprobanteServiceImpl implements ComprobanteService {
 
     @Override
     @Transactional(readOnly = true)
-    public ComprobanteResponse obtenerPorId(Long id) {
-        Comprobante c = comprobanteRepository.findByIdWithDetalles(id)
+    public ComprobanteResponse obtenerPorId(Long id, Long userId, Rol rol) {
+        Comprobante c = (rol == Rol.CAJERO)
+                ? comprobanteRepository.findByIdAndCajeroId(id, userId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Comprobante", id))
+                : comprobanteRepository.findByIdWithDetalles(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Comprobante", id));
         return buildResponse(c, c.getVenta());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ComprobanteResponse obtenerPorSerie(String serie) {
-        Comprobante c = comprobanteRepository.findBySerie(serie)
+    public ComprobanteResponse obtenerPorSerie(String serie, Long userId, Rol rol) {
+        Comprobante c = (rol == Rol.CAJERO)
+                ? comprobanteRepository.findBySerieAndCajeroId(serie, userId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Comprobante con serie " + serie + " no encontrado"))
+                : comprobanteRepository.findBySerie(serie)
                 .orElseThrow(() -> new ResourceNotFoundException("Comprobante con serie " + serie + " no encontrado"));
         return buildResponse(c, c.getVenta());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ComprobanteResponse obtenerPorVentaId(Long ventaId) {
-        Comprobante c = comprobanteRepository.findByVentaId(ventaId)
+    public ComprobanteResponse obtenerPorVentaId(Long ventaId, Long userId, Rol rol) {
+        Comprobante c = (rol == Rol.CAJERO)
+                ? comprobanteRepository.findByVentaIdAndCajeroId(ventaId, userId)
+                    .orElseThrow(() -> new ResourceNotFoundException("La venta #" + ventaId + " no tiene comprobante emitido"))
+                : comprobanteRepository.findByVentaId(ventaId)
                 .orElseThrow(() -> new ResourceNotFoundException("La venta #" + ventaId + " no tiene comprobante emitido"));
         return buildResponse(c, c.getVenta());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ComprobanteResponse> listarPorFecha(LocalDate inicio, LocalDate fin, TipoComprobante tipo) {
+    public List<ComprobanteResponse> listarPorFecha(LocalDate inicio, LocalDate fin, TipoComprobante tipo, Long userId, Rol rol) {
         LocalDateTime desde = inicio.atStartOfDay();
         LocalDateTime hasta = fin.atTime(LocalTime.MAX);
-        List<Comprobante> lista = tipo != null
-                ? comprobanteRepository.findByTipoAndRangoFecha(tipo, desde, hasta)
-                : comprobanteRepository.findByRangoFecha(desde, hasta);
+        List<Comprobante> lista;
+
+        if (rol == Rol.CAJERO) {
+            lista = tipo != null
+                    ? comprobanteRepository.findByTipoAndRangoFechaAndCajeroId(tipo, desde, hasta, userId)
+                    : comprobanteRepository.findByRangoFechaAndCajeroId(desde, hasta, userId);
+        } else {
+            lista = tipo != null
+                    ? comprobanteRepository.findByTipoAndRangoFecha(tipo, desde, hasta)
+                    : comprobanteRepository.findByRangoFecha(desde, hasta);
+        }
+
         return lista.stream()
                 .map(c -> buildResponse(c, c.getVenta()))
                 .collect(Collectors.toList());
@@ -139,8 +157,12 @@ public class ComprobanteServiceImpl implements ComprobanteService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ComprobanteResponse> listarPorCliente(Long clienteId) {
-        return comprobanteRepository.findByClienteId(clienteId).stream()
+    public List<ComprobanteResponse> listarPorCliente(Long clienteId, Long userId, Rol rol) {
+        List<Comprobante> comprobantes = rol == Rol.CAJERO
+                ? comprobanteRepository.findByClienteIdAndCajeroId(clienteId, userId)
+                : comprobanteRepository.findByClienteId(clienteId);
+
+        return comprobantes.stream()
                 .map(c -> buildResponse(c, c.getVenta()))
                 .collect(Collectors.toList());
     }

@@ -18,6 +18,36 @@ public interface ComprobanteRepository extends JpaRepository<Comprobante, Long> 
     Optional<Comprobante> findByVentaId(Long ventaId);
     boolean existsByVentaId(Long ventaId);
 
+        @Query("""
+                SELECT c FROM Comprobante c
+                LEFT JOIN FETCH c.cliente
+                JOIN FETCH c.venta v
+                JOIN FETCH v.cajero
+                WHERE c.id = :id
+                    AND v.cajero.id = :cajeroId
+                """)
+        Optional<Comprobante> findByIdAndCajeroId(@Param("id") Long id, @Param("cajeroId") Long cajeroId);
+
+        @Query("""
+                SELECT c FROM Comprobante c
+                LEFT JOIN FETCH c.cliente
+                JOIN FETCH c.venta v
+                JOIN FETCH v.cajero
+                WHERE c.serie = :serie
+                    AND v.cajero.id = :cajeroId
+                """)
+        Optional<Comprobante> findBySerieAndCajeroId(@Param("serie") String serie, @Param("cajeroId") Long cajeroId);
+
+        @Query("""
+                SELECT c FROM Comprobante c
+                LEFT JOIN FETCH c.cliente
+                JOIN FETCH c.venta v
+                JOIN FETCH v.cajero
+                WHERE v.id = :ventaId
+                    AND v.cajero.id = :cajeroId
+                """)
+        Optional<Comprobante> findByVentaIdAndCajeroId(@Param("ventaId") Long ventaId, @Param("cajeroId") Long cajeroId);
+
     // Último número correlativo por tipo (para generar el siguiente)
     @Query("SELECT COALESCE(MAX(c.numero), 0) FROM Comprobante c WHERE c.tipo = :tipo")
     Integer findMaxNumeroByTipo(@Param("tipo") TipoComprobante tipo);
@@ -36,6 +66,21 @@ public interface ComprobanteRepository extends JpaRepository<Comprobante, Long> 
         @Param("fin")    LocalDateTime fin
     );
 
+    @Query("""
+        SELECT c FROM Comprobante c
+        LEFT JOIN FETCH c.cliente
+        JOIN FETCH c.venta v
+        JOIN FETCH v.cajero
+        WHERE c.fechaEmision BETWEEN :inicio AND :fin
+          AND v.cajero.id = :cajeroId
+        ORDER BY c.fechaEmision DESC
+        """)
+    List<Comprobante> findByRangoFechaAndCajeroId(
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fin") LocalDateTime fin,
+            @Param("cajeroId") Long cajeroId
+    );
+
     // Por tipo + rango de fecha
     @Query("""
         SELECT c FROM Comprobante c
@@ -52,6 +97,23 @@ public interface ComprobanteRepository extends JpaRepository<Comprobante, Long> 
         @Param("fin")    LocalDateTime fin
     );
 
+    @Query("""
+        SELECT c FROM Comprobante c
+        LEFT JOIN FETCH c.cliente
+        JOIN FETCH c.venta v
+        JOIN FETCH v.cajero
+        WHERE c.tipo = :tipo
+          AND c.fechaEmision BETWEEN :inicio AND :fin
+          AND v.cajero.id = :cajeroId
+        ORDER BY c.fechaEmision DESC
+        """)
+    List<Comprobante> findByTipoAndRangoFechaAndCajeroId(
+            @Param("tipo") TipoComprobante tipo,
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fin") LocalDateTime fin,
+            @Param("cajeroId") Long cajeroId
+    );
+
     // Por cliente
     @Query("""
         SELECT c FROM Comprobante c
@@ -61,6 +123,20 @@ public interface ComprobanteRepository extends JpaRepository<Comprobante, Long> 
         ORDER BY c.fechaEmision DESC
         """)
     List<Comprobante> findByClienteId(@Param("clienteId") Long clienteId);
+
+        @Query("""
+                SELECT c FROM Comprobante c
+                LEFT JOIN FETCH c.cliente cl
+                JOIN FETCH c.venta v
+                JOIN FETCH v.cajero
+                WHERE cl.id = :clienteId
+                    AND v.cajero.id = :cajeroId
+                ORDER BY c.fechaEmision DESC
+                """)
+        List<Comprobante> findByClienteIdAndCajeroId(
+                        @Param("clienteId") Long clienteId,
+                        @Param("cajeroId") Long cajeroId
+        );
 
     // Con detalles de venta para vista completa
     @Query("""

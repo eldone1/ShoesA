@@ -1,6 +1,5 @@
 package com.pos.calzados.repository;
 
-import com.pos.calzados.dto.response.ReporteUtilidadResponse;
 import com.pos.calzados.dto.response.UtilidadBaseDTO;
 import com.pos.calzados.entity.MetodoPago;
 import com.pos.calzados.entity.Venta;

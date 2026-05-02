@@ -4,12 +4,14 @@ import com.pos.calzados.dto.request.ComprobanteRequest;
 import com.pos.calzados.dto.response.ApiResponse;
 import com.pos.calzados.dto.response.ComprobanteResponse;
 import com.pos.calzados.entity.TipoComprobante;
+import com.pos.calzados.entity.User;
 import com.pos.calzados.service.ComprobanteService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -37,20 +39,29 @@ public class ComprobanteController {
 
     /** GET /api/comprobantes/{id} */
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ComprobanteResponse>> obtener(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.ok(comprobanteService.obtenerPorId(id)));
+    public ResponseEntity<ApiResponse<ComprobanteResponse>> obtener(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(ApiResponse.ok(
+                comprobanteService.obtenerPorId(id, user.getId(), user.getRol())));
     }
 
     /** GET /api/comprobantes/serie/{serie}  — ej: BO-00001 */
     @GetMapping("/serie/{serie}")
-    public ResponseEntity<ApiResponse<ComprobanteResponse>> obtenerPorSerie(@PathVariable String serie) {
-        return ResponseEntity.ok(ApiResponse.ok(comprobanteService.obtenerPorSerie(serie)));
+    public ResponseEntity<ApiResponse<ComprobanteResponse>> obtenerPorSerie(
+            @PathVariable String serie,
+            @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(ApiResponse.ok(
+                comprobanteService.obtenerPorSerie(serie, user.getId(), user.getRol())));
     }
 
     /** GET /api/comprobantes/venta/{ventaId}  — comprobante de una venta */
     @GetMapping("/venta/{ventaId}")
-    public ResponseEntity<ApiResponse<ComprobanteResponse>> obtenerPorVenta(@PathVariable Long ventaId) {
-        return ResponseEntity.ok(ApiResponse.ok(comprobanteService.obtenerPorVentaId(ventaId)));
+    public ResponseEntity<ApiResponse<ComprobanteResponse>> obtenerPorVenta(
+            @PathVariable Long ventaId,
+            @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(ApiResponse.ok(
+                comprobanteService.obtenerPorVentaId(ventaId, user.getId(), user.getRol())));
     }
 
     /**
@@ -61,16 +72,18 @@ public class ComprobanteController {
     public ResponseEntity<ApiResponse<List<ComprobanteResponse>>> listar(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin,
-            @RequestParam(required = false) TipoComprobante tipo) {
+            @RequestParam(required = false) TipoComprobante tipo,
+            @AuthenticationPrincipal User user) {
         return ResponseEntity.ok(ApiResponse.ok(
-                comprobanteService.listarPorFecha(inicio, fin, tipo)));
+                comprobanteService.listarPorFecha(inicio, fin, tipo, user.getId(), user.getRol())));
     }
 
     /** GET /api/comprobantes/cliente/{clienteId}  — historial de un cliente */
     @GetMapping("/cliente/{clienteId}")
     public ResponseEntity<ApiResponse<List<ComprobanteResponse>>> porCliente(
-            @PathVariable Long clienteId) {
+            @PathVariable Long clienteId,
+            @AuthenticationPrincipal User user) {
         return ResponseEntity.ok(ApiResponse.ok(
-                comprobanteService.listarPorCliente(clienteId)));
+                comprobanteService.listarPorCliente(clienteId, user.getId(), user.getRol())));
     }
 }
