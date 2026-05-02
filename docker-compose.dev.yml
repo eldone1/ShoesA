@@ -68,6 +68,11 @@ services:
       APP_JWT_SECRET: ${JWT_SECRET}
       APP_JWT_EXPIRATION: ${JWT_EXPIRATION}
 
+      # ── Usuario ADMIN inicial ──────────────────────────────────────────────
+      ADMIN_NAME: ${ADMIN_NAME}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+
       # ── Spring profile ────────────────────────────────────────────────────
       SPRING_PROFILES_ACTIVE: dev
     networks:
