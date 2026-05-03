@@ -32,6 +32,7 @@ public class User implements UserDetails {
     @Column(nullable = false, columnDefinition = "VARCHAR(20)", length = 20)
     private Rol rol;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean activo = true;
 

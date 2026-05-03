@@ -25,6 +25,7 @@ public class Producto {
     @Column(columnDefinition = "TEXT")
     private String descripcion;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean activo = true;
 

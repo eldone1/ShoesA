@@ -12,7 +12,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AuthResponse {
     private String token;
+
+    @Builder.Default
     private String tipo = "Bearer";
+    
     private Long userId;
     private String nombre;
     private String email;
