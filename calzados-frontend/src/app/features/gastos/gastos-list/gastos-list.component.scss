@@ -2,19 +2,16 @@
   display: block;
 }
 
-.page-container {
+.spinner-center {
+  display: flex;
+  justify-content: center;
   padding: 24px;
 }
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.filtros-card {
-  margin-bottom: 16px;
+.empty-msg {
+  text-align: center;
+  color: var(--color-muted);
+  padding: 16px;
 }
 
 .filtros-content {
@@ -22,6 +19,11 @@
   gap: 12px;
   align-items: center;
   flex-wrap: wrap;
+  padding: 16px !important;
+}
+
+.filtros-content mat-form-field {
+  min-width: 150px;
 }
 
 .resumen-grid {
@@ -32,42 +34,28 @@
 }
 
 .resumen {
+  border-radius: var(--radius-lg) !important;
+
   .label {
-    color: #64748b;
+    color: var(--color-muted);
     font-size: 13px;
     margin-bottom: 8px;
   }
 
   .value {
     font-size: 28px;
-    font-weight: 700;
+    font-weight: 800;
+    letter-spacing: -0.03em;
   }
 }
 
 .resumen.ventas .value { color: #0f766e; }
-.resumen.gastos .value { color: #b45309; }
-.resumen.saldo.ok .value { color: #15803d; }
-.resumen.saldo.warn .value { color: #b91c1c; }
+.resumen.gastos .value { color: #d97706; }
+.resumen.saldo.ok .value { color: #059669; }
+.resumen.saldo.warn .value { color: #dc2626; }
 
-.spinner-center {
-  display: flex;
-  justify-content: center;
-  padding: 24px;
-}
-
-.concepto {
-  font-weight: 600;
-}
-
-.monto {
-  font-weight: 700;
-}
-
-.empty-msg {
-  text-align: center;
-  color: #64748b;
-  padding: 16px;
-}
+.concepto { font-weight: 600; }
+.monto { font-weight: 700; }
 
 @media (max-width: 900px) {
   .resumen-grid {

@@ -1,71 +1,134 @@
-// src/app/features/auth/login/login.component.scss
 .login-wrapper {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
+  position: relative;
   background:
-    radial-gradient(circle at top right, rgba(56,189,248,.18), transparent 28%),
-    radial-gradient(circle at bottom left, rgba(251,191,36,.12), transparent 26%),
-    linear-gradient(135deg, #0f172a 0%, #111827 52%, #0f172a 100%);
+    radial-gradient(ellipse at 20% 30%, rgba(30, 58, 95, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 70%, rgba(217, 119, 6, 0.08) 0%, transparent 50%),
+    linear-gradient(160deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+}
+
+.login-bg-overlay {
+  position: fixed;
+  inset: 0;
+  background-image: url('/assets/bg-ref.jpg');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.12;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .login-card {
   width: 100%;
-  max-width: 440px;
-  border-radius: 24px !important;
-  box-shadow: 0 30px 70px rgba(15,23,42,.34) !important;
-  border: 1px solid rgba(255,255,255,.08);
+  max-width: 420px;
+  border-radius: var(--radius-xl) !important;
+  box-shadow: 0 40px 80px rgba(15, 23, 42, 0.4) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
+  position: relative;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
 
   mat-card-header { justify-content: center; padding-bottom: 0; }
 }
 
 .logo-area {
   text-align: center;
-  padding: 28px 0 10px;
+  padding: 32px 0 10px;
   width: 100%;
 
-  .logo-icon {
-    font-size: 52px;
-    width: 52px;
-    height: 52px;
-    color: #0f172a;
-    background: linear-gradient(135deg, #fbbf24, #fde68a);
-    border-radius: 18px;
-    padding: 4px;
-    box-shadow: 0 12px 24px rgba(251,191,36,.24);
+  .app-logo {
+    display: block;
+    width: 200px;
+    height: 45px;
+    margin: 0 auto 16px;
+    background-position: center;
+    filter: brightness(1.2);
   }
 
   h1 {
-    margin: 14px 0 4px;
+    margin: 0 0 4px;
     font-size: 22px;
-    font-weight: 800;
-    color: #0f172a;
-    letter-spacing: -.03em;
+    font-weight: 700;
+    color: #f8fafc;
+    letter-spacing: -0.03em;
   }
 
   p {
     margin: 0;
     font-size: 13px;
-    color: #64748b;
+    color: rgba(248, 250, 252, 0.6);
   }
 }
 
-mat-card-content { padding: 16px 24px 24px !important; }
+mat-card-content {
+  padding: 16px 28px 32px !important;
+}
+
+::ng-deep .login-card .mat-mdc-form-field {
+  .mdc-text-field--outlined {
+    --mdc-outlined-text-field-outline-color: rgba(255, 255, 255, 0.15);
+    --mdc-outlined-text-field-hover-outline-color: rgba(255, 255, 255, 0.3);
+    --mdc-outlined-text-field-focus-outline-color: var(--color-accent);
+    --mdc-outlined-text-field-label-text-color: rgba(255, 255, 255, 0.6);
+    --mdc-outlined-text-field-input-text-color: #f8fafc;
+    --mdc-outlined-text-field-caret-color: var(--color-accent);
+  }
+
+  .mat-mdc-form-field-icon-prefix {
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  .mat-mdc-form-field-icon-suffix {
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  .mat-mdc-form-field-hint {
+    color: rgba(255, 255, 255, 0.3);
+  }
+
+  .mdc-floating-label {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .mat-mdc-form-field-focus-overlay {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
 
 .login-btn {
   height: 48px;
   font-size: 14px;
   font-weight: 700;
-  letter-spacing: .2px;
-  margin-top: 8px;
+  letter-spacing: 0.3px;
+  margin-top: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   border-radius: 999px;
+  background: linear-gradient(135deg, var(--color-accent-dark), var(--color-accent)) !important;
+  box-shadow: 0 8px 24px rgba(217, 119, 6, 0.3) !important;
+  color: #fff;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(217, 119, 6, 0.4) !important;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+  }
 }
 
 .btn-spinner { display: inline-block; }
+
+::ng-deep .login-btn .mat-mdc-button-touch-target {
+  height: 48px;
+}

@@ -1,0 +1,203 @@
+@use './variables' as vars;
+
+:root {
+  --app-radius: 12px;
+  --app-shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  position: relative;
+  z-index: 1;
+  background-color: var(--color-bg, #f3f4f6);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url(#{vars.$brand-bg-path});
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(30, 58, 95, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(217, 119, 6, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(30, 58, 95, 0.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body > *:not(style):not(script) {
+  position: relative;
+  z-index: 1;
+}
+
+.app-logo {
+  display: inline-block;
+  width: 160px;
+  height: 36px;
+  background-image: url(#{vars.$brand-logo-path});
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: left center;
+  vertical-align: middle;
+}
+
+button, .btn {
+  border-radius: var(--app-radius);
+  transition: all .2s ease;
+}
+
+.mat-button, button.mat-button, .btn-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  color: #fff;
+  box-shadow: var(--app-shadow);
+  padding: 8px 14px;
+  border: none;
+}
+
+.mat-button:hover, button.mat-button:hover, .btn-primary:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  box-shadow: 0 12px 28px rgba(30, 58, 95, 0.25);
+}
+
+.mat-mdc-card, .card {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-md) !important;
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border) !important;
+  overflow: hidden;
+  transition: box-shadow .3s ease, transform .3s ease;
+}
+
+.mat-mdc-card:hover {
+  box-shadow: var(--shadow-lg) !important;
+}
+
+.mat-mdc-table .mat-mdc-header-cell {
+  color: #374151;
+}
+
+.text-muted { color: var(--color-muted, #6b7280); }
+
+.mat-form-field {
+  background: transparent;
+  border-radius: 8px;
+}
+
+.dialog-md, .dialog-lg, .dialog-xl { padding: 12px; }
+
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  border-radius: var(--radius-xl) !important;
+  background: rgba(255, 255, 255, 0.97) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 32px 64px rgba(15, 23, 42, 0.2) !important;
+}
+
+.mat-mdc-dialog-title {
+  font-family: var(--font-family-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.mat-mdc-snack-bar-container {
+  border-radius: var(--radius-md) !important;
+}
+
+.mat-mdc-tab-header {
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border) !important;
+}
+
+.mdc-text-field--outlined {
+  --mdc-outlined-text-field-container-shape: var(--radius-sm);
+}
+
+.mat-mdc-raised-button,
+.mat-mdc-stroked-button,
+.mat-mdc-flat-button {
+  border-radius: 999px !important;
+}
+
+.mat-mdc-raised-button:not(:disabled) {
+  box-shadow: 0 8px 20px rgba(30, 58, 95, 0.2) !important;
+  transition: all .25s ease !important;
+}
+
+.mat-mdc-raised-button:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(30, 58, 95, 0.3) !important;
+}
+
+.mat-mdc-icon-button {
+  transition: all .2s ease !important;
+}
+
+.mat-mdc-icon-button:hover {
+  transform: scale(1.1);
+}
+
+.mdc-linear-progress__bar-inner {
+  border-color: var(--color-accent) !important;
+}
+
+.mat-mdc-tab .mdc-tab__text-label {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
+  color: var(--color-primary) !important;
+}
+
+.mat-mdc-tab-group .mdc-tab-indicator__content--underline {
+  border-top-color: var(--color-accent) !important;
+  border-top-width: 3px !important;
+}
+
+.mat-mdc-paginator {
+  background: transparent !important;
+}
+
+.mat-mdc-select-panel,
+.mat-mdc-menu-panel {
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.15);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 23, 42, 0.25);
+}

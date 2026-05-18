@@ -1,23 +1,55 @@
 @use '@angular/material' as mat;
+@use './styles/_variables' as vars;
+@use './styles/_global' as global;
 
 @include mat.core();
 
 // ── Paleta corporativa ────────────────────────────────────────────────────────
-$primary-palette: mat.define-palette(mat.$indigo-palette, 700, 400, 900);
-$accent-palette:  mat.define-palette(mat.$amber-palette,  600, 300, 800);
-$warn-palette:    mat.define-palette(mat.$red-palette,    600);
+$primary-palette: mat.define-palette((
+  50: #eef2f7,
+  100: #d5dde8,
+  200: #b3c1d4,
+  300: #8da1bb,
+  400: #6e87a8,
+  500: #4a6a91,
+  600: #1e3a5f,
+  700: #0f2440,
+  800: #0a1a30,
+  900: #050e1c,
+  contrast: (50: #000, 100: #000, 200: #000, 300: #000, 400: #000, 500: #fff, 600: #fff, 700: #fff, 800: #fff, 900: #fff)
+), 600, 400, 800);
+
+$accent-palette: mat.define-palette((
+  50: #fffbeb,
+  100: #fef3c7,
+  200: #fde68a,
+  300: #fcd34d,
+  400: #fbbf24,
+  500: #f59e0b,
+  600: #d97706,
+  700: #b45309,
+  800: #92400e,
+  900: #78350f,
+  contrast: (50: #000, 100: #000, 200: #000, 300: #000, 400: #000, 500: #000, 600: #fff, 700: #fff, 800: #fff, 900: #fff)
+), 600, 300, 800);
+
+$warn-palette: mat.define-palette(mat.$red-palette, 600);
 
 $theme: mat.define-light-theme((
   color: (primary: $primary-palette, accent: $accent-palette, warn: $warn-palette),
   typography: mat.define-typography-config(
     $font-family: "'Inter', sans-serif",
+    $headline-1: mat.define-typography-level(96px, $font-family: "'Playfair Display', serif", $font-weight: 700),
+    $headline-2: mat.define-typography-level(60px, $font-family: "'Playfair Display', serif", $font-weight: 700),
+    $headline-3: mat.define-typography-level(48px, $font-family: "'Playfair Display', serif", $font-weight: 700),
+    $headline-4: mat.define-typography-level(34px, $font-family: "'Playfair Display', serif", $font-weight: 700),
+    $headline-5: mat.define-typography-level(24px, $font-family: "'Playfair Display', serif", $font-weight: 600),
+    $headline-6: mat.define-typography-level(20px, $font-family: "'Playfair Display', serif", $font-weight: 600),
   ),
   density: 0,
 ));
 
 @include mat.all-component-themes($theme);
-
-// ── Google Fonts ──────────────────────────────────────────────────────────────
 
 // ── Reset ─────────────────────────────────────────────────────────────────────
 *, *::before, *::after { box-sizing: border-box; }
@@ -25,8 +57,15 @@ $theme: mat.define-light-theme((
 html, body {
   height: 100%;
   margin: 0;
-  font-family: 'Inter', sans-serif;
-  background: #f5f5f5;
+  font-family: var(--font-family-body, 'Inter', sans-serif);
+  background: var(--color-bg, #f3f4f6);
+  color: #1f2937;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-display, 'Playfair Display', serif);
 }
 
 // ── Utilidades globales ───────────────────────────────────────────────────────
@@ -50,19 +89,50 @@ html, body {
 .flex-1 { flex: 1; }
 
 // ── Chips de estado ───────────────────────────────────────────────────────────
-.chip-activo   { background: #e8f5e9 !important; color: #2e7d32 !important; }
-.chip-inactivo { background: #ffebee !important; color: #c62828 !important; }
-.chip-abierta  { background: #e3f2fd !important; color: #1565c0 !important; }
-.chip-cerrada  { background: #f3e5f5 !important; color: #6a1b9a !important; }
-.chip-efectivo { background: #e8f5e9 !important; color: #2e7d32 !important; }
-.chip-yape     { background: #fce4ec !important; color: #880e4f !important; }
-.chip-tarjeta  { background: #e3f2fd !important; color: #0d47a1 !important; }
+.chip-activo   { background: #ecfdf5 !important; color: #059669 !important; }
+.chip-inactivo { background: #fef2f2 !important; color: #dc2626 !important; }
+.chip-abierta  { background: #eff6ff !important; color: #2563eb !important; }
+.chip-cerrada  { background: #faf5ff !important; color: #7c3aed !important; }
+.chip-efectivo { background: #ecfdf5 !important; color: #059669 !important; }
+.chip-yape     { background: #fdf2f8 !important; color: #be185d !important; }
+.chip-tarjeta  { background: #eff6ff !important; color: #2563eb !important; }
 
 // ── Tabla Material ────────────────────────────────────────────────────────────
 .mat-mdc-table {
   width: 100%;
-  .mat-mdc-header-cell { font-weight: 600; font-size: 13px; color: #424242; }
-  .mat-mdc-row:hover { background: #f5f5f5; cursor: pointer; }
+  background: transparent !important;
+
+  .mat-mdc-header-cell {
+    font-weight: 700;
+    font-size: 12px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: transparent !important;
+    border-bottom: 2px solid rgba(15, 23, 42, 0.06) !important;
+  }
+
+  .mat-mdc-cell {
+    color: #1f2937;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.05) !important;
+  }
+
+  .mat-mdc-row {
+    transition: background 0.15s ease;
+  }
+
+  .mat-mdc-row:hover {
+    background: rgba(30, 58, 95, 0.03) !important;
+  }
+
+  .mat-mdc-row:nth-child(even) .mat-mdc-cell {
+    background: rgba(248, 250, 252, 0.5);
+  }
+}
+
+.mat-mdc-header-row {
+  background: transparent !important;
 }
 
 // ── Card page ─────────────────────────────────────────────────────────────────
@@ -70,24 +140,92 @@ html, body {
   padding: 24px;
   max-width: 1400px;
   margin: 0 auto;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: fixed;
+    top: 120px;
+    right: -80px;
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(30, 58, 95, 0.06), transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(40px);
+  }
+
+  &::after {
+    content: '';
+    position: fixed;
+    bottom: 40px;
+    left: -80px;
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(217, 119, 6, 0.05), transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(40px);
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
 }
+
 .page-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
   margin-bottom: 24px;
-  h1 { margin: 0; font-size: 22px; font-weight: 600; color: #212121; }
+  padding: 18px 24px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: var(--radius-xl);
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-md);
+  transition: box-shadow .3s ease;
+
+  &:hover {
+    box-shadow: var(--shadow-lg);
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(1.35rem, 2vw, 1.75rem);
+    font-weight: 700;
+    color: var(--color-primary);
+    letter-spacing: -0.02em;
+  }
 }
 
 // ── Snackbar colores ──────────────────────────────────────────────────────────
-.snack-success .mdc-snackbar__surface { background: #2e7d32 !important; }
-.snack-error   .mdc-snackbar__surface { background: #c62828 !important; }
-.snack-warn    .mdc-snackbar__surface { background: #e65100 !important; }
+.snack-success .mdc-snackbar__surface {
+  background: linear-gradient(135deg, #059669, #10b981) !important;
+  border-radius: var(--radius-md) !important;
+}
+
+.snack-error .mdc-snackbar__surface {
+  background: linear-gradient(135deg, #dc2626, #ef4444) !important;
+  border-radius: var(--radius-md) !important;
+}
+
+.snack-warn .mdc-snackbar__surface {
+  background: linear-gradient(135deg, #d97706, #f59e0b) !important;
+  border-radius: var(--radius-md) !important;
+}
 
 // ── Spinner overlay ───────────────────────────────────────────────────────────
 .spinner-overlay {
   position: fixed; inset: 0;
-  background: rgba(0,0,0,.35);
+  background: rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex; align-items: center; justify-content: center;
   z-index: 9999;
 }
@@ -98,9 +236,110 @@ html, body {
 .dialog-xl  { width: min(1100px, 95vw); }
 
 // ── Negative / positive diff ──────────────────────────────────────────────────
-.diff-pos { color: #2e7d32; font-weight: 600; }
-.diff-neg { color: #c62828; font-weight: 600; }
-.diff-zero{ color: #616161; }
+.diff-pos { color: #059669; font-weight: 600; }
+.diff-neg { color: #dc2626; font-weight: 600; }
+.diff-zero { color: #6b7280; }
+
+// ── Filtro cards ─────────────────────────────────────────────────────────────
+.filter-card,
+.search-card {
+  margin-bottom: 16px;
+  border-radius: var(--radius-lg) !important;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm) !important;
+
+  .filter-content,
+  .search-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 16px 20px !important;
+  }
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-content mat-form-field,
+.search-content mat-form-field {
+  min-width: 170px;
+}
+
+.filter-content button,
+.search-content button {
+  border-radius: 999px;
+  min-height: 44px;
+  padding-inline: 16px;
+}
+
+// ── Spinner en listas ──────────────────────────────────────────────────────────
+.spinner-center {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+.empty-msg {
+  text-align: center;
+  color: var(--color-muted);
+  padding: 32px;
+  font-size: 14px;
+}
+
+// ── Cards con fondo oscuro (caja, etc) ────────────────────────────────────────
+.dark-card {
+  background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary)) !important;
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: var(--radius-xl) !important;
+  box-shadow: 0 24px 50px rgba(15, 23, 42, 0.22) !important;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: auto -50px -60px auto;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(217, 119, 6, 0.15), transparent 70%);
+    pointer-events: none;
+  }
+}
+
+.dark-card-content {
+  position: relative;
+  z-index: 1;
+}
+
+// ── Frosted inline metric card ────────────────────────────────────────────────
+.metric-inline {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .lbl {
+    font-size: 11px;
+    color: rgba(248, 250, 252, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .val {
+    font-size: 18px;
+    font-weight: 800;
+    color: #f8fafc;
+
+    &.accent {
+      color: var(--color-accent-light);
+    }
+  }
+}
 
 // ── Impresion exclusiva de ticket ────────────────────────────────────────────
 @media print {
