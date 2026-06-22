@@ -18,4 +18,4 @@ WORKDIR /app
 # El truco está aquí: copiamos desde la etapa 'build' al contenedor final
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Duser.timezone=America/Lima", "-jar", "app.jar"]
