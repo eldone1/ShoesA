@@ -91,11 +91,10 @@ services:
       dockerfile: Dockerfile
     container_name: calzados_frontend
     restart: unless-stopped
-    #ports:
-     # - "80:80"
+    ports:
+      - "80:80"
     networks:
       - calzados_net
-      - kinetic_net_prod
     depends_on:
       backend:
         condition: service_healthy
