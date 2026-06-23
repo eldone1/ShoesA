@@ -113,5 +113,14 @@
     </mat-expansion-panel>
   </mat-accordion>
 
+  <mat-paginator *ngIf="!loading && totalElements > 0"
+                 [length]="totalElements"
+                 [pageSize]="pageSize"
+                 [pageSizeOptions]="[10, 25, 50]"
+                 [pageIndex]="page"
+                 (page)="onPageChange($event)"
+                 showFirstLastButtons>
+  </mat-paginator>
+
   <p *ngIf="!loading && productos.length === 0" class="empty-msg">No hay productos. Crea el primero.</p>
 </div>

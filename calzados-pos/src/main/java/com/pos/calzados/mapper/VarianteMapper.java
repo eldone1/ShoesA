@@ -10,6 +10,7 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface VarianteMapper {
 
+    @Mapping(target = "productoId", expression = "java(variante.getProducto() != null ? variante.getProducto().getId() : null)")
     @Mapping(target = "productoNombre", expression = "java(variante.getProducto() != null ? variante.getProducto().getNombre() : null)")
     @Mapping(target = "stockBajo", expression = "java(variante.getStock() <= variante.getStockMinimo())")
     VarianteResponse toResponse(Variante variante);

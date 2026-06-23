@@ -1,4 +1,5 @@
 // src/app/core/models/marca.model.ts
+export { PageResponse } from './api-response.model';
 export interface Marca {
   id: number;
   nombre: string;

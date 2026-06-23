@@ -132,6 +132,15 @@
           </tr>
         </table>
 
+        <mat-paginator *ngIf="comprobantes.length > 0"
+          [length]="totalElements"
+          [pageSize]="pageSize"
+          [pageIndex]="page"
+          [pageSizeOptions]="[10,25,50,100]"
+          (page)="onPageChange($event)"
+          showFirstLastButtons>
+        </mat-paginator>
+
         <p *ngIf="comprobantes.length === 0" class="empty-msg">
           No hay comprobantes en el rango seleccionado.
         </p>

@@ -3,6 +3,7 @@ package com.pos.calzados.controller;
 import com.pos.calzados.dto.request.ProductoRequest;
 import com.pos.calzados.dto.request.VarianteRequest;
 import com.pos.calzados.dto.response.ApiResponse;
+import com.pos.calzados.dto.response.PageResponse;
 import com.pos.calzados.dto.response.ProductoResponse;
 import com.pos.calzados.dto.response.VarianteResponse;
 import com.pos.calzados.service.ProductoService;
@@ -24,15 +25,17 @@ public class ProductoController {
 
     // ─── Productos ───────────────────────────────────────────────────────────────
 
-    /** GET /api/productos?nombre=&marcaId= */
+    /** GET /api/productos?nombre=&marcaId=&page=0&size=25 */
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ProductoResponse>>> listar(
+    public ResponseEntity<ApiResponse<PageResponse<ProductoResponse>>> listar(
             @RequestParam(required = false) String nombre,
-            @RequestParam(required = false) Long marcaId) {
-        List<ProductoResponse> lista = (nombre != null || marcaId != null)
-                ? productoService.buscar(nombre, marcaId)
-                : productoService.listar();
-        return ResponseEntity.ok(ApiResponse.ok(lista));
+            @RequestParam(required = false) Long marcaId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "25") int size) {
+        PageResponse<ProductoResponse> data = (nombre != null || marcaId != null)
+                ? productoService.buscar(nombre, marcaId, page, size)
+                : productoService.listar(page, size);
+        return ResponseEntity.ok(ApiResponse.ok(data));
     }
 
     /** GET /api/productos/{id} */

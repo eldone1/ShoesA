@@ -17,6 +17,7 @@ import { MatChipsModule }           from '@angular/material/chips';
 import { MatTooltipModule }         from '@angular/material/tooltip';
 import { MatDividerModule }         from '@angular/material/divider';
 import { MatAutocompleteModule }    from '@angular/material/autocomplete';
+import { MatPaginatorModule }       from '@angular/material/paginator';
 import { ComprobantesListComponent }  from './comprobantes-list/comprobantes-list.component';
 import { ComprobanteDetalleComponent } from './comprobante-detalle/comprobante-detalle.component';
 import { EmitirComprobanteDialogComponent } from './emitir-comprobante-dialog/emitir-comprobante-dialog.component';
@@ -39,6 +40,7 @@ const routes: Routes = [
     MatFormFieldModule, MatInputModule, MatSelectModule, MatDialogModule,
     MatSnackBarModule, MatProgressSpinnerModule, MatChipsModule,
     MatTooltipModule, MatDividerModule, MatAutocompleteModule,
+    MatPaginatorModule,
   ],
   exports: [EmitirComprobanteDialogComponent],
 })

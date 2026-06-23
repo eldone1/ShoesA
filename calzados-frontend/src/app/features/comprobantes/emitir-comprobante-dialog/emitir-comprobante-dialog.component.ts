@@ -67,8 +67,8 @@ export class EmitirComprobanteDialogComponent implements OnInit {
         this.buscandoCliente = true;
         return this.clienteService.buscar(q).pipe(catchError(() => of([])));
       }),
-    ).subscribe(clientes => {
-      this.clientesFiltrados = clientes;
+    ).subscribe(response => {
+      this.clientesFiltrados = Array.isArray(response) ? response : response.content;
       this.buscandoCliente = false;
     });
   }

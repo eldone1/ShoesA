@@ -2,6 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog }    from '@angular/material/dialog';
 import { MatSnackBar }  from '@angular/material/snack-bar';
+import { PageEvent } from '@angular/material/paginator';
 import { ClienteService } from '../../../core/services/cliente.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ComprobanteService } from '../../../core/services/comprobante.service';
@@ -17,6 +18,11 @@ export class ClientesListComponent implements OnInit {
   clientes: Cliente[] = [];
   loading = false;
   busqueda = '';
+
+  page = 0;
+  pageSize = 25;
+  totalElements = 0;
+
   displayedColumns = ['nombre', 'dni', 'ruc', 'telefono', 'email', 'estado', 'acciones'];
 
   // Panel lateral de historial
@@ -36,10 +42,12 @@ export class ClientesListComponent implements OnInit {
 
   load(): void {
     this.loading = true;
+    this.page = 0;
     const q = this.busqueda.trim();
+
     if (q) {
-      this.clienteService.buscar(q).subscribe({
-        next: data => { this.clientes = data; this.loading = false; },
+      this.clienteService.buscar(q, this.page, this.pageSize).subscribe({
+        next: p => { this.clientes = p.content; this.totalElements = p.totalElements; this.loading = false; },
         error: () => { this.loading = false; },
       });
       return;
@@ -48,14 +56,33 @@ export class ClientesListComponent implements OnInit {
     // Si es CAJERO no mostrar el listado completo — esperar a que busque
     if (this.authService.isCajero()) {
       this.clientes = [];
+      this.totalElements = 0;
       this.loading = false;
       return;
     }
 
-    this.clienteService.listar().subscribe({
-      next: data => { this.clientes = data; this.loading = false; },
+    this.clienteService.listar(this.page, this.pageSize).subscribe({
+      next: p => { this.clientes = p.content; this.totalElements = p.totalElements; this.loading = false; },
       error: () => { this.loading = false; },
     });
+  }
+
+  onPageChange(e: PageEvent): void {
+    this.page = e.pageIndex;
+    this.pageSize = e.pageSize;
+    this.loading = true;
+    const q = this.busqueda.trim();
+    if (q) {
+      this.clienteService.buscar(q, this.page, this.pageSize).subscribe({
+        next: p => { this.clientes = p.content; this.totalElements = p.totalElements; this.loading = false; },
+        error: () => { this.loading = false; },
+      });
+    } else {
+      this.clienteService.listar(this.page, this.pageSize).subscribe({
+        next: p => { this.clientes = p.content; this.totalElements = p.totalElements; this.loading = false; },
+        error: () => { this.loading = false; },
+      });
+    }
   }
 
   openDialog(cliente?: Cliente): void {

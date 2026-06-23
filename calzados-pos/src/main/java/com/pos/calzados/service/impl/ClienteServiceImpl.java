@@ -2,6 +2,7 @@ package com.pos.calzados.service.impl;
 
 import com.pos.calzados.dto.request.ClienteRequest;
 import com.pos.calzados.dto.response.ClienteResponse;
+import com.pos.calzados.dto.response.PageResponse;
 import com.pos.calzados.entity.Cliente;
 import com.pos.calzados.exception.BusinessException;
 import com.pos.calzados.exception.ResourceNotFoundException;
@@ -64,9 +65,21 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     @Transactional(readOnly = true)
+    public PageResponse<ClienteResponse> listarPaginado(int page, int size) {
+        return paginate(listar(), page, size);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<ClienteResponse> buscar(String q) {
         if (q == null || q.isBlank()) return listar();
         return clienteMapper.toResponseList(clienteRepository.buscar(q.trim()));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<ClienteResponse> buscarPaginado(String q, int page, int size) {
+        return paginate(buscar(q), page, size);
     }
 
     @Override
@@ -75,6 +88,15 @@ public class ClienteServiceImpl implements ClienteService {
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente", id));
         cliente.setActivo(activo);
         clienteRepository.save(cliente);
+    }
+
+    private <T> PageResponse<T> paginate(List<T> list, int page, int size) {
+        int total = list.size();
+        int from = page * size;
+        int to = Math.min(from + size, total);
+        List<T> content = from < total ? list.subList(from, to) : List.of();
+        int totalPages = (int) Math.ceil((double) total / size);
+        return new PageResponse<>(content, total, totalPages, page, size);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

@@ -19,6 +19,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.pos.calzados.dto.response.PageResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
@@ -85,14 +89,21 @@ public class ProductoServiceImpl implements ProductoService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ProductoResponse> listar() {
-        return productoMapper.toResponseList(productoRepository.findByActivoTrue());
+    public PageResponse<ProductoResponse> listar(int page, int size) {
+        Page<Producto> result = productoRepository.findByActivoTrue(PageRequest.of(page, size));
+        return toPageResponse(result);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ProductoResponse> buscar(String nombre, Long marcaId) {
-        return productoMapper.toResponseList(productoRepository.buscarProductos(nombre, marcaId));
+    public PageResponse<ProductoResponse> buscar(String nombre, Long marcaId, int page, int size) {
+        Page<Producto> result = productoRepository.buscarProductos(nombre, marcaId, PageRequest.of(page, size));
+        return toPageResponse(result);
+    }
+
+    private PageResponse<ProductoResponse> toPageResponse(Page<Producto> page) {
+        List<ProductoResponse> content = productoMapper.toResponseList(page.getContent());
+        return new PageResponse<>(content, page.getTotalElements(), page.getTotalPages(), page.getNumber(), page.getSize());
     }
 
     @Override

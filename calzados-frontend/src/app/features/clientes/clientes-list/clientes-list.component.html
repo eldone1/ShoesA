@@ -101,6 +101,15 @@
             </tr>
           </table>
 
+          <mat-paginator *ngIf="!loading && clientes.length > 0"
+            [length]="totalElements"
+            [pageSize]="pageSize"
+            [pageIndex]="page"
+            [pageSizeOptions]="[10,25,50,100]"
+            (page)="onPageChange($event)"
+            showFirstLastButtons>
+          </mat-paginator>
+
           <p *ngIf="!loading && clientes.length === 0" class="empty-msg">
             No se encontraron clientes.
           </p>

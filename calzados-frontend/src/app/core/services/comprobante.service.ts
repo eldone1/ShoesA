@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../models/api-response.model';
-import { ComprobanteRequest, ComprobanteResponse, TipoComprobante } from '../models/index';
+import { ComprobanteRequest, ComprobanteResponse, PageResponse, TipoComprobante } from '../models/index';
 
 @Injectable({ providedIn: 'root' })
 export class ComprobanteService {
@@ -28,10 +28,10 @@ export class ComprobanteService {
     return this.http.get<ApiResponse<ComprobanteResponse>>(`${this.api}/venta/${ventaId}`).pipe(map(r => r.data));
   }
 
-  listarPorFecha(inicio: string, fin: string, tipo?: TipoComprobante): Observable<ComprobanteResponse[]> {
-    let params = new HttpParams().set('inicio', inicio).set('fin', fin);
+  listarPorFecha(inicio: string, fin: string, tipo?: TipoComprobante, page = 0, size = 25): Observable<PageResponse<ComprobanteResponse>> {
+    let params = new HttpParams().set('inicio', inicio).set('fin', fin).set('page', page).set('size', size);
     if (tipo) params = params.set('tipo', tipo);
-    return this.http.get<ApiResponse<ComprobanteResponse[]>>(this.api, { params }).pipe(map(r => r.data));
+    return this.http.get<ApiResponse<PageResponse<ComprobanteResponse>>>(this.api, { params }).pipe(map(r => r.data));
   }
 
   listarPorCliente(clienteId: number): Observable<ComprobanteResponse[]> {

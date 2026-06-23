@@ -2,6 +2,7 @@ package com.pos.calzados.service.impl;
 
 import com.pos.calzados.dto.request.ComprobanteRequest;
 import com.pos.calzados.dto.response.ComprobanteResponse;
+import com.pos.calzados.dto.response.PageResponse;
 import com.pos.calzados.entity.*;
 import com.pos.calzados.exception.BusinessException;
 import com.pos.calzados.exception.ResourceNotFoundException;
@@ -157,6 +158,13 @@ public class ComprobanteServiceImpl implements ComprobanteService {
 
     @Override
     @Transactional(readOnly = true)
+    public PageResponse<ComprobanteResponse> listarPorFechaPaginado(LocalDate inicio, LocalDate fin, TipoComprobante tipo, Long userId, Rol rol, int page, int size) {
+        List<ComprobanteResponse> all = listarPorFecha(inicio, fin, tipo, userId, rol);
+        return paginate(all, page, size);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<ComprobanteResponse> listarPorCliente(Long clienteId, Long userId, Rol rol) {
         List<Comprobante> comprobantes = rol == Rol.CAJERO
                 ? comprobanteRepository.findByClienteIdAndCajeroId(clienteId, userId)
@@ -181,6 +189,15 @@ public class ComprobanteServiceImpl implements ComprobanteService {
                     .map(Cliente::getRuc).orElse(null);
         }
         return null;
+    }
+
+    private <T> PageResponse<T> paginate(List<T> list, int page, int size) {
+        int total = list.size();
+        int from = page * size;
+        int to = Math.min(from + size, total);
+        List<T> content = from < total ? list.subList(from, to) : List.of();
+        int totalPages = (int) Math.ceil((double) total / size);
+        return new PageResponse<>(content, total, totalPages, page, size);
     }
 
     private ComprobanteResponse buildResponse(Comprobante c, Venta venta) {

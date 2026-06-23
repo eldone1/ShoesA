@@ -1,6 +1,7 @@
 // src/app/features/ventas/ventas-list/ventas-list.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute }    from '@angular/router';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { VentaService }          from '../../../core/services/venta.service';
 import { ComprobanteService }      from '../../../core/services/comprobante.service';
 import { MatDialog }               from '@angular/material/dialog';
@@ -28,9 +29,15 @@ export class VentasListComponent implements OnInit {
   metodoPagoFiltro: MetodoPago | null = null;
   readonly metodosPago: MetodoPago[] = ['EFECTIVO', 'YAPE', 'TARJETA'];
 
+  page = 0;
+  pageSize = 25;
+  totalElements = 0;
+
   displayedColumns = ['id', 'fecha', 'cajero', 'items', 'metodoPago', 'total', 'comprobante', 'acciones'];
   expandedVenta: Venta | null = null;
   comprobantesMap: Map<number, ComprobanteResponse> = new Map();
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(
     private ventaService: VentaService,
@@ -72,16 +79,42 @@ export class VentasListComponent implements OnInit {
 
   load(): void {
     this.loading = true;
-    const obs = this.cajaId
-      ? this.ventaService.porCaja(this.cajaId)
-      : this.isAdmin
-        ? this.ventaService.porFechaFiltrada(this.inicio, this.fin, this.cajeroIdFiltro, this.metodoPagoFiltro)
-        : this.ventaService.misVentas(this.inicio, this.fin);
+    this.page = 0;
 
-    obs.subscribe({
-      next:  data => { this.ventas = data; this.loading = false; },
-      error: ()   => { this.loading = false; },
-    });
+    if (this.cajaId) {
+      this.ventaService.porCaja(this.cajaId).subscribe({
+        next:  data => { this.ventas = data; this.totalElements = data.length; this.loading = false; },
+        error: ()   => { this.loading = false; },
+      });
+    } else if (this.isAdmin) {
+      this.ventaService.porFechaFiltrada(this.inicio, this.fin, this.cajeroIdFiltro, this.metodoPagoFiltro, this.page, this.pageSize).subscribe({
+        next:  p => { this.ventas = p.content; this.totalElements = p.totalElements; this.loading = false; },
+        error: () => { this.loading = false; },
+      });
+    } else {
+      this.ventaService.misVentas(this.inicio, this.fin, this.page, this.pageSize).subscribe({
+        next:  p => { this.ventas = p.content; this.totalElements = p.totalElements; this.loading = false; },
+        error: () => { this.loading = false; },
+      });
+    }
+  }
+
+  onPageChange(e: PageEvent): void {
+    this.page = e.pageIndex;
+    this.pageSize = e.pageSize;
+    this.loading = true;
+
+    if (this.isAdmin) {
+      this.ventaService.porFechaFiltrada(this.inicio, this.fin, this.cajeroIdFiltro, this.metodoPagoFiltro, this.page, this.pageSize).subscribe({
+        next:  p => { this.ventas = p.content; this.totalElements = p.totalElements; this.loading = false; },
+        error: () => { this.loading = false; },
+      });
+    } else {
+      this.ventaService.misVentas(this.inicio, this.fin, this.page, this.pageSize).subscribe({
+        next:  p => { this.ventas = p.content; this.totalElements = p.totalElements; this.loading = false; },
+        error: () => { this.loading = false; },
+      });
+    }
   }
 
   toggle(venta: Venta): void {

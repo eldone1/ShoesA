@@ -2,6 +2,7 @@ package com.pos.calzados.service.impl;
 
 import com.pos.calzados.dto.request.GastoRequest;
 import com.pos.calzados.dto.response.GastoResponse;
+import com.pos.calzados.dto.response.PageResponse;
 import com.pos.calzados.dto.response.ResumenGastosMesResponse;
 import com.pos.calzados.entity.Gasto;
 import com.pos.calzados.entity.User;
@@ -58,6 +59,18 @@ public class GastoServiceImpl implements GastoService {
                 .stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<GastoResponse> listarMesPaginado(int year, int month, int page, int size) {
+        List<GastoResponse> all = listarMes(year, month);
+        int total = all.size();
+        int from = page * size;
+        int to = Math.min(from + size, total);
+        List<GastoResponse> content = from < total ? all.subList(from, to) : List.of();
+        int totalPages = (int) Math.ceil((double) total / size);
+        return new PageResponse<>(content, total, totalPages, page, size);
     }
 
     @Override

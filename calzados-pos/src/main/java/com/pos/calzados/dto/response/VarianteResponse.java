@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 @Data
 public class VarianteResponse {
     private Long id;
+    private Long productoId;
     private String productoNombre;
     private String color;
     private String talla;

@@ -2,6 +2,7 @@ package com.pos.calzados.service.impl;
 
 import com.pos.calzados.dto.request.DetalleVentaRequest;
 import com.pos.calzados.dto.request.VentaRequest;
+import com.pos.calzados.dto.response.PageResponse;
 import com.pos.calzados.dto.response.VentaResponse;
 import com.pos.calzados.entity.*;
 import com.pos.calzados.exception.BusinessException;
@@ -224,7 +225,30 @@ public class VentaServiceImpl implements VentaService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<VentaResponse> listarPorFiltrosPaginado(LocalDate inicio, LocalDate fin, Long cajeroId, MetodoPago metodoPago, int page, int size) {
+        List<VentaResponse> all = listarPorFiltros(inicio, fin, cajeroId, metodoPago);
+        return paginate(all, page, size);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<VentaResponse> listarPorCajeroYFechaPaginado(Long cajeroId, LocalDate inicio, LocalDate fin, int page, int size) {
+        List<VentaResponse> all = listarPorCajeroYFecha(cajeroId, inicio, fin);
+        return paginate(all, page, size);
+    }
+
     // ─── Helper ──────────────────────────────────────────────────────────────────
+
+    private <T> PageResponse<T> paginate(List<T> list, int page, int size) {
+        int total = list.size();
+        int from = page * size;
+        int to = Math.min(from + size, total);
+        List<T> content = from < total ? list.subList(from, to) : List.of();
+        int totalPages = (int) Math.ceil((double) total / size);
+        return new PageResponse<>(content, total, totalPages, page, size);
+    }
 
     private VentaResponse buildVentaResponse(Venta venta) {
         VentaResponse response = ventaMapper.toResponse(venta);

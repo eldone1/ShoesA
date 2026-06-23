@@ -2,6 +2,7 @@ package com.pos.calzados.service;
 
 import com.pos.calzados.dto.request.ProductoRequest;
 import com.pos.calzados.dto.request.VarianteRequest;
+import com.pos.calzados.dto.response.PageResponse;
 import com.pos.calzados.dto.response.ProductoResponse;
 import com.pos.calzados.dto.response.VarianteResponse;
 
@@ -11,8 +12,8 @@ public interface ProductoService {
     ProductoResponse crear(ProductoRequest request);
     ProductoResponse actualizar(Long id, ProductoRequest request);
     ProductoResponse obtenerPorId(Long id);
-    List<ProductoResponse> listar();
-    List<ProductoResponse> buscar(String nombre, Long marcaId);
+    PageResponse<ProductoResponse> listar(int page, int size);
+    PageResponse<ProductoResponse> buscar(String nombre, Long marcaId, int page, int size);
     void eliminar(Long id);
 
     // Variantes

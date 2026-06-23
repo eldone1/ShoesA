@@ -3,6 +3,7 @@ package com.pos.calzados.controller;
 import com.pos.calzados.dto.request.ComprobanteRequest;
 import com.pos.calzados.dto.response.ApiResponse;
 import com.pos.calzados.dto.response.ComprobanteResponse;
+import com.pos.calzados.dto.response.PageResponse;
 import com.pos.calzados.entity.TipoComprobante;
 import com.pos.calzados.entity.User;
 import com.pos.calzados.service.ComprobanteService;
@@ -69,13 +70,15 @@ public class ComprobanteController {
      * tipo es opcional — si no se envía devuelve boletas y facturas
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ComprobanteResponse>>> listar(
+    public ResponseEntity<ApiResponse<PageResponse<ComprobanteResponse>>> listar(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin,
             @RequestParam(required = false) TipoComprobante tipo,
-            @AuthenticationPrincipal User user) {
+            @AuthenticationPrincipal User user,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "25") int size) {
         return ResponseEntity.ok(ApiResponse.ok(
-                comprobanteService.listarPorFecha(inicio, fin, tipo, user.getId(), user.getRol())));
+                comprobanteService.listarPorFechaPaginado(inicio, fin, tipo, user.getId(), user.getRol(), page, size)));
     }
 
     /** GET /api/comprobantes/cliente/{clienteId}  — historial de un cliente */

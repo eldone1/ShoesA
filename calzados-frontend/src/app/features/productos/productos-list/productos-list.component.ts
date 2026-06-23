@@ -1,5 +1,6 @@
 // src/app/features/productos/productos-list/productos-list.component.ts
 import { Component, OnInit } from '@angular/core';
+import { PageEvent } from '@angular/material/paginator';
 import { MatDialog }    from '@angular/material/dialog';
 import { MatSnackBar }  from '@angular/material/snack-bar';
 import { ProductoService } from '../../../core/services/producto.service';
@@ -20,6 +21,10 @@ export class ProductosListComponent implements OnInit {
   loading = false;
   exportando = false;
   isAdmin: boolean;
+
+  page = 0;
+  pageSize = 25;
+  totalElements = 0;
 
   filtroNombre = '';
   filtroCodigo = '';
@@ -45,6 +50,7 @@ export class ProductosListComponent implements OnInit {
 
   load(): void {
     this.loading = true;
+    this.page = 0;
 
     const codigo = this.filtroCodigo.trim();
     if (codigo) {
@@ -57,8 +63,32 @@ export class ProductosListComponent implements OnInit {
     this.productoService.buscar(
       this.filtroNombre || undefined,
       this.filtroMarca  || undefined,
+      this.page,
+      this.pageSize,
     ).subscribe({
-      next:  data => { this.productos = data; this.loading = false; },
+      next:  p => { this.productos = p.content; this.totalElements = p.totalElements; this.loading = false; },
+      error: ()   => { this.loading = false; },
+    });
+  }
+
+  onPageChange(e: PageEvent): void {
+    this.page = e.pageIndex;
+    this.pageSize = e.pageSize;
+    this.loading = true;
+
+    const codigo = this.filtroCodigo.trim();
+    if (codigo) {
+      this.buscarPorCodigo(codigo);
+      return;
+    }
+
+    this.productoService.buscar(
+      this.filtroNombre || undefined,
+      this.filtroMarca  || undefined,
+      this.page,
+      this.pageSize,
+    ).subscribe({
+      next:  p => { this.productos = p.content; this.totalElements = p.totalElements; this.loading = false; },
       error: ()   => { this.loading = false; },
     });
   }
@@ -67,30 +97,38 @@ export class ProductosListComponent implements OnInit {
     this.codigoBarrasResaltado = codigo;
     this.productoService.scanearCodigoBarras(codigo).subscribe({
       next: variante => {
-        this.productoService.buscar(
-          variante.productoNombre || undefined,
-          this.filtroMarca || undefined,
-        ).subscribe({
-          next: data => {
-            this.productos = data.filter(p =>
-              (p.variantes ?? []).some(v => v.codigoBarras === codigo),
-            );
-
-            this.expandedId = this.productos.length === 1 ? this.productos[0].id : null;
-            this.loading = false;
-
-            if (this.productos.length === 0) {
-              this.snack.open(`No se encontró producto para el código ${codigo}`, 'OK', {
+        const productoId = (variante as any).productoId;
+        if (productoId) {
+          this.productoService.obtener(productoId).subscribe({
+            next: p => {
+              this.productos = [p];
+              this.totalElements = 1;
+              this.expandedId = p.id;
+              this.loading = false;
+            },
+            error: () => {
+              this.productos = [];
+              this.totalElements = 0;
+              this.loading = false;
+              this.snack.open(`Error al obtener producto para el código ${codigo}`, 'OK', {
                 duration: 3000,
-                panelClass: 'snack-warn',
+                panelClass: 'snack-error',
               });
-            }
-          },
-          error: () => { this.loading = false; },
-        });
+            },
+          });
+        } else {
+          this.productos = [];
+          this.totalElements = 0;
+          this.loading = false;
+          this.snack.open(`Código no encontrado: ${codigo}`, 'OK', {
+            duration: 3000,
+            panelClass: 'snack-error',
+          });
+        }
       },
       error: () => {
         this.productos = [];
+        this.totalElements = 0;
         this.codigoBarrasResaltado = null;
         this.expandedId = null;
         this.loading = false;

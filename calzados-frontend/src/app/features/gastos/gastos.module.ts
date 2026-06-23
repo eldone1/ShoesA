@@ -15,6 +15,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { GastosListComponent } from './gastos-list/gastos-list.component';
 
 @NgModule({
@@ -37,6 +38,7 @@ import { GastosListComponent } from './gastos-list/gastos-list.component';
     MatDatepickerModule,
     MatNativeDateModule,
     MatDividerModule,
+    MatPaginatorModule,
   ],
 })
 export class GastosModule {}

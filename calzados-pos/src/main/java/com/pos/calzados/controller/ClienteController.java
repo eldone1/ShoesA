@@ -3,6 +3,7 @@ package com.pos.calzados.controller;
 import com.pos.calzados.dto.request.ClienteRequest;
 import com.pos.calzados.dto.response.ApiResponse;
 import com.pos.calzados.dto.response.ClienteResponse;
+import com.pos.calzados.dto.response.PageResponse;
 import com.pos.calzados.service.ClienteService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,11 +22,13 @@ public class ClienteController {
 
     /** GET /api/clientes?q=juan  — busca por nombre, DNI, RUC o email */
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ClienteResponse>>> listar(
-            @RequestParam(required = false) String q) {
-        List<ClienteResponse> data = (q != null && !q.isBlank())
-                ? clienteService.buscar(q)
-                : clienteService.listar();
+    public ResponseEntity<ApiResponse<PageResponse<ClienteResponse>>> listar(
+            @RequestParam(required = false) String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "25") int size) {
+        PageResponse<ClienteResponse> data = (q != null && !q.isBlank())
+                ? clienteService.buscarPaginado(q, page, size)
+                : clienteService.listarPaginado(page, size);
         return ResponseEntity.ok(ApiResponse.ok(data));
     }
 

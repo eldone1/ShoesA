@@ -2,6 +2,7 @@ package com.pos.calzados.service;
 
 import com.pos.calzados.dto.request.ComprobanteRequest;
 import com.pos.calzados.dto.response.ComprobanteResponse;
+import com.pos.calzados.dto.response.PageResponse;
 import com.pos.calzados.entity.Rol;
 import com.pos.calzados.entity.TipoComprobante;
 
@@ -14,5 +15,6 @@ public interface ComprobanteService {
     ComprobanteResponse obtenerPorSerie(String serie, Long userId, Rol rol);
     ComprobanteResponse obtenerPorVentaId(Long ventaId, Long userId, Rol rol);
     List<ComprobanteResponse> listarPorFecha(LocalDate inicio, LocalDate fin, TipoComprobante tipo, Long userId, Rol rol);
+    PageResponse<ComprobanteResponse> listarPorFechaPaginado(LocalDate inicio, LocalDate fin, TipoComprobante tipo, Long userId, Rol rol, int page, int size);
     List<ComprobanteResponse> listarPorCliente(Long clienteId, Long userId, Rol rol);
 }

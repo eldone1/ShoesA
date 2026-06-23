@@ -5,20 +5,21 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../models/api-response.model';
-import { Cliente, ClienteRequest } from '../models/index';
+import { Cliente, ClienteRequest, PageResponse } from '../models/index';
 
 @Injectable({ providedIn: 'root' })
 export class ClienteService {
   private api = `${environment.apiUrl}/clientes`;
   constructor(private http: HttpClient) {}
 
-  listar(): Observable<Cliente[]> {
-    return this.http.get<ApiResponse<Cliente[]>>(this.api).pipe(map(r => r.data));
+  listar(page = 0, size = 25): Observable<PageResponse<Cliente>> {
+    const params = new HttpParams().set('page', page).set('size', size);
+    return this.http.get<ApiResponse<PageResponse<Cliente>>>(this.api, { params }).pipe(map(r => r.data));
   }
 
-  buscar(q: string): Observable<Cliente[]> {
-    const params = new HttpParams().set('q', q);
-    return this.http.get<ApiResponse<Cliente[]>>(this.api, { params }).pipe(map(r => r.data));
+  buscar(q: string, page = 0, size = 25): Observable<PageResponse<Cliente>> {
+    const params = new HttpParams().set('q', q).set('page', page).set('size', size);
+    return this.http.get<ApiResponse<PageResponse<Cliente>>>(this.api, { params }).pipe(map(r => r.data));
   }
 
   obtener(id: number): Observable<Cliente> {

@@ -2,6 +2,7 @@ package com.pos.calzados.controller;
 
 import com.pos.calzados.dto.request.VentaRequest;
 import com.pos.calzados.dto.response.ApiResponse;
+import com.pos.calzados.dto.response.PageResponse;
 import com.pos.calzados.dto.response.VentaResponse;
 import com.pos.calzados.entity.MetodoPago;
 import com.pos.calzados.entity.User;
@@ -65,12 +66,14 @@ public class VentaController {
      */
     @GetMapping("/rango")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<List<VentaResponse>>> porFecha(
+    public ResponseEntity<ApiResponse<PageResponse<VentaResponse>>> porFecha(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin,
             @RequestParam(required = false) Long cajeroId,
-            @RequestParam(required = false) MetodoPago metodoPago) {
-        return ResponseEntity.ok(ApiResponse.ok(ventaService.listarPorFiltros(inicio, fin, cajeroId, metodoPago)));
+            @RequestParam(required = false) MetodoPago metodoPago,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "25") int size) {
+        return ResponseEntity.ok(ApiResponse.ok(ventaService.listarPorFiltrosPaginado(inicio, fin, cajeroId, metodoPago, page, size)));
     }
 
     /**
@@ -78,11 +81,13 @@ public class VentaController {
      * Cada cajero consulta sus propias ventas.
      */
     @GetMapping("/mis-ventas")
-    public ResponseEntity<ApiResponse<List<VentaResponse>>> misVentas(
+    public ResponseEntity<ApiResponse<PageResponse<VentaResponse>>> misVentas(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin,
-            @AuthenticationPrincipal User cajero) {
+            @AuthenticationPrincipal User cajero,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "25") int size) {
         return ResponseEntity.ok(ApiResponse.ok(
-                ventaService.listarPorCajeroYFecha(cajero.getId(), inicio, fin)));
+                ventaService.listarPorCajeroYFechaPaginado(cajero.getId(), inicio, fin, page, size)));
     }
 }

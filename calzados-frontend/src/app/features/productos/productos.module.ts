@@ -18,6 +18,7 @@ import { MatTooltipModule }         from '@angular/material/tooltip';
 import { MatDividerModule }         from '@angular/material/divider';
 import { MatTabsModule }            from '@angular/material/tabs';
 import { MatExpansionModule }       from '@angular/material/expansion';
+import { MatPaginatorModule }       from '@angular/material/paginator';
 import { ProductosListComponent }   from './productos-list/productos-list.component';
 import { ProductoDialogComponent }  from './producto-dialog/producto-dialog.component';
 
@@ -30,6 +31,7 @@ import { ProductoDialogComponent }  from './producto-dialog/producto-dialog.comp
     MatFormFieldModule, MatInputModule, MatSelectModule, MatDialogModule,
     MatSnackBarModule, MatProgressSpinnerModule, MatChipsModule,
     MatTooltipModule, MatDividerModule, MatTabsModule, MatExpansionModule,
+    MatPaginatorModule,
   ],
 })
 export class ProductosModule {}

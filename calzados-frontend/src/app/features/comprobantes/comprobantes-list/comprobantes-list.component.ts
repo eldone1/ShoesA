@@ -1,8 +1,7 @@
 // src/app/features/comprobantes/comprobantes-list/comprobantes-list.component.ts
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { MatDialog }   from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { PageEvent } from '@angular/material/paginator';
 import { ComprobanteService } from '../../../core/services/comprobante.service';
 import { DatePeruService } from '../../../core/services/date-peru.service';
 import { ComprobanteResponse, TipoComprobante } from '../../../core/models/index';
@@ -21,13 +20,16 @@ export class ComprobantesListComponent implements OnInit {
   fin    = this.today;
   tipoFiltro: TipoComprobante | '' = '';
 
+  page = 0;
+  pageSize = 25;
+  totalElements = 0;
+
   displayedColumns = ['serie', 'tipo', 'fechaEmision', 'cliente', 'cajero', 'metodoPago', 'total', 'acciones'];
 
   constructor(
     private comprobanteService: ComprobanteService,
     private datePeruService: DatePeruService,
     private router: Router,
-    private snack: MatSnackBar,
   ) {
     this.today = this.datePeruService.getToday();
     this.inicio = this.today;
@@ -38,12 +40,28 @@ export class ComprobantesListComponent implements OnInit {
 
   load(): void {
     this.loading = true;
+    this.page = 0;
     this.comprobanteService.listarPorFecha(
       this.inicio, this.fin,
       this.tipoFiltro as TipoComprobante || undefined,
+      this.page, this.pageSize,
     ).subscribe({
-      next:  data => { this.comprobantes = data; this.loading = false; },
-      error: ()   => { this.loading = false; },
+      next:  p => { this.comprobantes = p.content; this.totalElements = p.totalElements; this.loading = false; },
+      error: () => { this.loading = false; },
+    });
+  }
+
+  onPageChange(e: PageEvent): void {
+    this.page = e.pageIndex;
+    this.pageSize = e.pageSize;
+    this.loading = true;
+    this.comprobanteService.listarPorFecha(
+      this.inicio, this.fin,
+      this.tipoFiltro as TipoComprobante || undefined,
+      this.page, this.pageSize,
+    ).subscribe({
+      next:  p => { this.comprobantes = p.content; this.totalElements = p.totalElements; this.loading = false; },
+      error: () => { this.loading = false; },
     });
   }
 

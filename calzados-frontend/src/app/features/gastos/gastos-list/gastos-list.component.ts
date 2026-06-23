@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { PageEvent } from '@angular/material/paginator';
 import { Gasto, ResumenGastosMes } from '../../../core/models/index';
 import { GastoService } from '../../../core/services/gasto.service';
 import { ExportService } from '../../../core/services/export.service';
@@ -23,6 +24,10 @@ export class GastosListComponent implements OnInit {
   year: number;
   month: number;
 
+  page = 0;
+  pageSize = 25;
+  totalElements = 0;
+
   displayedColumns = ['fecha', 'tipo', 'concepto', 'monto', 'usuario', 'acciones'];
 
   constructor(
@@ -44,6 +49,7 @@ export class GastosListComponent implements OnInit {
 
   cargarTodo(): void {
     this.cargarResumen();
+    this.page = 0;
     this.cargarGastos();
   }
 
@@ -63,9 +69,10 @@ export class GastosListComponent implements OnInit {
 
   cargarGastos(): void {
     this.loading = true;
-    this.gastoService.listarMes(this.year, this.month).subscribe({
-      next: data => {
-        this.gastos = data;
+    this.gastoService.listarMes(this.year, this.month, this.page, this.pageSize).subscribe({
+      next: p => {
+        this.gastos = p.content;
+        this.totalElements = p.totalElements;
         this.loading = false;
       },
       error: () => {
@@ -73,6 +80,12 @@ export class GastosListComponent implements OnInit {
         this.snack.open('No se pudieron cargar los gastos', 'OK', { duration: 3500, panelClass: 'snack-error' });
       },
     });
+  }
+
+  onPageChange(e: PageEvent): void {
+    this.page = e.pageIndex;
+    this.pageSize = e.pageSize;
+    this.cargarGastos();
   }
 
   openNuevoGasto(): void {

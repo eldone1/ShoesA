@@ -16,6 +16,7 @@ import { MatChipsModule }           from '@angular/material/chips';
 import { MatTooltipModule }         from '@angular/material/tooltip';
 import { MatSlideToggleModule }     from '@angular/material/slide-toggle';
 import { MatDividerModule }         from '@angular/material/divider';
+import { MatPaginatorModule }       from '@angular/material/paginator';
 import { ClientesListComponent }    from './clientes-list/clientes-list.component';
 import { ClienteDialogComponent }   from './cliente-dialog/cliente-dialog.component';
 
@@ -28,6 +29,7 @@ import { ClienteDialogComponent }   from './cliente-dialog/cliente-dialog.compon
     MatFormFieldModule, MatInputModule, MatDialogModule, MatSnackBarModule,
     MatProgressSpinnerModule, MatChipsModule, MatTooltipModule,
     MatSlideToggleModule, MatDividerModule,
+    MatPaginatorModule,
   ],
   exports: [ClienteDialogComponent],
 })

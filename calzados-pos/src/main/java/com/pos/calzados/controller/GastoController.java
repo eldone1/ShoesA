@@ -3,6 +3,7 @@ package com.pos.calzados.controller;
 import com.pos.calzados.dto.request.GastoRequest;
 import com.pos.calzados.dto.response.ApiResponse;
 import com.pos.calzados.dto.response.GastoResponse;
+import com.pos.calzados.dto.response.PageResponse;
 import com.pos.calzados.dto.response.ResumenGastosMesResponse;
 import com.pos.calzados.entity.User;
 import com.pos.calzados.service.GastoService;
@@ -26,13 +27,15 @@ public class GastoController {
     private final GastoService gastoService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<GastoResponse>>> listarMes(
+    public ResponseEntity<ApiResponse<PageResponse<GastoResponse>>> listarMes(
             @RequestParam(required = false) Integer year,
-            @RequestParam(required = false) Integer month) {
+            @RequestParam(required = false) Integer month,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "25") int size) {
         LocalDate now = LocalDate.now();
         int y = year != null ? year : now.getYear();
         int m = month != null ? month : now.getMonthValue();
-        return ResponseEntity.ok(ApiResponse.ok(gastoService.listarMes(y, m)));
+        return ResponseEntity.ok(ApiResponse.ok(gastoService.listarMesPaginado(y, m, page, size)));
     }
 
     @GetMapping("/resumen-mes")

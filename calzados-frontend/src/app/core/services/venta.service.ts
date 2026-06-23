@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../models/api-response.model';
-import { MetodoPago, Venta, VentaRequest } from './index-models';
+import { MetodoPago, PageResponse, Venta, VentaRequest } from './index-models';
 
 @Injectable({ providedIn: 'root' })
 export class VentaService {
@@ -24,22 +24,18 @@ export class VentaService {
   porCaja(cajaId: number): Observable<Venta[]> {
     return this.http.get<ApiResponse<Venta[]>>(`${this.api}/caja/${cajaId}`).pipe(map(r => r.data));
   }
-  porFecha(inicio: string, fin: string): Observable<Venta[]> {
-    const params = new HttpParams().set('inicio', inicio).set('fin', fin);
-    return this.http.get<ApiResponse<Venta[]>>(`${this.api}/rango`, { params }).pipe(map(r => r.data));
-  }
-  porFechaFiltrada(inicio: string, fin: string, cajeroId?: number | null, metodoPago?: MetodoPago | null): Observable<Venta[]> {
-    let params = new HttpParams().set('inicio', inicio).set('fin', fin);
+  porFechaFiltrada(inicio: string, fin: string, cajeroId?: number | null, metodoPago?: MetodoPago | null, page = 0, size = 25): Observable<PageResponse<Venta>> {
+    let params = new HttpParams().set('inicio', inicio).set('fin', fin).set('page', page).set('size', size);
     if (cajeroId != null) {
       params = params.set('cajeroId', String(cajeroId));
     }
     if (metodoPago) {
       params = params.set('metodoPago', metodoPago);
     }
-    return this.http.get<ApiResponse<Venta[]>>(`${this.api}/rango`, { params }).pipe(map(r => r.data));
+    return this.http.get<ApiResponse<PageResponse<Venta>>>(`${this.api}/rango`, { params }).pipe(map(r => r.data));
   }
-  misVentas(inicio: string, fin: string): Observable<Venta[]> {
-    const params = new HttpParams().set('inicio', inicio).set('fin', fin);
-    return this.http.get<ApiResponse<Venta[]>>(`${this.api}/mis-ventas`, { params }).pipe(map(r => r.data));
+  misVentas(inicio: string, fin: string, page = 0, size = 25): Observable<PageResponse<Venta>> {
+    const params = new HttpParams().set('inicio', inicio).set('fin', fin).set('page', page).set('size', size);
+    return this.http.get<ApiResponse<PageResponse<Venta>>>(`${this.api}/mis-ventas`, { params }).pipe(map(r => r.data));
   }
 }

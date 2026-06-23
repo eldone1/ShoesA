@@ -4,7 +4,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { ApiResponse } from '../models/api-response.model';
+import { ApiResponse, PageResponse } from '../models/api-response.model';
 import { Producto, ProductoRequest, Variante, VarianteRequest, StockBajo } from './index-models';
 
 @Injectable({ providedIn: 'root' })
@@ -12,14 +12,15 @@ export class ProductoService {
   private api = `${environment.apiUrl}/productos`;
   constructor(private http: HttpClient) {}
 
-  listar(): Observable<Producto[]> {
-    return this.http.get<ApiResponse<Producto[]>>(this.api).pipe(map(r => r.data));
+  listar(page = 0, size = 25): Observable<PageResponse<Producto>> {
+    const params = new HttpParams().set('page', page).set('size', size);
+    return this.http.get<ApiResponse<PageResponse<Producto>>>(this.api, { params }).pipe(map(r => r.data));
   }
-  buscar(nombre?: string, marcaId?: number): Observable<Producto[]> {
-    let params = new HttpParams();
+  buscar(nombre?: string, marcaId?: number, page = 0, size = 25): Observable<PageResponse<Producto>> {
+    let params = new HttpParams().set('page', page).set('size', size);
     if (nombre)  params = params.set('nombre', nombre);
     if (marcaId) params = params.set('marcaId', marcaId.toString());
-    return this.http.get<ApiResponse<Producto[]>>(this.api, { params }).pipe(map(r => r.data));
+    return this.http.get<ApiResponse<PageResponse<Producto>>>(this.api, { params }).pipe(map(r => r.data));
   }
   obtener(id: number): Observable<Producto> {
     return this.http.get<ApiResponse<Producto>>(`${this.api}/${id}`).pipe(map(r => r.data));

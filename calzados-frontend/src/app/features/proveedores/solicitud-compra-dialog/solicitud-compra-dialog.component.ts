@@ -103,9 +103,9 @@ export class SolicitudCompraDialogComponent implements OnInit {
   }
 
   private loadProductos(): void {
-    this.productoService.listar().subscribe(
-      productos => {
-        this.productos = productos;
+    this.productoService.listar(0, 200).subscribe(
+      p => {
+        this.productos = p.content;
       },
       error => {
         this.snack.open('Error al cargar productos', 'OK', { duration: 3000 });

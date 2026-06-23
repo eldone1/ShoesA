@@ -18,6 +18,7 @@ import { MatDialogModule }          from '@angular/material/dialog';
 import { MatTooltipModule }         from '@angular/material/tooltip';
 import { MatDatepickerModule }      from '@angular/material/datepicker';
 import { MatNativeDateModule }      from '@angular/material/core';
+import { MatPaginatorModule }       from '@angular/material/paginator';
 import { NuevaVentaComponent }      from './nueva-venta/nueva-venta.component';
 import { VentasListComponent }      from './ventas-list/ventas-list.component';
 
@@ -36,6 +37,7 @@ const routes: Routes = [
     MatFormFieldModule, MatInputModule, MatSelectModule, MatSnackBarModule,
     MatProgressSpinnerModule, MatChipsModule, MatDividerModule,
     MatDialogModule, MatTooltipModule, MatDatepickerModule, MatNativeDateModule,
+    MatPaginatorModule,
   ],
 })
 export class VentasModule {}
