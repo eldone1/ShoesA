@@ -420,8 +420,9 @@ export class ExportService {
       [`Generado: ${this.datePeruService.toLocaleString()}`],
       [],
       [
-        'Producto', 'Marca', 'Talla', 'Color', 'SKU', 'Cód. Barras',
-        'P. Compra (S/)', '% Ganancia', 'P. Venta (S/)', 'Stock', 'Stock Mín.', 'Stock Bajo',
+        'Producto', 'Marca', 'Descripción', 'Talla', 'Color', 'Ubicación',
+        'SKU', 'Cód. Barras', 'P. Compra (S/)', '% Ganancia', 'P. Venta (S/)',
+        'Stock', 'Stock Mín.', 'Stock Bajo',
       ],
     ];
 
@@ -430,8 +431,10 @@ export class ExportService {
         detalleRows.push([
           p.nombre,
           p.marca?.nombre ?? 'Sin marca',
+          p.descripcion ?? '',
           v.talla,
           v.color,
+          v.ubicacion ?? '',
           v.sku,
           v.codigoBarras,
           v.precioCompra,
@@ -447,8 +450,9 @@ export class ExportService {
     const wsDetalle = XLSX.utils.aoa_to_sheet(detalleRows);
     this.aplicarEstilosDetalle(wsDetalle, detalleRows.length);
     wsDetalle['!cols'] = [
-      { wch: 28 }, { wch: 15 }, { wch: 8 }, { wch: 10 }, { wch: 18 }, { wch: 18 },
-      { wch: 14 }, { wch: 12 }, { wch: 13 }, { wch: 8 }, { wch: 10 }, { wch: 11 },
+      { wch: 28 }, { wch: 15 }, { wch: 30 }, { wch: 8 }, { wch: 10 },
+      { wch: 12 }, { wch: 18 }, { wch: 18 }, { wch: 14 }, { wch: 12 },
+      { wch: 13 }, { wch: 8 }, { wch: 10 }, { wch: 11 },
     ];
     XLSX.utils.book_append_sheet(wb, wsDetalle, 'Detalle Variantes');
 
@@ -531,7 +535,7 @@ export class ExportService {
 
   private aplicarEstilosDetalle(ws: XLSX.WorkSheet, totalRows: number): void {
     if (ws['A1']) ws['A1'].s = { font: { bold: true, sz: 14 } };
-    ['A4','B4','C4','D4','E4','F4','G4','H4','I4','J4','K4','L4'].forEach(cell => {
+    ['A4','B4','C4','D4','E4','F4','G4','H4','I4','J4','K4','L4','M4','N4'].forEach(cell => {
       if (ws[cell]) ws[cell].s = { font: { bold: true, color: { rgb: 'FFFFFF' } }, fill: { fgColor: { rgb: '00695C' } }, alignment: { horizontal: 'center' } };
     });
   }

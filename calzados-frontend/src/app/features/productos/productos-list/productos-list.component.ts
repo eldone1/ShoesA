@@ -185,19 +185,27 @@ export class ProductosListComponent implements OnInit {
 
   // ── Exportar Excel ────────────────────────────────────────────────────────
   exportarExcel(): void {
-    if (this.productos.length === 0) {
+    if (this.totalElements === 0) {
       this.snack.open('No hay productos para exportar', 'OK', { duration: 3000 });
       return;
     }
     this.exportando = true;
-    try {
-      this.exportService.exportarProductos(this.productos);
-      this.snack.open('Excel descargado correctamente', 'OK', { duration: 3000, panelClass: 'snack-success' });
-    } catch (e) {
-      this.snack.open('Error al generar el Excel', 'OK', { duration: 3000, panelClass: 'snack-error' });
-    } finally {
-      this.exportando = false;
-    }
+    this.productoService.listar(0, this.totalElements).subscribe({
+      next: p => {
+        try {
+          this.exportService.exportarProductos(p.content);
+          this.snack.open('Excel descargado correctamente', 'OK', { duration: 3000, panelClass: 'snack-success' });
+        } catch (e) {
+          this.snack.open('Error al generar el Excel', 'OK', { duration: 3000, panelClass: 'snack-error' });
+        } finally {
+          this.exportando = false;
+        }
+      },
+      error: () => {
+        this.snack.open('Error al obtener productos para exportar', 'OK', { duration: 3000, panelClass: 'snack-error' });
+        this.exportando = false;
+      },
+    });
   }
 
   formatPorcentajeEnSoles(precioBase: number, porcentaje: number): string {
