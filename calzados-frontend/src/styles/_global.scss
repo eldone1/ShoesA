@@ -2,7 +2,7 @@
 
 :root {
   --app-radius: 12px;
-  --app-shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
+  --app-shadow: 0 8px 24px rgba(44, 30, 22, 0.08);
 }
 
 html {
@@ -12,7 +12,7 @@ html {
 body {
   position: relative;
   z-index: 1;
-  background-color: var(--color-bg, #f3f4f6);
+  background-color: var(--color-bg, #f2ede4);
 }
 
 body::before {
@@ -23,7 +23,7 @@ body::before {
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-  opacity: 0.08;
+  opacity: 0.04;
   pointer-events: none;
   z-index: 0;
 }
@@ -33,9 +33,9 @@ body::after {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse at 20% 50%, rgba(30, 58, 95, 0.06) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 20%, rgba(217, 119, 6, 0.04) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 80%, rgba(30, 58, 95, 0.04) 0%, transparent 50%);
+    radial-gradient(ellipse at 15% 40%, rgba(92, 61, 46, 0.05) 0%, transparent 60%),
+    radial-gradient(ellipse at 85% 20%, rgba(184, 134, 11, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 85%, rgba(92, 61, 46, 0.035) 0%, transparent 50%);
   pointer-events: none;
   z-index: 0;
 }
@@ -48,17 +48,23 @@ body > *:not(style):not(script) {
 .app-logo {
   display: inline-block;
   width: 160px;
-  height: 36px;
+  height: 40px;
   background-image: url(#{vars.$brand-logo-path});
   background-repeat: no-repeat;
   background-size: contain;
   background-position: left center;
   vertical-align: middle;
+  filter: brightness(1.1);
+}
+
+a {
+  text-decoration: none;
 }
 
 button, .btn {
   border-radius: var(--app-radius);
   transition: all .2s ease;
+  cursor: pointer;
 }
 
 .mat-button, button.mat-button, .btn-primary {
@@ -71,8 +77,8 @@ button, .btn {
 
 .mat-button:hover, button.mat-button:hover, .btn-primary:hover {
   transform: translateY(-2px);
-  filter: brightness(1.05);
-  box-shadow: 0 12px 28px rgba(30, 58, 95, 0.25);
+  filter: brightness(1.08);
+  box-shadow: 0 12px 28px rgba(92, 61, 46, 0.25);
 }
 
 .mat-mdc-card, .card {
@@ -91,10 +97,10 @@ button, .btn {
 }
 
 .mat-mdc-table .mat-mdc-header-cell {
-  color: #374151;
+  color: #5c3d2e;
 }
 
-.text-muted { color: var(--color-muted, #6b7280); }
+.text-muted { color: var(--color-muted, #8b7e74); }
 
 .mat-form-field {
   background: transparent;
@@ -105,16 +111,17 @@ button, .btn {
 
 .mat-mdc-dialog-container .mdc-dialog__surface {
   border-radius: var(--radius-xl) !important;
-  background: rgba(255, 255, 255, 0.97) !important;
+  background: rgba(252, 249, 246, 0.97) !important;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 32px 64px rgba(15, 23, 42, 0.2) !important;
+  box-shadow: 0 32px 64px rgba(44, 30, 22, 0.2) !important;
 }
 
 .mat-mdc-dialog-title {
   font-family: var(--font-family-display);
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.02em;
+  color: var(--color-primary-dark);
 }
 
 .mat-mdc-snack-bar-container {
@@ -139,13 +146,13 @@ button, .btn {
 }
 
 .mat-mdc-raised-button:not(:disabled) {
-  box-shadow: 0 8px 20px rgba(30, 58, 95, 0.2) !important;
+  box-shadow: 0 8px 20px rgba(92, 61, 46, 0.2) !important;
   transition: all .25s ease !important;
 }
 
 .mat-mdc-raised-button:not(:disabled):hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(30, 58, 95, 0.3) !important;
+  box-shadow: 0 12px 28px rgba(92, 61, 46, 0.3) !important;
 }
 
 .mat-mdc-icon-button {
@@ -185,8 +192,8 @@ button, .btn {
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -194,10 +201,10 @@ button, .btn {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(15, 23, 42, 0.15);
+  background: rgba(92, 61, 46, 0.15);
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(15, 23, 42, 0.25);
+  background: rgba(92, 61, 46, 0.25);
 }

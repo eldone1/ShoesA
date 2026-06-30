@@ -1,49 +1,75 @@
 <div class="login-wrapper">
   <div class="login-bg-overlay"></div>
-  <mat-card class="login-card">
-    <mat-card-header>
-      <div class="logo-area">
-        <div class="app-logo"></div>
-        <h1>Calzados POS</h1>
-        <p>Sistema de Punto de Venta</p>
+  <div class="login-bg-pattern"></div>
+
+  <div class="login-left">
+    <div class="login-brand">
+      <div class="brand-logo"></div>
+      <h1 class="brand-title">Aldama Store</h1>
+      <p class="brand-tagline">Sistema de Punto de Venta</p>
+    </div>
+    <div class="login-features">
+      <div class="feature-item">
+        <span class="feature-dot"></span>
+        Gestión de inventario
       </div>
-    </mat-card-header>
+      <div class="feature-item">
+        <span class="feature-dot"></span>
+        Ventas y comprobantes
+      </div>
+      <div class="feature-item">
+        <span class="feature-dot"></span>
+        Reportes en tiempo real
+      </div>
+    </div>
+  </div>
 
-    <mat-card-content>
-      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div class="login-right">
+    <mat-card class="login-card">
+      <mat-card-content>
+        <div class="login-form-header">
+          <h2>Iniciar sesión</h2>
+          <p>Ingresa tus credenciales para continuar</p>
+        </div>
 
-        <mat-form-field appearance="outline" class="full-width mb-2">
-          <mat-label>Correo electrónico</mat-label>
-          <mat-icon matPrefix>email</mat-icon>
-          <input matInput type="email" formControlName="email"
-                 placeholder="usuario@empresa.com" autocomplete="email">
-          <mat-error>{{ emailError }}</mat-error>
-        </mat-form-field>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
-        <mat-form-field appearance="outline" class="full-width mb-2">
-          <mat-label>Contraseña</mat-label>
-          <mat-icon matPrefix>lock</mat-icon>
-          <input matInput [type]="hidePassword ? 'password' : 'text'"
-                 formControlName="password" autocomplete="current-password">
-          <button mat-icon-button matSuffix type="button"
-                  (click)="hidePassword = !hidePassword">
-            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          <mat-form-field appearance="outline" class="full-width mb-2">
+            <mat-label>Correo electrónico</mat-label>
+            <mat-icon matPrefix>email</mat-icon>
+            <input matInput type="email" formControlName="email"
+                   placeholder="usuario@empresa.com" autocomplete="email">
+            <mat-error>{{ emailError }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width mb-2">
+            <mat-label>Contraseña</mat-label>
+            <mat-icon matPrefix>lock</mat-icon>
+            <input matInput [type]="hidePassword ? 'password' : 'text'"
+                   formControlName="password" autocomplete="current-password">
+            <button mat-icon-button matSuffix type="button"
+                    (click)="hidePassword = !hidePassword">
+              <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            <mat-error *ngIf="form.get('password')?.hasError('required')">
+              La contraseña es requerida
+            </mat-error>
+            <mat-error *ngIf="form.get('password')?.hasError('minlength')">
+              Mínimo 6 caracteres
+            </mat-error>
+          </mat-form-field>
+
+          <button mat-raised-button color="primary" type="submit"
+                  class="full-width login-btn" [disabled]="loading">
+            <mat-spinner *ngIf="loading" diameter="20" class="btn-spinner"></mat-spinner>
+            <span *ngIf="!loading">Iniciar sesión</span>
           </button>
-          <mat-error *ngIf="form.get('password')?.hasError('required')">
-            La contraseña es requerida
-          </mat-error>
-          <mat-error *ngIf="form.get('password')?.hasError('minlength')">
-            Mínimo 6 caracteres
-          </mat-error>
-        </mat-form-field>
 
-        <button mat-raised-button color="primary" type="submit"
-                class="full-width login-btn" [disabled]="loading">
-          <mat-spinner *ngIf="loading" diameter="20" class="btn-spinner"></mat-spinner>
-          <span *ngIf="!loading">Iniciar sesión</span>
-        </button>
-
-      </form>
-    </mat-card-content>
-  </mat-card>
+        </form>
+      </mat-card-content>
+      <div class="login-card-footer">
+        <span class="footer-line"></span>
+      </div>
+    </mat-card>
+  </div>
 </div>

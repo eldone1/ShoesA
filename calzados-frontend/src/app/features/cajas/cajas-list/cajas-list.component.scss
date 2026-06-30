@@ -1,22 +1,28 @@
-:host { display: block; color: #111827; }
+:host { display: block; color: #2d1e16; }
 
 .spinner-center { display: flex; justify-content: center; padding: 32px; }
 .empty-msg { text-align: center; color: var(--color-muted); padding: 32px; }
 
 .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .header-actions button { border-radius: 999px; }
-.table-wrapper { overflow-x: auto; border-radius: var(--radius-lg); }
+.table-wrapper { overflow-x: auto; border-radius: var(--radius-lg);
+  @media (max-width: 768px) {
+    margin: 0 -16px;
+    width: calc(100% + 32px);
+    padding: 0 16px;
+  }
+}
 
 .caja-activa {
-  background: linear-gradient(135deg, #0f172a, #1e293b) !important;
-  color: #f8fafc;
+  background: linear-gradient(135deg, #1a110c, #2d1e16) !important;
+  color: #e8ddd3;
   border: none !important;
   border-radius: var(--radius-xl) !important;
   margin-bottom: 24px;
-  box-shadow: 0 24px 50px rgba(15, 23, 42, 0.18) !important;
+  box-shadow: 0 24px 50px rgba(44, 30, 22, 0.22) !important;
 }
 
-.icon-open { color: var(--color-accent-light) !important; }
+.icon-open { color: #dbb067 !important; }
 
 .caja-activa-metrics {
   display: flex;
@@ -24,4 +30,10 @@
   gap: 24px;
   padding: 16px !important;
   flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
 }

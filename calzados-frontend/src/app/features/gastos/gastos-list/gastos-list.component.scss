@@ -1,5 +1,6 @@
 :host {
   display: block;
+  color: #2d1e16;
 }
 
 .spinner-center {
@@ -20,6 +21,13 @@
   align-items: center;
   flex-wrap: wrap;
   padding: 16px !important;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+
+    mat-form-field { width: 100%; min-width: unset; }
+  }
 }
 
 .filtros-content mat-form-field {
@@ -44,15 +52,15 @@
 
   .value {
     font-size: 28px;
-    font-weight: 800;
+    font-weight: 700;
     letter-spacing: -0.03em;
   }
 }
 
-.resumen.ventas .value { color: #0f766e; }
-.resumen.gastos .value { color: #d97706; }
-.resumen.saldo.ok .value { color: #059669; }
-.resumen.saldo.warn .value { color: #dc2626; }
+.resumen.ventas .value { color: #4a7c59; }
+.resumen.gastos .value { color: #b8860b; }
+.resumen.saldo.ok .value { color: #4a7c59; }
+.resumen.saldo.warn .value { color: #a84040; }
 
 .concepto { font-weight: 600; }
 .monto { font-weight: 700; }

@@ -1,4 +1,3 @@
-// src/app/features/layout/shell/shell.component.ts
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
@@ -6,6 +5,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { AuthUser } from '../../../core/models/auth.model';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { DatePeruService } from '../../../core/services/date-peru.service';
 
 interface NavItem {
   label: string;
@@ -24,22 +24,12 @@ export class ShellComponent implements OnInit {
 
   isMobile = false;
   currentUser: AuthUser | null = null;
+  today = new Date();
 
   navItems: NavItem[] = [
     { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
     { label: 'Nueva Venta', icon: 'point_of_sale', route: '/ventas/nueva' },
-    {
-      label: 'Mis Ventas',
-      icon: 'receipt_long',
-      route: '/ventas',
-      roles: ['CAJERO'],
-    },
-    {
-      label: 'Ventas',
-      icon: 'receipt_long',
-      route: '/ventas',
-      roles: ['ADMIN'],
-    },    
+    { label: 'Ventas', icon: 'receipt_long', route: '/ventas' },
     { label: 'Productos', icon: 'inventory_2', route: '/productos' },
     { label: 'Marcas', icon: 'label', route: '/marcas', roles: ['ADMIN'] },
     { label: 'Comprobantes', icon: 'receipt', route: '/comprobantes' },
@@ -47,23 +37,28 @@ export class ShellComponent implements OnInit {
     { label: 'Proveedores', icon: 'local_shipping', route: '/proveedores', roles: ['ADMIN'] },
     { label: 'Gastos', icon: 'request_quote', route: '/gastos', roles: ['ADMIN'] },
     { label: 'Cajas', icon: 'local_atm', route: '/cajas' },
-    {
-      label: 'Reportes',
-      icon: 'bar_chart',
-      route: '/reportes',
-      roles: ['ADMIN'],
-    },
+    { label: 'Reportes', icon: 'bar_chart', route: '/reportes', roles: ['ADMIN'] },
     { label: 'Usuarios', icon: 'people', route: '/usuarios', roles: ['ADMIN'] },
+  ];
+
+  mobileNavItems: NavItem[] = [
+    { label: 'Inicio', icon: 'dashboard', route: '/dashboard' },
+    { label: 'Vender', icon: 'point_of_sale', route: '/ventas/nueva' },
+    { label: 'Ventas', icon: 'receipt_long', route: '/ventas' },
+    { label: 'Productos', icon: 'inventory_2', route: '/productos' },
+    { label: 'Más', icon: 'more_horiz', route: '/cajas' },
   ];
 
   constructor(
     private authService: AuthService,
     private breakpointObserver: BreakpointObserver,
     private router: Router,
+    private datePeruService: DatePeruService,
   ) {}
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
+    this.today = new Date();
 
     this.breakpointObserver
       .observe([Breakpoints.Handset])
@@ -71,7 +66,6 @@ export class ShellComponent implements OnInit {
         this.isMobile = result.matches;
       });
 
-    // Cerrar sidenav en mobile al navegar
     this.router.events
       .pipe(filter((e) => e instanceof NavigationEnd))
       .subscribe(() => {

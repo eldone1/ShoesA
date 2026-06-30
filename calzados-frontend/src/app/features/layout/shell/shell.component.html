@@ -1,34 +1,26 @@
-<!-- src/app/features/layout/shell/shell.component.html -->
 <mat-sidenav-container class="shell-container">
 
-  <!-- ── Sidenav ─────────────────────────────────────────────────────────── -->
   <mat-sidenav #sidenav
     [mode]="isMobile ? 'over' : 'side'"
     [opened]="!isMobile"
     class="sidenav">
 
     <div class="sidenav-header">
-      <div class="app-logo"></div>
-      <div>
-        <span class="brand-name">Aldama Store</span>
-        <span class="brand-role">{{ currentUser?.rol }}</span>
+      <div class="sidenav-brand">
+        <div class="brand-logo"></div>
       </div>
     </div>
 
-    <mat-divider></mat-divider>
-
-    <!-- Usuario -->
-    <div class="user-info">
-      <div class="avatar">{{ userInitials }}</div>
+    <div class="sidenav-user">
+      <div class="user-avatar">{{ userInitials }}</div>
       <div class="user-details">
         <span class="user-name">{{ currentUser?.nombre }}</span>
-        <span class="user-email">{{ currentUser?.email }}</span>
+        <span class="user-role">{{ currentUser?.rol === 'ADMIN' ? 'Administrador' : 'Cajero' }}</span>
       </div>
     </div>
 
-    <mat-divider></mat-divider>
+    <div class="sidenav-divider"></div>
 
-    <!-- Navegación -->
     <mat-nav-list class="nav-list">
       <a mat-list-item
          *ngFor="let item of visibleNavItems"
@@ -40,9 +32,6 @@
       </a>
     </mat-nav-list>
 
-    <mat-divider></mat-divider>
-
-    <!-- Logout -->
     <div class="sidenav-footer">
       <button mat-list-item class="logout-btn" (click)="logout()">
         <mat-icon>logout</mat-icon>
@@ -52,27 +41,26 @@
 
   </mat-sidenav>
 
-  <!-- ── Contenido principal ──────────────────────────────────────────────── -->
   <mat-sidenav-content class="main-content">
 
-    <!-- Toolbar -->
-    <mat-toolbar color="primary" class="toolbar">
-      <button mat-icon-button (click)="sidenav.toggle()" *ngIf="isMobile">
+    <mat-toolbar class="toolbar">
+      <button mat-icon-button (click)="sidenav.toggle()" *ngIf="isMobile" class="mobile-menu-btn">
         <mat-icon>menu</mat-icon>
       </button>
-      <span class="toolbar-logo"></span>
+      <div class="toolbar-logo"></div>
       <span class="toolbar-title">Aldama Store</span>
       <span class="spacer"></span>
 
-      <!-- Menú de usuario -->
-      <button mat-icon-button [matMenuTriggerFor]="userMenu" matTooltip="{{ currentUser?.nombre }}">
+      <span class="toolbar-date">{{ today | date:'EEE dd MMM · HH:mm' }}</span>
+
+      <button mat-icon-button [matMenuTriggerFor]="userMenu" class="toolbar-user-btn">
         <div class="toolbar-avatar">{{ userInitials }}</div>
       </button>
-      <mat-menu #userMenu="matMenu" xPosition="before">
+      <mat-menu #userMenu="matMenu" xPosition="before" class="user-menu">
         <div class="menu-user-info">
           <strong>{{ currentUser?.nombre }}</strong>
           <small>{{ currentUser?.email }}</small>
-          <small class="role-tag">{{ currentUser?.rol }}</small>
+          <span class="menu-role-tag">{{ currentUser?.rol === 'ADMIN' ? 'Administrador' : 'Cajero' }}</span>
         </div>
         <mat-divider></mat-divider>
         <button mat-menu-item (click)="logout()">
@@ -82,10 +70,20 @@
       </mat-menu>
     </mat-toolbar>
 
-    <!-- Router outlet -->
     <div class="content-area">
       <router-outlet></router-outlet>
     </div>
+
+    <nav class="bottom-nav" *ngIf="isMobile">
+      <a class="bottom-nav-item"
+         *ngFor="let item of mobileNavItems"
+         [routerLink]="item.route"
+         routerLinkActive="bottom-nav-active"
+         [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }">
+        <mat-icon>{{ item.icon }}</mat-icon>
+        <span>{{ item.label }}</span>
+      </a>
+    </nav>
 
   </mat-sidenav-content>
 
