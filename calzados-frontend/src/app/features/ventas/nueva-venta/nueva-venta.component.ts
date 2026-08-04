@@ -25,7 +25,7 @@ interface ItemCarrito {
 export class NuevaVentaComponent implements OnInit, OnDestroy {
   @ViewChild('scanInput') scanInput!: ElementRef;
 
-  private readonly REDONDEO_EFECTIVO_STEP = 0.05;
+  private readonly REDONDEO_EFECTIVO_STEP = 0.10;
   private readonly SCAN_MAX_GAP_MS = 60;
   private readonly SCAN_MIN_LENGTH = 5;
 
@@ -163,6 +163,12 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
     this.scanOriginValue = '';
   }
 
+  onManualSearch(): void {
+    const codigo = this.codigoBarras?.trim();
+    if (!codigo || this.buscando) return;
+    this.buscarProducto(codigo);
+  }
+
   buscarProducto(codigo: string): void {
     this.buscando = true;
     this.productoService.scanearCodigoBarras(codigo).subscribe({
@@ -249,16 +255,16 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
 
   // En efectivo se redondea al sol más cercano para facilitar vuelto.
   get totalCobrar(): number {
-    if (!this.esEfectivo) return this.totalExacto;
+    if (!this.esEfectivo) return this.redondearDinero(this.totalExacto);
 
     // Redondeo a favor del cliente: siempre hacia abajo al multiplo configurado.
     const factor = 1 / this.REDONDEO_EFECTIVO_STEP;
-    return Math.floor(this.totalExacto * factor) / factor;
+    return this.redondearDinero(Math.floor(this.totalExacto * factor) / factor);
   }
 
   get vuelto(): number {
     const recibido = this.pagoForm.get('montoRecibido')?.value ?? 0;
-    return Math.max(0, recibido - this.totalCobrar);
+    return Math.max(0, this.redondearDinero(recibido - this.totalCobrar));
   }
 
   get esEfectivo(): boolean { return this.pagoForm.get('metodoPago')?.value === 'EFECTIVO'; }
@@ -269,6 +275,10 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
 
   getMontoDescuentoItem(item: ItemCarrito): number {
     return this.getSubtotalBrutoItem(item) * (item.descuentoItem / 100);
+  }
+
+  private redondearDinero(valor: number): number {
+    return Math.round((valor + Number.EPSILON) * 100) / 100;
   }
 
   // ── Procesar venta ────────────────────────────────────────────────────────
@@ -293,7 +303,8 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
     }
 
     if (this.pagoForm.invalid) { this.pagoForm.markAllAsTouched(); return; }
-    if (this.esEfectivo && (this.pagoForm.get('montoRecibido')?.value ?? 0) < this.totalCobrar) {
+    const montoRecibido = this.pagoForm.get('montoRecibido')?.value ?? 0;
+    if (this.esEfectivo && this.redondearDinero(montoRecibido) < this.totalCobrar) {
       this.snack.open('El monto recibido es menor al total', 'OK', { duration: 3000, panelClass: 'snack-error' }); return;
     }
 
@@ -303,12 +314,12 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
     const detalles: DetalleVentaRequest[] = this.carrito.map(i => ({
       varianteId:    i.variante.id,
       cantidad:      i.cantidad,
-      descuentoItem: i.variante.precioVenta * i.cantidad * (i.descuentoItem / 100),
+      descuentoItem: this.redondearDinero(i.variante.precioVenta * i.cantidad * (i.descuentoItem / 100)),
     }));
 
     const descuentoGlobalBase = this.subtotal * (this.descuentoGlobal / 100);
     const ajusteRedondeo = this.totalExacto - this.totalCobrar;
-    const descuentoAEnviar = Math.max(0, descuentoGlobalBase + ajusteRedondeo);
+    const descuentoAEnviar = Math.max(0, this.redondearDinero(descuentoGlobalBase + ajusteRedondeo));
 
     const body = {
       metodoPago:    this.pagoForm.get('metodoPago')!.value,

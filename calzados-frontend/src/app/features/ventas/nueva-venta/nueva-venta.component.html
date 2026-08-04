@@ -13,7 +13,8 @@
           <input matInput #scanInput
                  [(ngModel)]="codigoBarras"
                  placeholder="Apunta el lector o escribe el código..."
-                 autocomplete="off">
+                 autocomplete="off"
+                 (keyup.enter)="onManualSearch()">
           <mat-spinner matSuffix *ngIf="buscando" diameter="20"></mat-spinner>
           <mat-hint>Escaneo automático activo. No necesita foco.</mat-hint>
         </mat-form-field>
